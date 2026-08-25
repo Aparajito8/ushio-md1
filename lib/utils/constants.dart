@@ -122,84 +122,91 @@ class AppConstants {
   // ==================== 浅色主题色 ====================
 
   /// 浅色背景
-  static const Color lightBackground = Color(0xFFF8FAFC);
+  static const Color lightBackground = Color(0xFFEFF1F5);
 
   /// 浅色表面
-  static const Color lightSurface = Color(0xFFFFFFFF);
+  static const Color lightSurface = Color(0xFFE6E9EF);
 
   /// 浅色主文字
-  static const Color lightText = Color(0xFF1E293B);
+  static const Color lightText = Color(0xFF4C4F69);
 
   /// 浅色次要文字
-  static const Color lightTextSecondary = Color(0xFF64748B);
+  static const Color lightTextSecondary = Color(0xFF6C6F85);
 
   // ==================== 深色主题色 ====================
 
   /// 深色背景
-  static const Color darkBackground = Color(0xFF0F172A);
+  static const Color darkBackground = Color(0xFF1E1E2E);
 
   /// 深色表面
-  static const Color darkSurface = Color(0xFF1E293B);
+  static const Color darkSurface = Color(0xFF313244);
 
   /// 深色主文字
-  static const Color darkText = Color(0xFFF1F5F9);
+  static const Color darkText = Color(0xFFCDD6F4);
 
   /// 深色次要文字
-  static const Color darkTextSecondary = Color(0xFF94A3B8);
+  static const Color darkTextSecondary = Color(0xFFA6ADC8);
 
   // ==================== 夜间主题方案 ====================
 
   /// 夜间主题配色方案定义
   ///
-  /// 包含 4 种精心设计的夜间主题
+  /// 配色取自 Catppuccin、Rosé Pine、Nord、Tokyo Night、
+  /// Dracula、Gruvbox 等开源配色方案。
   static const List<DarkThemeScheme> darkThemeSchemes = [
-    // 1. 柔和暗灰 (Lightest) - GitHub Dimmed 风格
+    // 1. Catppuccin Mocha
+    // https://github.com/catppuccin/palette
     DarkThemeScheme(
-      name: '柔和暗灰',
-      background: Color(0xFF22272E),
-      surface: Color(0xFF2D333B),
-      text: Color(0xFFADBAC7),
-      textSecondary: Color(0xFF768390),
+      name: '摩卡夜色',
+      background: Color(0xFF1E1E2E),
+      surface: Color(0xFF313244),
+      text: Color(0xFFCDD6F4),
+      textSecondary: Color(0xFFA6ADC8),
     ),
-    // 2. 舒适暖灰 - 温和护眼
+    // 2. Rosé Pine
+    // https://github.com/rose-pine/palette
     DarkThemeScheme(
-      name: '舒适暖灰',
-      background: Color(0xFF1A1A1A),
-      surface: Color(0xFF2D2D2D),
-      text: Color(0xFFE8E6E3),
-      textSecondary: Color(0xFFA8A8A8),
+      name: '松林暮色',
+      background: Color(0xFF191724),
+      surface: Color(0xFF26233A),
+      text: Color(0xFFE0DEF4),
+      textSecondary: Color(0xFF908CAA),
     ),
-    // 3. 午夜深蓝 - Slate 风格 (原默认)
+    // 3. Nord
+    // https://github.com/nordtheme/nord
     DarkThemeScheme(
-      name: '午夜深蓝',
-      background: Color(0xFF0F172A),
-      surface: Color(0xFF1E293B),
-      text: Color(0xFFF1F5F9),
-      textSecondary: Color(0xFF94A3B8),
+      name: '极地冰蓝',
+      background: Color(0xFF2E3440),
+      surface: Color(0xFF3B4252),
+      text: Color(0xFFE5E9F0),
+      textSecondary: Color(0xFF81A1C1),
     ),
-    // 4. 深邃极夜 - GitHub Dark 风格
+    // 4. Tokyo Night
+    // https://github.com/folke/tokyonight.nvim
     DarkThemeScheme(
-      name: '深邃极夜',
-      background: Color(0xFF0D1117),
-      surface: Color(0xFF161B22),
-      text: Color(0xFFC9D1D9),
-      textSecondary: Color(0xFF8B949E),
+      name: '东京夜蓝',
+      background: Color(0xFF1A1B26),
+      surface: Color(0xFF292E42),
+      text: Color(0xFFC0CAF5),
+      textSecondary: Color(0xFFA9B1D6),
     ),
-    // 5. 经典黑 - AMOLED 省电
+    // 5. Dracula
+    // https://github.com/dracula/dracula-theme
     DarkThemeScheme(
-      name: '经典黑',
-      background: Color(0xFF000000),
-      surface: Color(0xFF121212),
-      text: Color(0xFFFFFFFF),
-      textSecondary: Color(0xFFB3B3B3),
+      name: '德古拉之夜',
+      background: Color(0xFF282A36),
+      surface: Color(0xFF44475A),
+      text: Color(0xFFF8F8F2),
+      textSecondary: Color(0xFFBD93F9),
     ),
-    // 6. 极致纯黑 - 全黑模式
+    // 6. Gruvbox Dark
+    // https://github.com/morhetz/gruvbox
     DarkThemeScheme(
-      name: '极致纯黑',
-      background: Color(0xFF000000),
-      surface: Color(0xFF000000),
-      text: Color(0xFFFFFFFF),
-      textSecondary: Color(0xFF888888),
+      name: '复古炭灰',
+      background: Color(0xFF282828),
+      surface: Color(0xFF3C3836),
+      text: Color(0xFFEBDBB2),
+      textSecondary: Color(0xFFA89984),
     ),
   ];
 
@@ -207,47 +214,53 @@ class AppConstants {
 
   /// 浅色主题配色方案定义
   ///
-  /// 包含 5 种精心设计的浅色主题
+  /// 配色取自 Catppuccin、Rosé Pine、Tokyo Night、
+  /// Gruvbox、Solarized 等开源配色方案。
   static const List<LightThemeScheme> lightThemeSchemes = [
-    // 1. 经典白 - 默认浅色
+    // 1. Catppuccin Latte
+    // https://github.com/catppuccin/palette
     LightThemeScheme(
-      name: '经典白',
-      background: Color(0xFFF8FAFC),
-      surface: Color(0xFFFFFFFF),
-      text: Color(0xFF1E293B),
-      textSecondary: Color(0xFF64748B),
+      name: '拿铁奶油',
+      background: Color(0xFFEFF1F5),
+      surface: Color(0xFFE6E9EF),
+      text: Color(0xFF4C4F69),
+      textSecondary: Color(0xFF6C6F85),
     ),
-    // 2. 暖纸色 - 护眼米白
+    // 2. Rosé Pine Dawn
+    // https://github.com/rose-pine/palette
     LightThemeScheme(
-      name: '暖纸色',
-      background: Color(0xFFFAF8F5),
-      surface: Color(0xFFFFFDF9),
-      text: Color(0xFF3D3929),
-      textSecondary: Color(0xFF7A7567),
+      name: '松林晨光',
+      background: Color(0xFFFAF4ED),
+      surface: Color(0xFFFFFAF3),
+      text: Color(0xFF464261),
+      textSecondary: Color(0xFF797593),
     ),
-    // 3. 冷灰色 - 专业简洁
+    // 3. Tokyo Night Day
+    // https://github.com/folke/tokyonight.nvim
     LightThemeScheme(
-      name: '冷灰色',
-      background: Color(0xFFF1F3F5),
+      name: '东京晨蓝',
+      background: Color(0xFFE1E2E7),
       surface: Color(0xFFFFFFFF),
-      text: Color(0xFF212529),
-      textSecondary: Color(0xFF6C757D),
+      text: Color(0xFF3760BF),
+      textSecondary: Color(0xFF68709A),
     ),
-    // 4. 天空蓝 - 清新明亮
+    // 4. Gruvbox Light
+    // https://github.com/morhetz/gruvbox
     LightThemeScheme(
-      name: '天空蓝',
-      background: Color(0xFFF0F9FF),
-      surface: Color(0xFFFFFFFF),
-      text: Color(0xFF0C4A6E),
-      textSecondary: Color(0xFF0369A1),
+      name: '复古暖纸',
+      background: Color(0xFFFBF1C7),
+      surface: Color(0xFFF2E5BC),
+      text: Color(0xFF3C3836),
+      textSecondary: Color(0xFF7C6F64),
     ),
-    // 5. 薄荷绿 - 自然清新
+    // 5. Solarized Light
+    // https://github.com/altercation/solarized
     LightThemeScheme(
-      name: '薄荷绿',
-      background: Color(0xFFF0FDF4),
-      surface: Color(0xFFFFFFFF),
-      text: Color(0xFF14532D),
-      textSecondary: Color(0xFF166534),
+      name: '日光暖黄',
+      background: Color(0xFFFDF6E3),
+      surface: Color(0xFFEEE8D5),
+      text: Color(0xFF073642),
+      textSecondary: Color(0xFF586E75),
     ),
   ];
 

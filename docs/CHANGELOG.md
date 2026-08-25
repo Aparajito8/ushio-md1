@@ -7,6 +7,18 @@
 
 ---
 
+## [Unreleased]
+
+### 优化
+
+- 重新设计预设主题配色，深浅色方案分别替换为 Catppuccin、Rosé Pine、
+  Nord、Tokyo Night、Dracula、Gruvbox、Solarized 等开源配色：
+  - 深色主题：摩卡夜色、松林暮色、极地冰蓝、东京夜蓝、德古拉之夜、复古炭灰。
+  - 浅色主题：拿铁奶油、松林晨光、东京晨蓝、复古暖纸、日光暖黄。
+  - 新增 WCAG AA 文字对比度测试，见 `test/utils/theme_scheme_test.dart`。
+
+---
+
 ## [1.6.0] - 2026-08-26
 
 ### 新增
