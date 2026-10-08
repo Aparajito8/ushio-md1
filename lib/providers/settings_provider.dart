@@ -124,7 +124,7 @@ class SettingsProvider extends ChangeNotifier {
   String _uiFontFamily = 'System';
 
   /// 按钮风格（经典描边 / 简洁立体）
-  AppButtonStyleMode _buttonStyleMode = AppButtonStyleMode.softShadow;
+  AppButtonStyleMode _buttonStyleMode = AppButtonStyleMode.liquidGlass;
 
   /// 编辑器字体族
   String _editorFontFamily = 'System';
@@ -744,7 +744,7 @@ class SettingsProvider extends ChangeNotifier {
     final buttonStyleName = prefs.getString('button_style_mode');
     _buttonStyleMode = AppButtonStyleMode.values.firstWhere(
       (mode) => mode.name == buttonStyleName,
-      orElse: () => AppButtonStyleMode.softShadow,
+      orElse: () => AppButtonStyleMode.liquidGlass,
     );
 
     // 字体设置迁移逻辑

@@ -49,7 +49,7 @@ void main() {
       expect(provider.autoSaveInterval, 30);
       expect(provider.webdavUrl, isEmpty);
       expect(provider.syncFolderName, 'Ushio-MD');
-      expect(provider.buttonStyleMode, AppButtonStyleMode.softShadow);
+      expect(provider.buttonStyleMode, AppButtonStyleMode.liquidGlass);
       expect(provider.useCustomIconColor, isFalse);
       expect(provider.customIconColor, isNull);
     });

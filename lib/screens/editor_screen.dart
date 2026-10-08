@@ -2369,37 +2369,6 @@ class _EditorScreenState extends State<EditorScreen>
             bottom: false,
             child: Stack(
               children: [
-                if (!isFocusMode && !_showSearchBar)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: EditorHeader(
-                    fileName: fileName,
-                    fullFilePath: widget.filePath,
-                    wordCount: _getWordCount(),
-                    isModified: _isModified,
-                    isSaving: _isSaving,
-                    isAutoSaving: _isAutoSaving,
-                    lastSaveTime: _lastSaveTime,
-                    canUndo: _historyIndex > 0,
-                    canRedo:
-                        _historyIndex >= 0 &&
-                        _historyIndex < _editHistory.length - 1,
-                    onBack: () async {
-                      if (_isModified) {
-                        final shouldPop = await _onWillPop();
-                        if (shouldPop && mounted) {
-                          Navigator.of(context).pop();
-                        }
-                      } else {
-                        Navigator.of(context).pop();
-                      }
-                    },
-                    onSave: _saveFile,
-                    onMore: _showMoreMenu,
-                  ),
-                  ),
                 Positioned.fill(
                   child: Stack(
                     children: [
@@ -2547,6 +2516,37 @@ class _EditorScreenState extends State<EditorScreen>
                     ],
                   ),
                 ),
+                if (!isFocusMode && !_showSearchBar)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: EditorHeader(
+                      fileName: fileName,
+                      fullFilePath: widget.filePath,
+                      wordCount: _getWordCount(),
+                      isModified: _isModified,
+                      isSaving: _isSaving,
+                      isAutoSaving: _isAutoSaving,
+                      lastSaveTime: _lastSaveTime,
+                      canUndo: _historyIndex > 0,
+                      canRedo:
+                          _historyIndex >= 0 &&
+                          _historyIndex < _editHistory.length - 1,
+                      onBack: () async {
+                        if (_isModified) {
+                          final shouldPop = await _onWillPop();
+                          if (shouldPop && mounted) {
+                            Navigator.of(context).pop();
+                          }
+                        } else {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      onSave: _saveFile,
+                      onMore: _showMoreMenu,
+                    ),
+                  ),
               ],
             ),
           ),

@@ -49,7 +49,6 @@ class EditorHeader extends StatelessWidget {
           GlassHeaderButton(
             icon: Icons.arrow_back,
             onPressed: onBack,
-            iconColor: Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(width: 6),
           Expanded(
@@ -58,7 +57,6 @@ class EditorHeader extends StatelessWidget {
               child: appStyle.useLiquidGlass
                   ? LiquidGlassCard(
                       borderRadius: BorderRadius.circular(20),
-                      prominent: true,
                       child: _buildInfoContent(context),
                     )
                   : Container(

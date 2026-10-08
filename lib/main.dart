@@ -379,10 +379,14 @@ class MyApp extends StatelessWidget {
       filledButtonTheme: FilledButtonThemeData(
         style:
             FilledButton.styleFrom(
-              foregroundColor: buttonForeground,
+              foregroundColor: isGlass ? textColor : buttonForeground,
               backgroundColor: isGlass ? Colors.transparent : buttonBackground,
-              disabledBackgroundColor: buttonBackground.withValues(alpha: 0.45),
-              disabledForegroundColor: buttonForeground.withValues(alpha: 0.55),
+              disabledBackgroundColor: isGlass
+                  ? Colors.transparent
+                  : buttonBackground.withValues(alpha: 0.45),
+              disabledForegroundColor: isGlass
+                  ? textColor.withValues(alpha: 0.45)
+                  : buttonForeground.withValues(alpha: 0.55),
               elevation: appStyle.useBorderlessButtons ? 4 : 0,
               shadowColor: Colors.black.withValues(alpha: 0.18),
               shape: RoundedRectangleBorder(
@@ -410,12 +414,16 @@ class MyApp extends StatelessWidget {
         style: OutlinedButton.styleFrom(
           foregroundColor: appStyle.useBorderlessButtons
               ? textColor
+              : isGlass
+              ? textColor
               : colorScheme.primary,
-          backgroundColor: isGlass || appStyle.useBorderlessButtons
+          backgroundColor: isGlass
+              ? Colors.transparent
+              : appStyle.useBorderlessButtons
               ? appStyle.strongSurface
               : Colors.transparent,
           side: BorderSide(
-            color: appStyle.useBorderlessButtons
+            color: appStyle.useBorderlessButtons && !isGlass
                 ? Colors.transparent
                 : appStyle.outlineColor,
           ),
@@ -437,7 +445,7 @@ class MyApp extends StatelessWidget {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          foregroundColor: buttonForeground,
+          foregroundColor: isGlass ? textColor : buttonForeground,
           backgroundColor: isGlass ? Colors.transparent : buttonBackground,
           elevation: appStyle.useBorderlessButtons ? 4 : 0,
           shadowColor: Colors.black.withValues(alpha: 0.18),
@@ -466,9 +474,11 @@ class MyApp extends StatelessWidget {
         style: TextButton.styleFrom(
           foregroundColor: appStyle.useBorderlessButtons
               ? textColor
+              : isGlass
+              ? textColor
               : colorScheme.primary,
           backgroundColor:
-              isGlass || appStyle.useBorderlessButtons
+              appStyle.useBorderlessButtons
               ? appStyle.strongSurface
               : null,
           shape: RoundedRectangleBorder(
@@ -491,7 +501,7 @@ class MyApp extends StatelessWidget {
         style: IconButton.styleFrom(
           foregroundColor: textColor,
           backgroundColor:
-              isGlass || appStyle.useBorderlessButtons
+              appStyle.useBorderlessButtons
               ? appStyle.strongSurface
               : null,
           shape: RoundedRectangleBorder(
@@ -510,14 +520,18 @@ class MyApp extends StatelessWidget {
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: appStyle.useBorderlessButtons
+        backgroundColor: isGlass
+            ? Colors.transparent
+            : appStyle.useBorderlessButtons
             ? appStyle.strongSurface
             : buttonBackground,
-        foregroundColor: buttonForeground,
+        foregroundColor: isGlass ? textColor : buttonForeground,
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: appStyle.useBorderlessButtons
+        fillColor: isGlass
+            ? Colors.transparent
+            : appStyle.useBorderlessButtons
             ? appStyle.mutedSurface
             : backgroundColor,
         contentPadding: const EdgeInsets.symmetric(
