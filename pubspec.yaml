@@ -90,7 +90,8 @@ dependencies:
   window_manager: ^0.4.3
   
   # Monet color extraction (Material You dynamic color)
-  material_color_utilities: ^0.11.1
+  material_color_utilities: ^0.13.0
+  liquid_glass_widgets: ^1.11.0
 
 dev_dependencies:
   flutter_test:

@@ -11,6 +11,12 @@
 
 ### 优化
 
+- 液态玻璃风格整体迁移到 `liquid_glass_widgets` 包，替换原来手写的
+  `BackdropFilter` 模糊实现，获得真实折射、色散与高光效果：
+  - 液态玻璃卡片与底部导航胶囊改用包提供的 `GlassContainer` / `GlassTabBar`。
+  - 应用启动时预加载 shader，全局按主题亮度联动玻璃明暗。
+  - 胶囊底栏保持仅图标显示，设置页导航样式预览同步切换为真实玻璃渲染。
+  - 移除未接入的遗留 shader 文件与已废弃的液态玻璃效果开关设置项。
 - 重新设计预设主题配色，深浅色方案分别替换为 Catppuccin、Rosé Pine、
   Nord、Tokyo Night、Dracula、Gruvbox、Solarized 等开源配色：
   - 深色主题：摩卡夜色、松林暮色、极地冰蓝、东京夜蓝、德古拉之夜、复古炭灰。

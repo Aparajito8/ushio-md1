@@ -9,6 +9,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../utils/app_style.dart';
 import '../../../utils/constants.dart';
@@ -3328,8 +3329,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     AppTabBarStyleMode mode,
     Color previewPrimary,
   ) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-
     if (mode == AppTabBarStyleMode.classic) {
       return Container(
         height: 44,
@@ -3366,63 +3365,27 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
       );
     }
 
-    return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 7),
-      child: Container(
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.white.withValues(alpha: 0.10)
-              : Colors.white.withValues(alpha: 0.24),
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: Colors.white.withValues(
-              alpha: isDark ? 0.16 : 0.32,
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.12),
-              blurRadius: 8,
-              offset: const Offset(0, 3),
-            ),
-          ],
+    return GlassTabBar.inline(
+      tabs: [
+        GlassTab(
+          icon: Icon(Icons.home_rounded),
+          semanticLabel: 'Home',
         ),
-        padding: const EdgeInsets.symmetric(horizontal: 4),
-        child: Row(
-          children: [
-            Expanded(
-              child: _buildNavPreviewIcon(
-                Icons.home_rounded,
-                selected: true,
-                primary: previewPrimary,
-                capsule: true,
-              ),
-            ),
-            Expanded(
-              child: _buildNavPreviewIcon(
-                Icons.folder_special_rounded,
-                primary: previewPrimary,
-                capsule: true,
-              ),
-            ),
-            Expanded(
-              child: _buildNavPreviewIcon(
-                Icons.history_rounded,
-                primary: previewPrimary,
-                capsule: true,
-              ),
-            ),
-            Expanded(
-              child: _buildNavPreviewIcon(
-                Icons.settings_rounded,
-                primary: previewPrimary,
-                capsule: true,
-              ),
-            ),
-          ],
+        GlassTab(
+          icon: Icon(Icons.folder_special_rounded),
+          semanticLabel: 'My Files',
         ),
-      ),
+        GlassTab(
+          icon: Icon(Icons.history_rounded),
+          semanticLabel: 'History',
+        ),
+        GlassTab(
+          icon: Icon(Icons.settings_rounded),
+          semanticLabel: 'Settings',
+        ),
+      ],
+      selectedIndex: 0,
+      onTabSelected: (_) {},
     );
   }
 

@@ -43,19 +43,6 @@ class SettingsProvider extends ChangeNotifier {
     return _prefsCache ??= await SharedPreferences.getInstance();
   }
 
-  /// 立即持久化单个键值
-  Future<void> _persist(String key, dynamic value) async {
-    final prefs = await _getPrefs();
-    if (value is double)
-      await prefs.setDouble(key, value);
-    else if (value is int)
-      await prefs.setInt(key, value);
-    else if (value is bool)
-      await prefs.setBool(key, value);
-    else if (value is String)
-      await prefs.setString(key, value);
-  }
-
   /// 防抖持久化：500ms 内多次调用只执行一次写入
   void _schedulePersist(String key, dynamic value) {
     _pendingPersist[key] = value;
@@ -252,9 +239,6 @@ class SettingsProvider extends ChangeNotifier {
 
   /// 风向（-1.0 到 1.0，负数向左，正数向右）
   double _particleWind = 0.0;
-
-  /// 液态玻璃效果开关（旧设置，已由 UI 风格接管）
-  bool _liquidGlassEnabled = false;
 
   // ==================== 更新设置 ====================
 
@@ -475,9 +459,6 @@ class SettingsProvider extends ChangeNotifier {
   double get particleSize => _particleSize;
   double get particleOpacity => _particleOpacity;
   double get particleWind => _particleWind;
-
-  // 液态玻璃效果 Getter
-  bool get liquidGlassEnabled => _liquidGlassEnabled;
 
   Locale get locale => _locale;
   int get darkThemeIndex => _darkThemeIndex;
@@ -715,9 +696,6 @@ class SettingsProvider extends ChangeNotifier {
     _particleSize = prefs.getDouble('particle_size') ?? 1.0;
     _particleOpacity = prefs.getDouble('particle_opacity') ?? 1.0;
     _particleWind = prefs.getDouble('particle_wind') ?? 0.0;
-
-    // 液态玻璃效果设置
-    _liquidGlassEnabled = prefs.getBool('liquid_glass_enabled') ?? false;
 
     // 语言设置
     // 如果用户没有设置过语言，则使用系统语言
@@ -1196,12 +1174,6 @@ class SettingsProvider extends ChangeNotifier {
     _schedulePersist('particle_enabled', enabled);
   }
 
-  /// 设置液态玻璃效果开关
-  Future<void> setLiquidGlassEnabled(bool enabled) async {
-    _liquidGlassEnabled = enabled;
-    notifyListeners();
-    _schedulePersist('liquid_glass_enabled', enabled);
-  }
 
   /// 设置粒子效果类型
   Future<void> setParticleType(String type) async {
