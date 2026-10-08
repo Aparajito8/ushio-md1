@@ -274,6 +274,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
           wrapWithSafeArea: false,
           child: Scaffold(
             backgroundColor: Colors.transparent,
+            resizeToAvoidBottomInset: false,
             body: CapsuleTabBarScope(
               inset: _capsuleTabBarInset,
               child: pageBody,
