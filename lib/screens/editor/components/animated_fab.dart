@@ -45,7 +45,7 @@ class _AnimatedFabState extends State<AnimatedFab> {
         ? GlassContainer(
             padding: const EdgeInsets.all(14),
             shape: const LiquidRoundedSuperellipse(borderRadius: 16),
-            child: Icon(widget.icon, color: widget.color, size: 24),
+            child: Icon(widget.icon, color: context.appIconColor, size: 24),
           )
         : AnimatedContainer(
             duration: const Duration(milliseconds: 150),
