@@ -239,7 +239,7 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
         final settings = context.watch<SettingsProvider>();
         final capsuleFloating =
             !isDesktopLayout &&
-            settings.tabBarStyle == AppTabBarStyleMode.liquidGlassCapsule;
+            settings.buttonStyleMode == AppButtonStyleMode.liquidGlass;
 
         final pageBody = Stack(
           children: [

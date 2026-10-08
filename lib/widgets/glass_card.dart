@@ -72,16 +72,20 @@ class GlassCard extends StatelessWidget {
       ),
     );
 
-    final decorated = Container(
-      margin: const EdgeInsets.only(bottom: 8),
-      decoration: appStyle.surfaceDecoration(borderRadius: borderRadius),
-      child: content,
-    );
-
     if (!isLiquidGlass) {
-      return decorated;
+      return Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: appStyle.surfaceDecoration(borderRadius: borderRadius),
+        child: content,
+      );
     }
 
-    return LiquidGlassCard(borderRadius: borderRadius, child: decorated);
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: LiquidGlassCard(
+        borderRadius: borderRadius,
+        child: Padding(padding: const EdgeInsets.all(16), child: content),
+      ),
+    );
   }
 }

@@ -334,6 +334,16 @@ class MyApp extends StatelessWidget {
     final buttonBackground = appStyle.useBorderlessButtons
         ? appStyle.strongSurface
         : effectiveColorScheme.primary.withValues(alpha: appStyle.cardOpacity);
+    final isGlass = appStyle.useLiquidGlass;
+    Widget glassButtonBackground({
+      required BorderRadius borderRadius,
+      required Widget? child,
+    }) {
+      return GlassContainer(
+        shape: LiquidRoundedSuperellipse(borderRadius: borderRadius.topLeft.x),
+        child: child,
+      );
+    }
 
     ThemeData theme = ThemeData(
       useMaterial3: true,
@@ -370,7 +380,7 @@ class MyApp extends StatelessWidget {
         style:
             FilledButton.styleFrom(
               foregroundColor: buttonForeground,
-              backgroundColor: buttonBackground,
+              backgroundColor: isGlass ? Colors.transparent : buttonBackground,
               disabledBackgroundColor: buttonBackground.withValues(alpha: 0.45),
               disabledForegroundColor: buttonForeground.withValues(alpha: 0.55),
               elevation: appStyle.useBorderlessButtons ? 4 : 0,
@@ -385,10 +395,15 @@ class MyApp extends StatelessWidget {
               ),
               padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             ).copyWith(
-              overlayColor:
-                  WidgetStatePropertyAll(
-                    colorScheme.primary.withValues(alpha: 0.08),
-                  ),
+              overlayColor: WidgetStatePropertyAll(
+                colorScheme.primary.withValues(alpha: 0.08),
+              ),
+              backgroundBuilder: isGlass
+                  ? (context, states, child) => glassButtonBackground(
+                      borderRadius: BorderRadius.circular(16),
+                      child: child,
+                    )
+                  : null,
             ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
@@ -396,7 +411,7 @@ class MyApp extends StatelessWidget {
           foregroundColor: appStyle.useBorderlessButtons
               ? textColor
               : colorScheme.primary,
-          backgroundColor: appStyle.useBorderlessButtons
+          backgroundColor: isGlass || appStyle.useBorderlessButtons
               ? appStyle.strongSurface
               : Colors.transparent,
           side: BorderSide(
@@ -409,15 +424,21 @@ class MyApp extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         ).copyWith(
-              overlayColor: WidgetStatePropertyAll(
-                colorScheme.primary.withValues(alpha: 0.08),
-              ),
-            ),
+          overlayColor: WidgetStatePropertyAll(
+            colorScheme.primary.withValues(alpha: 0.08),
+          ),
+          backgroundBuilder: isGlass
+              ? (context, states, child) => glassButtonBackground(
+                  borderRadius: BorderRadius.circular(16),
+                  child: child,
+                )
+              : null,
+        ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           foregroundColor: buttonForeground,
-          backgroundColor: buttonBackground,
+          backgroundColor: isGlass ? Colors.transparent : buttonBackground,
           elevation: appStyle.useBorderlessButtons ? 4 : 0,
           shadowColor: Colors.black.withValues(alpha: 0.18),
           shape: RoundedRectangleBorder(
@@ -430,17 +451,24 @@ class MyApp extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
         ).copyWith(
-              overlayColor: WidgetStatePropertyAll(
-                colorScheme.primary.withValues(alpha: 0.08),
-              ),
-            ),
+          overlayColor: WidgetStatePropertyAll(
+            colorScheme.primary.withValues(alpha: 0.08),
+          ),
+          backgroundBuilder: isGlass
+              ? (context, states, child) => glassButtonBackground(
+                  borderRadius: BorderRadius.circular(16),
+                  child: child,
+                )
+              : null,
+        ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: appStyle.useBorderlessButtons
               ? textColor
               : colorScheme.primary,
-          backgroundColor: appStyle.useBorderlessButtons
+          backgroundColor:
+              isGlass || appStyle.useBorderlessButtons
               ? appStyle.strongSurface
               : null,
           shape: RoundedRectangleBorder(
@@ -448,25 +476,38 @@ class MyApp extends StatelessWidget {
           ),
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         ).copyWith(
-              overlayColor: WidgetStatePropertyAll(
-                colorScheme.primary.withValues(alpha: 0.08),
-              ),
-            ),
+          overlayColor: WidgetStatePropertyAll(
+            colorScheme.primary.withValues(alpha: 0.08),
+          ),
+          backgroundBuilder: isGlass
+              ? (context, states, child) => glassButtonBackground(
+                  borderRadius: BorderRadius.circular(14),
+                  child: child,
+                )
+              : null,
+        ),
       ),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
           foregroundColor: textColor,
-          backgroundColor: appStyle.useBorderlessButtons
+          backgroundColor:
+              isGlass || appStyle.useBorderlessButtons
               ? appStyle.strongSurface
-              : (appStyle.useBorderlessButtons ? appStyle.strongSurface : null),
+              : null,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(14),
           ),
         ).copyWith(
-              overlayColor: WidgetStatePropertyAll(
-                colorScheme.primary.withValues(alpha: 0.08),
-              ),
-            ),
+          overlayColor: WidgetStatePropertyAll(
+            colorScheme.primary.withValues(alpha: 0.08),
+          ),
+          backgroundBuilder: isGlass
+              ? (context, states, child) => glassButtonBackground(
+                  borderRadius: BorderRadius.circular(14),
+                  child: child,
+                )
+              : null,
+        ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: appStyle.useBorderlessButtons

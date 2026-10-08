@@ -59,7 +59,7 @@ class AppSurface extends StatelessWidget {
     }
 
     // 液态玻璃模式：LiquidGlassCard 提供磨砂模糊 + 蒙版
-    // surfaceDecoration 提供阴影
+    // 内层不再叠加 surfaceDecoration，避免与玻璃效果重复渲染阴影和填充
     return Container(
       width: width,
       height: height,
@@ -69,12 +69,6 @@ class AppSurface extends StatelessWidget {
         child: Container(
           padding: padding,
           alignment: alignment,
-          decoration: appStyle.surfaceDecoration(
-            borderRadius: borderRadius,
-            color: Colors.transparent, // 透明，让磨砂效果显示
-            prominent: prominent,
-            border: border,
-          ),
           child: child,
         ),
       ),

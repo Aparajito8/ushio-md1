@@ -126,9 +126,6 @@ class SettingsProvider extends ChangeNotifier {
   /// 按钮风格（经典描边 / 简洁立体）
   AppButtonStyleMode _buttonStyleMode = AppButtonStyleMode.softShadow;
 
-  /// 底部导航栏样式（经典 / 液态玻璃胶囊）
-  AppTabBarStyleMode _tabBarStyle = AppTabBarStyleMode.classic;
-
   /// 编辑器字体族
   String _editorFontFamily = 'System';
 
@@ -465,7 +462,6 @@ class SettingsProvider extends ChangeNotifier {
   int get lightThemeIndex => _lightThemeIndex;
   String get uiFontFamily => _uiFontFamily;
   AppButtonStyleMode get buttonStyleMode => _buttonStyleMode;
-  AppTabBarStyleMode get tabBarStyle => _tabBarStyle;
   bool get useBorderlessButtons =>
       _buttonStyleMode == AppButtonStyleMode.softShadow;
   String get editorFontFamily => _editorFontFamily;
@@ -749,12 +745,6 @@ class SettingsProvider extends ChangeNotifier {
     _buttonStyleMode = AppButtonStyleMode.values.firstWhere(
       (mode) => mode.name == buttonStyleName,
       orElse: () => AppButtonStyleMode.softShadow,
-    );
-
-    final tabBarStyleName = prefs.getString('tab_bar_style');
-    _tabBarStyle = AppTabBarStyleMode.values.firstWhere(
-      (mode) => mode.name == tabBarStyleName,
-      orElse: () => AppTabBarStyleMode.classic,
     );
 
     // 字体设置迁移逻辑
@@ -1489,13 +1479,6 @@ class SettingsProvider extends ChangeNotifier {
     _buttonStyleMode = mode;
     notifyListeners();
     _schedulePersist('button_style_mode', mode.name);
-  }
-
-  /// 设置底部导航栏样式
-  Future<void> setTabBarStyle(AppTabBarStyleMode mode) async {
-    _tabBarStyle = mode;
-    notifyListeners();
-    _schedulePersist('tab_bar_style', mode.name);
   }
 
   /// 设置 UI 字体
