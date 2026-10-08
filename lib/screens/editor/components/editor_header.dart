@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 
 import '../../../utils/app_style.dart';
 import '../../../widgets/app_surface.dart';
+import '../../../widgets/glass_header_button.dart';
+import '../../../widgets/liquid_glass_card.dart';
 
 class EditorHeader extends StatelessWidget {
   final String fileName;
@@ -39,35 +41,38 @@ class EditorHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
       child: Row(
         children: [
-          _buildHeaderIconButton(
-            context,
+          GlassHeaderButton(
             icon: Icons.arrow_back,
             onPressed: onBack,
+            iconColor: Theme.of(context).colorScheme.primary,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 6),
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _AdaptiveFileName(
-                  fileName: _displayFileName,
-                  fullFilePath: fullFilePath,
-                ),
-                const SizedBox(height: 4),
-                _AdaptiveWordCount(
-                  wordCount: wordCount,
-                  isAutoSaving: isAutoSaving,
-                  lastSaveTime: lastSaveTime,
-                ),
-              ],
+            child: Container(
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              child: appStyle.useLiquidGlass
+                  ? LiquidGlassCard(
+                      borderRadius: BorderRadius.circular(20),
+                      prominent: true,
+                      child: _buildInfoContent(context),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: appStyle.scaledSurfaceColor(
+                          Theme.of(context).colorScheme,
+                          alpha: 0.6,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      child: _buildInfoContent(context),
+                    ),
             ),
           ),
-          const SizedBox(width: 8),
           _buildSaveButton(context),
           if (canUndo || canRedo) ...[
             const SizedBox(width: 6),
@@ -75,8 +80,7 @@ class EditorHeader extends StatelessWidget {
           ],
           if (onMore != null) ...[
             const SizedBox(width: 8),
-            _buildHeaderIconButton(
-              context,
+            GlassHeaderButton(
               icon: Icons.more_vert,
               onPressed: onMore!,
             ),
@@ -86,24 +90,24 @@ class EditorHeader extends StatelessWidget {
     );
   }
 
-  Widget _buildHeaderIconButton(
-    BuildContext context, {
-    required IconData icon,
-    required VoidCallback onPressed,
-  }) {
-    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onPressed,
-      child: AppSurface(
-        borderRadius: BorderRadius.circular(12),
-        padding: const EdgeInsets.all(10),
-        color: appStyle.scaledSurfaceColor(
-          Theme.of(context).colorScheme,
-          alpha: 0.82,
-        ),
-        prominent: appStyle.useBorderlessButtons,
-        child: Icon(icon, size: 20, color: context.appIconColor),
+  Widget _buildInfoContent(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _AdaptiveFileName(
+            fileName: _displayFileName,
+            fullFilePath: fullFilePath,
+          ),
+          const SizedBox(height: 3),
+          _AdaptiveWordCount(
+            wordCount: wordCount,
+            isAutoSaving: isAutoSaving,
+            lastSaveTime: lastSaveTime,
+          ),
+        ],
       ),
     );
   }

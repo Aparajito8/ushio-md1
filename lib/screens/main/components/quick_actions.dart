@@ -30,21 +30,10 @@ class QuickActions extends StatelessWidget {
       return _buildCompactQuickActions(context);
     }
 
-    return Container(
+    return AppSurface(
+      borderRadius: BorderRadius.circular(20),
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: appStyle.surfaceShadow,
-        color: appStyle.scaledSurfaceColor(
-          Theme.of(context).colorScheme,
-          alpha: 0.8,
-        ),
-        border: appStyle.useBorderlessButtons
-            ? null
-            : Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-              ),
-      ),
+      prominent: appStyle.useBorderlessButtons,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -128,21 +117,10 @@ class QuickActions extends StatelessWidget {
 
   Widget _buildCompactQuickActions(BuildContext context) {
     final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return Container(
+    return AppSurface(
+      borderRadius: BorderRadius.circular(16),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: appStyle.surfaceShadow,
-        color: appStyle.scaledSurfaceColor(
-          Theme.of(context).colorScheme,
-          alpha: 0.8,
-        ),
-        border: appStyle.useBorderlessButtons
-            ? null
-            : Border.all(
-                color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-              ),
-      ),
+      prominent: appStyle.useBorderlessButtons,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
@@ -323,17 +301,7 @@ class QuickActions extends StatelessWidget {
           child: AppSurface(
             borderRadius: BorderRadius.circular(12),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            color: appStyle.scaledSurfaceColor(
-              Theme.of(context).colorScheme,
-              alpha: 0.8,
-            ),
-            border: appStyle.useBorderlessButtons
-                ? null
-                : Border.all(
-                    color: Theme.of(
-                      context,
-                    ).dividerColor.withValues(alpha: 0.5),
-                  ),
+            prominent: appStyle.useBorderlessButtons,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -371,15 +339,7 @@ class QuickActions extends StatelessWidget {
         child: AppSurface(
           borderRadius: BorderRadius.circular(16),
           padding: const EdgeInsets.all(12),
-          color: appStyle.scaledSurfaceColor(
-            Theme.of(context).colorScheme,
-            alpha: 0.8,
-          ),
-          border: appStyle.useBorderlessButtons
-              ? null
-              : Border.all(
-                  color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                ),
+          prominent: appStyle.useBorderlessButtons,
           child: Column(
             children: [
               Padding(

@@ -2367,10 +2367,14 @@ class _EditorScreenState extends State<EditorScreen>
         children: [
           SafeArea(
             bottom: false,
-            child: Column(
+            child: Stack(
               children: [
-                if (!isFocusMode)
-                  EditorHeader(
+                if (!isFocusMode && !_showSearchBar)
+                  Positioned(
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    child: EditorHeader(
                     fileName: fileName,
                     fullFilePath: widget.filePath,
                     wordCount: _getWordCount(),
@@ -2395,7 +2399,8 @@ class _EditorScreenState extends State<EditorScreen>
                     onSave: _saveFile,
                     onMore: _showMoreMenu,
                   ),
-                Expanded(
+                  ),
+                Positioned.fill(
                   child: Stack(
                     children: [
                       Positioned.fill(

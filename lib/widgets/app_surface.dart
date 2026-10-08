@@ -66,6 +66,7 @@ class AppSurface extends StatelessWidget {
       margin: margin,
       child: LiquidGlassCard(
         borderRadius: borderRadius,
+        prominent: prominent,
         child: Container(
           padding: padding,
           alignment: alignment,

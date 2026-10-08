@@ -5,6 +5,7 @@ import '../../../models/file_sort_option.dart';
 import '../../../utils/app_style.dart';
 import '../../../utils/responsive_layout.dart';
 import '../../../widgets/app_surface.dart';
+import '../../../widgets/glass_header_button.dart';
 
 class FolderBrowserHeader extends StatelessWidget {
   final String folderName;
@@ -55,23 +56,10 @@ class FolderBrowserHeader extends StatelessWidget {
         child: Row(
           children: [
           if (onBack != null)
-            IconButton(
-              icon: AppSurface(
-                borderRadius: BorderRadius.circular(12),
-                padding: const EdgeInsets.all(8),
-                color: Theme.of(
-                  context,
-                ).colorScheme.primary.withValues(alpha: 0.1),
-                prominent: Theme.of(
-                  context,
-                ).extension<AppStyleTheme>()!.useBorderlessButtons,
-                child: Icon(
-                  Icons.arrow_back,
-                  color: Theme.of(context).colorScheme.primary,
-                  size: 20,
-                ),
-              ),
+            GlassHeaderButton(
+              icon: Icons.arrow_back,
               onPressed: onBack,
+              iconColor: Theme.of(context).colorScheme.primary,
             )
           else
             const SizedBox(width: 8),
@@ -97,22 +85,23 @@ class FolderBrowserHeader extends StatelessWidget {
               ],
             ),
           ),
-          _buildIconButton(
-            context,
+          GlassHeaderButton(
             icon: Icons.search,
             onPressed: onSearchToggle,
           ),
           const SizedBox(width: 4),
-          _buildIconButton(
-            context,
+          GlassHeaderButton(
             icon: showImages ? Icons.image : Icons.image_outlined,
             onPressed: onImageToggle,
             isActive: showImages,
           ),
           const SizedBox(width: 4),
-          _buildSortButton(context),
+          GlassHeaderButton(
+            icon: Icons.sort,
+            onPressed: () => _showSortMenu(context),
+          ),
           const SizedBox(width: 4),
-          _buildIconButton(context, icon: Icons.add, onPressed: onNewItem),
+          GlassHeaderButton(icon: Icons.add, onPressed: onNewItem),
         ],
       ),
     ),
@@ -130,8 +119,7 @@ class FolderBrowserHeader extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(8, 0, 16, 0),
         child: Row(
           children: [
-          _buildIconButton(
-            context,
+          GlassHeaderButton(
             icon: Icons.arrow_back,
             onPressed: onSearchToggle,
           ),
@@ -176,72 +164,6 @@ class FolderBrowserHeader extends StatelessWidget {
         ],
       ),
     ),
-    );
-  }
-
-  Widget _buildIconButton(
-    BuildContext context, {
-    required IconData icon,
-    required VoidCallback onPressed,
-    bool isActive = false,
-  }) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: onPressed,
-          child: AppSurface(
-            borderRadius: BorderRadius.circular(12),
-            alignment: Alignment.center,
-            color: isActive
-                ? colorScheme.primary.withValues(alpha: 0.1)
-                : appStyle.scaledSurfaceColor(colorScheme, alpha: 0.5),
-            prominent: isActive && appStyle.useBorderlessButtons,
-            border: appStyle.useBorderlessButtons
-                ? null
-                : Border.all(
-                    color: isActive
-                        ? colorScheme.primary
-                        : Theme.of(context).dividerColor.withValues(alpha: 0.5),
-                  ),
-            child: Icon(
-              icon,
-              size: 20,
-              color: isActive ? colorScheme.primary : null,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSortButton(BuildContext context) {
-    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return SizedBox(
-      width: 44,
-      height: 44,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(12),
-          onTap: () => _showSortMenu(context),
-          child: AppSurface(
-            borderRadius: BorderRadius.circular(12),
-            alignment: Alignment.center,
-            color: appStyle.scaledSurfaceColor(
-              Theme.of(context).colorScheme,
-              alpha: 0.5,
-            ),
-            prominent: appStyle.useBorderlessButtons,
-            child: const Icon(Icons.sort, size: 20),
-          ),
-        ),
-      ),
     );
   }
 

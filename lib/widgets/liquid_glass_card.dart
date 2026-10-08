@@ -7,11 +7,13 @@ import '../utils/app_style.dart';
 class LiquidGlassCard extends StatelessWidget {
   final Widget child;
   final BorderRadius? borderRadius;
+  final bool prominent;
 
   const LiquidGlassCard({
     super.key,
     required this.child,
     this.borderRadius,
+    this.prominent = false,
   });
 
   @override
@@ -26,6 +28,7 @@ class LiquidGlassCard extends StatelessWidget {
 
     return GlassContainer(
       shape: LiquidRoundedSuperellipse(borderRadius: radius.topLeft.x),
+      quality: prominent ? GlassQuality.premium : null,
       child: child,
     );
   }
