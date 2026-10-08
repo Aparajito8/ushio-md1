@@ -53,7 +53,6 @@ class EditorHeader extends StatelessWidget {
           const SizedBox(width: 6),
           Expanded(
             child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 4),
               child: appStyle.useLiquidGlass
                   ? LiquidGlassCard(
                       borderRadius: BorderRadius.circular(20),
@@ -90,22 +89,26 @@ class EditorHeader extends StatelessWidget {
 
   Widget _buildInfoContent(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          _AdaptiveFileName(
-            fileName: _displayFileName,
-            fullFilePath: fullFilePath,
-          ),
-          const SizedBox(height: 3),
-          _AdaptiveWordCount(
-            wordCount: wordCount,
-            isAutoSaving: isAutoSaving,
-            lastSaveTime: lastSaveTime,
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 14),
+      child: SizedBox(
+        height: 40,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _AdaptiveFileName(
+              fileName: _displayFileName,
+              fullFilePath: fullFilePath,
+            ),
+            const SizedBox(height: 1),
+            _AdaptiveWordCount(
+              wordCount: wordCount,
+              isAutoSaving: isAutoSaving,
+              lastSaveTime: lastSaveTime,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -129,7 +132,9 @@ class EditorHeader extends StatelessWidget {
           onTap: isSaving ? null : onSave,
           child: AppSurface(
             borderRadius: BorderRadius.circular(12),
-            padding: const EdgeInsets.all(12),
+            alignment: Alignment.center,
+            height: 40,
+            width: 40,
             color: appStyle.scaledSurfaceColor(colorScheme, alpha: 0.82),
             prominent: appStyle.useBorderlessButtons,
             child: AnimatedSwitcher(
@@ -285,23 +290,10 @@ class _AdaptiveFileName extends StatelessWidget {
         const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, height: 1.1);
 
     final title = fileName.trim().isEmpty ? '未命名' : fileName.trim();
-    final glyphs = title.runes.length;
-    final lineCount = glyphs <= 10 ? 1 : 2;
     final displayTitle = _formatTitle(title);
-    final sizeScale = glyphs <= 10
-        ? 1.0
-        : glyphs <= 14
-        ? 0.94
-        : glyphs <= 18
-        ? 0.88
-        : 0.82;
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        final lineHeight =
-            (baseStyle.fontSize ?? 16) * (baseStyle.height ?? 1.1);
-        final maxHeight = lineHeight * lineCount + 2;
-
         return GestureDetector(
           onTap: () {
             if (fullFilePath != null && fullFilePath!.isNotEmpty) {
@@ -353,20 +345,18 @@ class _AdaptiveFileName extends StatelessWidget {
           },
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minHeight: lineHeight,
-              maxHeight: maxHeight,
+              minHeight: 0,
+              maxHeight: 18,
               maxWidth: constraints.maxWidth,
             ),
             child: Text(
               displayTitle,
-              maxLines: 2,
-              softWrap: true,
+              maxLines: 1,
+              softWrap: false,
               overflow: TextOverflow.ellipsis,
-              style: baseStyle.copyWith(
-                fontSize: (baseStyle.fontSize ?? 16) * sizeScale,
-              ),
+              style: baseStyle,
               strutStyle: StrutStyle(
-                fontSize: (baseStyle.fontSize ?? 16) * sizeScale,
+                fontSize: baseStyle.fontSize,
                 height: baseStyle.height,
                 forceStrutHeight: true,
               ),
@@ -378,13 +368,6 @@ class _AdaptiveFileName extends StatelessWidget {
   }
 
   String _formatTitle(String title) {
-    final chars = title.runes.toList();
-    if (chars.length <= 10) {
-      return title;
-    }
-
-    final firstLine = String.fromCharCodes(chars.take(10));
-    final secondLine = String.fromCharCodes(chars.skip(10).take(10));
-    return '$firstLine\n$secondLine';
+    return title;
   }
 }
