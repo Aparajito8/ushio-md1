@@ -1301,6 +1301,9 @@ class SettingsProvider extends ChangeNotifier {
 
   /// 追加调试日志（内存最多保留 300 条，批量通知避免高频重建）
   void appendDebugLog(String message) {
+    // 调试关闭时不收集：避免日志列表增长与每 500ms 的 notifyListeners
+    // 触发监听 SettingsProvider 的界面（如编辑器）无谓整屏重建。
+    if (!_debugEnabled) return;
     final ts = DateTime.now().toIso8601String();
     _debugLogs.add('[$ts] $message');
     const maxLogs = 300;

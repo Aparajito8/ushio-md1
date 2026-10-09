@@ -8,7 +8,11 @@ import { Decoration, DecorationSet } from '@milkdown/prose/view';
 import { automd } from '@milkdown/plugin-automd';
 import { clipboard } from '@milkdown/plugin-clipboard';
 import { cursor } from '@milkdown/plugin-cursor';
-import { emoji } from '@milkdown/plugin-emoji';
+// 仅使用 remark-emoji(:shortcode: → 原生 Unicode)与 emoji 节点 schema。
+// 刻意不引入 remarkTwemojiPlugin：它会把 emoji 转成指向 jsdelivr 的 <img>，
+// 而 jsdelivr 现已 301 跳转到 raw.githubusercontent.com（国内被重置）→ 裂图。
+// 改用系统原生 emoji 文本渲染：离线可用、即时、永不裂图，且 markdown 往返不丢字。
+import { emojiAttr, emojiSchema, remarkEmojiPlugin } from '@milkdown/plugin-emoji';
 import { highlight, highlightPluginConfig } from '@milkdown/plugin-highlight';
 import { listener, listenerCtx } from '@milkdown/plugin-listener';
 import { history, redoCommand, undoCommand } from '@milkdown/plugin-history';
@@ -158,6 +162,9 @@ let lastEditorInteractionAt = 0;
 let editorTouchTracking = null;
 // IME composition state - prevent viewport sync during composition
 let isComposing = false;
+// 缓存 --milkdown-font-size 的计算值，主题更新时置空失效。
+// 避免每次光标同步都 getComputedStyle 触发强制样式重算。
+let cachedFontSizePx = null;
 // NOTE: Custom code language popup has been removed. Users change code language
 // by clicking the language label in the code block toolbar and typing directly.
 let codeLanguageUiDebugSeq = 0;
@@ -261,6 +268,7 @@ const applyTheme = (payload) => {
     }
     if (typeof font.sizePx === 'number') {
       root.style.setProperty('--milkdown-font-size', `${font.sizePx}px`);
+      cachedFontSizePx = null;
     }
     if (typeof font.lineHeight === 'number') {
       root.style.setProperty('--milkdown-line-height', `${font.lineHeight}`);
@@ -587,6 +595,16 @@ const scrollNodeToViewport = (node, topOffset = 32) => {
   return true;
 };
 
+const getMilkdownFontSize = () => {
+  if (cachedFontSizePx == null) {
+    cachedFontSizePx =
+      parseFloat(
+        getComputedStyle(document.documentElement).getPropertyValue('--milkdown-font-size'),
+      ) || 16;
+  }
+  return cachedFontSizePx;
+};
+
 const ensureCaretInUpperViewport = ({ allowDuringComposition = false } = {}) => {
   if (currentReadOnly) return;
   // Skip viewport sync during IME composition to prevent janky animations
@@ -629,7 +647,7 @@ const ensureCaretInUpperViewport = ({ allowDuringComposition = false } = {}) => 
   if (!Number.isFinite(currentTop)) return;
 
   // 使用类似纯文本编辑器的预测性滚动逻辑
-  const fontSize = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--milkdown-font-size')) || 16;
+  const fontSize = getMilkdownFontSize();
   const lineHeight = fontSize * 1.5; // 与Flutter端保持一致
 
   // 获取键盘高度和工具栏高度
@@ -689,13 +707,19 @@ const scheduleCaretIntoUpperViewport = () => {
 };
 
 // 强制执行光标滚动（绕过抑制机制），用于键盘弹出时
+// 用 rAF 合并：键盘弹出瞬间 Flutter bridge(scroll_caret_into_view) 与
+// visualViewport resize 可能在同一帧各触发一次，合并后只做一次 reflow+scrollTo。
+let forceCaretRafId = null;
 const forceCaretIntoUpperViewport = () => {
   // 重置抑制状态，允许滚动
   editorTouchScrollSuppressUntil = 0;
   viewportScrollSuppressUntil = 0;
   lastUserScrollAt = 0;
-  // 直接执行，不使用RAF延迟
-  ensureCaretInUpperViewport({ allowDuringComposition: true });
+  if (forceCaretRafId != null) return;
+  forceCaretRafId = requestAnimationFrame(() => {
+    forceCaretRafId = null;
+    ensureCaretInUpperViewport({ allowDuringComposition: true });
+  });
 };
 
 const suppressCaretViewportSync = (durationMs = 900) => {
@@ -2794,6 +2818,17 @@ const updateActiveMarkdownHints = () => {
   }
 };
 
+// selectionchange 触发非常频繁（打字、组合输入、滚动选区），
+// 用 rAF 合并，把 querySelectorAll + 属性增删降到每帧最多一次。
+let activeHintsRafId = null;
+const scheduleActiveMarkdownHints = () => {
+  if (activeHintsRafId != null) return;
+  activeHintsRafId = requestAnimationFrame(() => {
+    activeHintsRafId = null;
+    updateActiveMarkdownHints();
+  });
+};
+
 const blurEditorFocus = () => {
   const editor = app.querySelector('.ProseMirror');
   if (!(editor instanceof HTMLElement)) return false;
@@ -2897,7 +2932,7 @@ const createEditor = async () => {
       }));
     })
     .use(automd)
-    .use(emoji)
+    .use([emojiAttr, remarkEmojiPlugin, emojiSchema])
     .use(highlight)
     .use(math)
     .use(cursor)
@@ -3299,7 +3334,7 @@ document.addEventListener('compositionend', () => {
 }, true);
 
 document.addEventListener('selectionchange', () => {
-  updateActiveMarkdownHints();
+  scheduleActiveMarkdownHints();
   const active = document.activeElement instanceof Element ? document.activeElement : null;
   if (active?.closest('.ProseMirror')) {
     scheduleCaretIntoUpperViewport();
