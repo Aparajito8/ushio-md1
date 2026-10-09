@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../utils/app_style.dart';
 import '../utils/responsive_layout.dart';
+import 'liquid_glass_card.dart';
 
 class DesktopNavigationDestination {
   final IconData icon;
@@ -34,47 +35,54 @@ class DesktopNavigationShell extends StatelessWidget {
     final theme = Theme.of(context);
     final appStyle = theme.extension<AppStyleTheme>()!;
     final railWidth = ResponsiveLayout.navigationRailWidth(context);
+    final rail = NavigationRail(
+      selectedIndex: selectedIndex,
+      onDestinationSelected: onDestinationSelected,
+      backgroundColor: Colors.transparent,
+      minWidth: railWidth,
+      groupAlignment: -0.82,
+      labelType: NavigationRailLabelType.all,
+      useIndicator: true,
+      destinations: [
+        for (final destination in destinations)
+          NavigationRailDestination(
+            icon: Icon(destination.icon),
+            selectedIcon: Icon(destination.selectedIcon),
+            label: Text(destination.label),
+          ),
+      ],
+    );
 
     return Row(
       children: [
-        Container(
-          width: railWidth,
-          decoration: BoxDecoration(
-            color: appStyle.scaledSurfaceColor(theme.colorScheme, alpha: 0.82),
-            border: Border(
-              right: BorderSide(
-                color: theme.dividerColor.withValues(alpha: 0.35),
+        if (appStyle.useLiquidGlass)
+          LiquidGlassCard(borderRadius: BorderRadius.zero, child: rail)
+        else
+          Container(
+            width: railWidth,
+            decoration: BoxDecoration(
+              color: appStyle.scaledSurfaceColor(
+                theme.colorScheme,
+                alpha: 0.82,
               ),
-            ),
-            boxShadow: appStyle.useBorderlessButtons
-                ? [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 18,
-                      offset: const Offset(4, 0),
-                      spreadRadius: -12,
-                    ),
-                  ]
-                : null,
-          ),
-          child: NavigationRail(
-            selectedIndex: selectedIndex,
-            onDestinationSelected: onDestinationSelected,
-            backgroundColor: Colors.transparent,
-            minWidth: railWidth,
-            groupAlignment: -0.82,
-            labelType: NavigationRailLabelType.all,
-            useIndicator: true,
-            destinations: [
-              for (final destination in destinations)
-                NavigationRailDestination(
-                  icon: Icon(destination.icon),
-                  selectedIcon: Icon(destination.selectedIcon),
-                  label: Text(destination.label),
+              border: Border(
+                right: BorderSide(
+                  color: theme.dividerColor.withValues(alpha: 0.35),
                 ),
-            ],
+              ),
+              boxShadow: appStyle.useBorderlessButtons
+                  ? [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.08),
+                        blurRadius: 18,
+                        offset: const Offset(4, 0),
+                        spreadRadius: -12,
+                      ),
+                    ]
+                  : null,
+            ),
+            child: rail,
           ),
-        ),
         Expanded(child: child),
       ],
     );

@@ -41,9 +41,6 @@ dependencies:
   # WebView for markdown preview
   flutter_inappwebview: ^6.0.0
   
-  # Syntax highlighting
-  flutter_highlight: ^0.7.0
-  
   # HTTP requests
   http: ^1.2.0
   file_picker: ^8.1.2

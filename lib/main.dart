@@ -59,7 +59,7 @@ void main() async {
       center: true,
       backgroundColor: Colors.transparent,
       skipTaskbar: false,
-      titleBarStyle: TitleBarStyle.normal, // We'll use custom title bar
+      titleBarStyle: TitleBarStyle.hidden,
       title: '汐',
     );
 
@@ -572,14 +572,6 @@ class MyApp extends StatelessWidget {
               : null,
         ),
       ),
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: isGlass
-            ? Colors.transparent
-            : appStyle.useBorderlessButtons
-            ? appStyle.strongSurface
-            : buttonBackground,
-        foregroundColor: isGlass ? textColor : buttonForeground,
-      ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: isGlass
@@ -619,26 +611,6 @@ class MyApp extends StatelessWidget {
         ),
         shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-      ),
-      popupMenuTheme: PopupMenuThemeData(
-        color: appStyle.scaledSurfaceColor(effectiveColorScheme, alpha: 0.95),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        elevation: appStyle.useBorderlessButtons ? 0 : 8,
-      ),
-      dropdownMenuTheme: DropdownMenuThemeData(
-        textStyle: TextStyle(color: textColor),
-        menuStyle: MenuStyle(
-          backgroundColor: WidgetStatePropertyAll(
-            appStyle.scaledSurfaceColor(effectiveColorScheme, alpha: 0.95),
-          ),
-          shape: WidgetStatePropertyAll(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-          elevation: WidgetStatePropertyAll(
-            appStyle.useBorderlessButtons ? 0 : 8,
-          ),
-          padding: const WidgetStatePropertyAll(EdgeInsets.all(8)),
         ),
       ),
       snackBarTheme: SnackBarThemeData(
