@@ -47,7 +47,32 @@ import {
 } from '@milkdown/preset-gfm';
 import { deleteColumn, deleteRow, isInTable } from '@milkdown/prose/tables';
 import { createParser as createRefractorParser } from 'prosemirror-highlight/refractor';
-import { refractor } from 'refractor/all';
+// refractor/common 只打包 36 种主流语言；原先用 refractor/all 会打包 ~594 种语言，
+// 是 5MB bundle 与“打开文档”时 JS 解析/求值卡顿的主要来源之一。
+import { refractor } from 'refractor';
+import refractorDart from 'refractor/dart';
+import refractorTsx from 'refractor/tsx';
+import refractorJsx from 'refractor/jsx';
+import refractorToml from 'refractor/toml';
+import refractorGraphql from 'refractor/graphql';
+import refractorGroovy from 'refractor/groovy';
+import refractorScala from 'refractor/scala';
+import refractorPowershell from 'refractor/powershell';
+import refractorBatch from 'refractor/batch';
+import refractorProtobuf from 'refractor/protobuf';
+import refractorCmake from 'refractor/cmake';
+import refractorNginx from 'refractor/nginx';
+import refractorHaskell from 'refractor/haskell';
+import refractorElixir from 'refractor/elixir';
+import refractorErlang from 'refractor/erlang';
+import refractorClojure from 'refractor/clojure';
+import refractorJulia from 'refractor/julia';
+import refractorSolidity from 'refractor/solidity';
+import refractorApex from 'refractor/apex';
+import refractorFortran from 'refractor/fortran';
+import refractorNasm from 'refractor/nasm';
+import refractorMermaid from 'refractor/mermaid';
+import refractorPlantUml from 'refractor/plant-uml';
 import { nord } from '@milkdown/theme-nord';
 import { $prose, replaceAll } from '@milkdown/utils';
 // CodeMirror themes for code block syntax highlighting
@@ -169,6 +194,19 @@ let cachedFontSizePx = null;
 // by clicking the language label in the code block toolbar and typing directly.
 let codeLanguageUiDebugSeq = 0;
 const codeLanguageDisplayCache = new Map();
+// 在 common(36 种)基础上补充注册常见但不在 common 的语言。每个语法会自行注册
+// 其依赖(如 dart→clike、tsx→jsx/typescript)，register 幂等，顺序无关。
+// 未收录的语言只是降级为无高亮纯文本，不会报错。
+[
+  refractorDart, refractorTsx, refractorJsx, refractorToml, refractorGraphql,
+  refractorGroovy, refractorScala, refractorPowershell, refractorBatch,
+  refractorProtobuf, refractorCmake, refractorNginx, refractorHaskell,
+  refractorElixir, refractorErlang, refractorClojure, refractorJulia,
+  refractorSolidity, refractorApex, refractorFortran, refractorNasm,
+  refractorMermaid, refractorPlantUml,
+].forEach((grammar) => {
+  try { refractor.register(grammar); } catch (_) { /* 单个语言失败不影响其余 */ }
+});
 const highlightParser = createRefractorParser(refractor);
 // Register 'html-block' as an alias of 'html' for prosemirror-highlight
 // This prevents "Unknown language: html-block" errors
