@@ -8,6 +8,7 @@
 
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../providers/file_provider.dart';
 import '../../../widgets/empty_state.dart';
@@ -132,6 +133,23 @@ class _HistoryTabState extends State<HistoryTab> {
   Widget _buildToggleButton() {
     final l10n = AppLocalizations.of(context)!;
     final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
+    if (appStyle.useLiquidGlass) {
+      return GlassSegmentedControl(
+        height: 36,
+        selectedIndex: _viewMode == HistoryViewMode.files ? 0 : 1,
+        onSegmentSelected: (index) => setState(() {
+          _viewMode =
+              index == 0 ? HistoryViewMode.files : HistoryViewMode.folders;
+        }),
+        segments: [
+          GlassSegment(
+            icon: Icon(Icons.description, size: 16),
+            label: l10n.file,
+          ),
+          GlassSegment(icon: Icon(Icons.folder, size: 16), label: l10n.folder),
+        ],
+      );
+    }
     return AppSurface(
       borderRadius: BorderRadius.circular(12),
       color: appStyle.scaledSurfaceColor(

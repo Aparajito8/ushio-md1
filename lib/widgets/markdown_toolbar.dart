@@ -6,6 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import '../services/my_files_service.dart';
 import '../utils/app_style.dart';
 import '../utils/responsive_layout.dart';
+import 'liquid_glass_card.dart';
 
 enum MarkdownToolbarAction {
   undo,
@@ -74,31 +75,16 @@ class MarkdownToolbar extends StatelessWidget {
         !isDesktop && MediaQuery.of(context).size.shortestSide < 600;
     final toolbarHeight = isTouchDevice ? 64.0 : 56.0;
 
-    return Container(
-      height: toolbarHeight,
-      decoration: BoxDecoration(
-        color: appStyle.scaledSurfaceColor(
-          Theme.of(context).colorScheme,
-          alpha: 0.95,
-        ),
-        borderRadius: BorderRadius.vertical(
-          top: Radius.circular(isDesktop ? 12 : 20),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.08),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+    final borderRadius = BorderRadius.vertical(
+      top: Radius.circular(isDesktop ? 12 : 20),
+    );
+    final list = ListView(
+      scrollDirection: Axis.horizontal,
+      padding: EdgeInsets.symmetric(
+        horizontal: 8,
+        vertical: isTouchDevice ? 10 : 6,
       ),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(
-          horizontal: 8,
-          vertical: isTouchDevice ? 10 : 6,
-        ),
-        children: [
+      children: [
           // 撤回重做按钮组
           if (undoController != null)
             _ToolbarButtonGroup(
@@ -320,8 +306,28 @@ class MarkdownToolbar extends StatelessWidget {
               ],
             ),
           ],
+      ],
+    );
+    if (appStyle.useLiquidGlass) {
+      return LiquidGlassCard(borderRadius: borderRadius, child: list);
+    }
+    return Container(
+      height: toolbarHeight,
+      decoration: BoxDecoration(
+        color: appStyle.scaledSurfaceColor(
+          Theme.of(context).colorScheme,
+          alpha: 0.95,
+        ),
+        borderRadius: borderRadius,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.08),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
+          ),
         ],
       ),
+      child: list,
     );
   }
 

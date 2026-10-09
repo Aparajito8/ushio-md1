@@ -2774,16 +2774,11 @@ class _EditorScreenState extends State<EditorScreen>
         return Positioned(
           right: desktopRightInset,
           bottom: editBottom,
-          child: AnimatedOpacity(
-            opacity: showButtons ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            child: AnimatedScale(
-              scale: showButtons ? 1.0 : 0.8,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-              child: IgnorePointer(
-                ignoring: !showButtons,
+          child: showButtons
+              ? AnimatedScale(
+                scale: 1.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
                 child: AnimatedFab(
                   icon: Icons.visibility,
                   color: Theme.of(context).colorScheme.primary,
@@ -2794,9 +2789,8 @@ class _EditorScreenState extends State<EditorScreen>
                     _previewCanRedo = false;
                   }),
                 ),
-              ),
-            ),
-          ),
+              )
+              : const SizedBox.shrink(),
         );
       case EditorMode.preview:
         if (_editingBlockIndex != null) return const SizedBox.shrink();
@@ -2805,16 +2799,11 @@ class _EditorScreenState extends State<EditorScreen>
         return Positioned(
           right: desktopRightInset,
           bottom: previewBottom,
-          child: AnimatedOpacity(
-            opacity: showButtons ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeOut,
-            child: AnimatedScale(
-              scale: showButtons ? 1.0 : 0.8,
-              duration: const Duration(milliseconds: 200),
-              curve: Curves.easeOut,
-              child: IgnorePointer(
-                ignoring: !showButtons,
+          child: showButtons
+              ? AnimatedScale(
+                scale: 1.0,
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOut,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -2843,9 +2832,8 @@ class _EditorScreenState extends State<EditorScreen>
                     ),
                   ],
                 ),
-              ),
-            ),
-          ),
+              )
+              : const SizedBox.shrink(),
         );
     }
   }

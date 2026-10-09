@@ -84,7 +84,7 @@ class GlassCard extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       child: LiquidGlassCard(
         borderRadius: borderRadius,
-        child: Padding(padding: const EdgeInsets.all(16), child: content),
+        child: content,
       ),
     );
   }
