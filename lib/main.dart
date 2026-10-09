@@ -196,13 +196,9 @@ class MyApp extends StatelessWidget {
                 return pageChild;
               }
 
-              final fallbackColor = Theme.of(context)
-                  .colorScheme
-                  .surface
-                  .withValues(alpha: 0.92);
               return GlassPage(
                 settings: LiquidGlassSettings(
-                  platformViewFallbackColor: fallbackColor,
+                  platformViewMode: PlatformViewGlassMode.passthrough,
                 ),
                 statusBarStyle: GlassStatusBarStyle.auto,
                 child: pageChild,
