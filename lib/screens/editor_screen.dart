@@ -2374,20 +2374,12 @@ class _EditorScreenState extends State<EditorScreen>
               child: Stack(
                 children: [
                   Positioned.fill(
-                    child: Padding(
-                      // 预览模式下键盘弹出时，收缩编辑器区域，
-                      // 让 WebView 内容区不被键盘遮挡
-                      padding: EdgeInsets.only(
-                        bottom:
-                            (_mode == EditorMode.preview &&
-                                _editingBlockIndex == null &&
-                                keyboardInset > 0)
-                            ? keyboardInset
-                            : 0,
-                      ),
-                      child: _buildDesktopEditorFrame(
-                        child: _buildEditorWithGesture(),
-                      ),
+                    // 预览 WebView 是 Android 平台视图，一旦随键盘逐帧 resize 就会
+                    // 触发 Chromium 逐帧重合成（卡顿根因）。因此这里不再按键盘高度
+                    // 内缩 WebView；键盘遮挡由 WebView 内 JS（visualViewport +
+                    // 光标滚动到可视区）自行处理，WebView 尺寸保持恒定。
+                    child: _buildDesktopEditorFrame(
+                      child: _buildEditorWithGesture(),
                     ),
                   ),
                   if (_showSearchBar)
