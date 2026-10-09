@@ -140,10 +140,7 @@ Future<InAppLocalhostServer?> _startMilkdownServer({
 }) async {
   for (var i = 0; i < _localhostPortAttempts; i++) {
     final port = _localhostPortStart + i;
-    final server = InAppLocalhostServer(
-      port: port,
-      documentRoot: documentRoot,
-    );
+    final server = InAppLocalhostServer(port: port, documentRoot: documentRoot);
     try {
       appDebugLog('[SERVER] Trying port $port...');
       await server.start().timeout(_serverStartTimeout);
@@ -251,6 +248,7 @@ class MilkdownWebViewController {
   Future<void> clearFocus() async {
     await _webViewController?.clearFocus();
   }
+
   Future<void> toggleStrikethrough() => execCmd('toggle_strikethrough');
   Future<void> toggleHighlight() => execCmd('toggle_highlight');
   Future<void> toggleInlineCode() => execCmd('toggle_inline_code');
@@ -624,16 +622,12 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       if (_isWarmingUp && _warmupCompleter != null) {
         appDebugLog('[WEBVIEW] Warmup in progress, waiting for completion...');
         try {
-          await _warmupCompleter!.future.timeout(
-            const Duration(seconds: 3),
-          );
+          await _warmupCompleter!.future.timeout(const Duration(seconds: 3));
           appDebugLog(
             '[WEBVIEW] Warmup completed, checking server availability',
           );
         } on TimeoutException {
-          appDebugLog(
-            '[WEBVIEW] Warmup wait timed out, starting own server',
-          );
+          appDebugLog('[WEBVIEW] Warmup wait timed out, starting own server');
         }
       }
 
@@ -658,9 +652,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       appDebugLog(
         '[WEBVIEW] No warmup server, creating new InAppLocalhostServer...',
       );
-      final server = await _startMilkdownServer(
-        documentRoot: _documentRoot,
-      );
+      final server = await _startMilkdownServer(documentRoot: _documentRoot);
       if (server == null) {
         appDebugLog('[WEBVIEW] No server could be started');
         if (!mounted || _isDisposed) return;
@@ -720,9 +712,17 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
         'onPrimary': _toCssHex(colorScheme.onPrimary),
         'secondary': _toCssHex(colorScheme.secondary),
         'onSecondary': _toCssHex(colorScheme.onSecondary),
-        'surface': _toCssHex(colorScheme.surface),
+        'surface': _toCssHex(
+          theme.extension<AppStyleTheme>()!.useLiquidGlass
+              ? colorScheme.surface.withValues(alpha: 0)
+              : colorScheme.surface,
+        ),
         'onSurface': _toCssHex(colorScheme.onSurface),
-        'background': _toCssHex(colorScheme.surface),
+        'background': _toCssHex(
+          theme.extension<AppStyleTheme>()!.useLiquidGlass
+              ? colorScheme.surface.withValues(alpha: 0)
+              : colorScheme.surface,
+        ),
         'onBackground': _toCssHex(colorScheme.onSurface),
         'error': _toCssHex(colorScheme.error),
         'onError': _toCssHex(colorScheme.onError),
@@ -1525,7 +1525,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
 
   Widget _buildRenderTimeoutOverlay() {
     return Container(
-      color: Theme.of(context).colorScheme.surface,
+      color: Theme.of(context).extension<AppStyleTheme>()!.useLiquidGlass
+          ? Colors.transparent
+          : Theme.of(context).colorScheme.surface,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -1562,9 +1564,10 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   Widget _buildLoadingSkeleton(BuildContext context, String message) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final isLiquidGlass = theme.extension<AppStyleTheme>()!.useLiquidGlass;
 
     return Container(
-      color: colorScheme.surface,
+      color: isLiquidGlass ? Colors.transparent : colorScheme.surface,
       child: Column(
         children: [
           // Simulated title

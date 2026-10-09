@@ -28,6 +28,7 @@ import 'editor/models/editor_models.dart';
 import 'editor/models/editor_patterns.dart';
 import 'editor/models/markdown_parser.dart';
 import 'editor/editor_shortcuts.dart';
+import '../utils/app_style.dart';
 import '../services/export_service.dart';
 import '../utils/debug_log.dart';
 import '../utils/markdown_incremental_merge.dart';
@@ -112,6 +113,9 @@ class _EditorScreenState extends State<EditorScreen>
   DateTime? _lastTapDownTime;
   Timer? _blurFallbackTimer;
   bool _isMilkdownEditorFocused = false;
+  // 预览进入瞬间先隐藏工具栏，避免切换按钮的点击动效残留干扰。
+  bool _hidePreviewToolbar = false;
+  Timer? _previewToolbarRevealTimer;
   bool _showToc = false;
   bool _showSearchBar = false;
   bool _showSearchCandidates = false;
@@ -1176,6 +1180,7 @@ class _EditorScreenState extends State<EditorScreen>
     _searchDebounceTimer?.cancel();
     _actionFeedbackTimer?.cancel();
     _wordCountDebounce?.cancel();
+    _previewToolbarRevealTimer?.cancel();
     _hideFloatingButtonsTimer?.cancel();
     _blurFallbackTimer?.cancel();
 
@@ -1598,9 +1603,7 @@ class _EditorScreenState extends State<EditorScreen>
 
   void _closeSearch() {
     // 释放 Flutter 搜索框遗留的 IME client，避免后续键盘事件仍路由到旧连接。
-    unawaited(
-      SystemChannels.textInput.invokeMethod<void>('TextInput.hide'),
-    );
+    unawaited(SystemChannels.textInput.invokeMethod<void>('TextInput.hide'));
     unawaited(
       SystemChannels.textInput.invokeMethod<void>('TextInput.clearClient'),
     );
@@ -2213,61 +2216,70 @@ class _EditorScreenState extends State<EditorScreen>
       },
       child: Scaffold(
         resizeToAvoidBottomInset: false,
-        body: Column(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          fit: StackFit.expand,
           children: [
-            if (useCustomTitleBar)
-              CustomTitleBar(fileName: fileName, isEditorMode: true),
-            Expanded(
-              child: CallbackShortcuts(
-                bindings: buildShortcutBindings(
-                  onSave: _saveFile,
-                  onUndo: _undoEditHistory,
-                  onRedo: _redoEditHistory,
-                  onSearch: _showInlineSearch,
-                  onApplyAction: (action) {
-                    // 预览模式下，格式快捷键由 WebView 内的 ProseMirror
-                    // 自行处理（capture 阶段拦截），Flutter 侧不再转发，
-                    // 避免双重执行（execCmd + JS handleEditorShortcut）。
-                    if (_mode == EditorMode.preview &&
-                        _editingBlockIndex == null) {
-                      return;
-                    }
-                    _applyToolbarAction(action);
-                  },
-                  onEscape: _closeSearch,
-                  onNextSearchMatch: _jumpToNextSearchMatch,
-                  onPrevSearchMatch: _jumpToPrevSearchMatch,
+            if (_buildEditorBackgroundLayer(context.watch<SettingsProvider>())
+                case final editorBackground)
+              Positioned.fill(child: RepaintBoundary(child: editorBackground)),
+            Column(
+              children: [
+                if (useCustomTitleBar)
+                  CustomTitleBar(fileName: fileName, isEditorMode: true),
+                Expanded(
+                  child: CallbackShortcuts(
+                    bindings: buildShortcutBindings(
+                      onSave: _saveFile,
+                      onUndo: _undoEditHistory,
+                      onRedo: _redoEditHistory,
+                      onSearch: _showInlineSearch,
+                      onApplyAction: (action) {
+                        // 预览模式下，格式快捷键由 WebView 内的 ProseMirror
+                        // 自行处理（capture 阶段拦截），Flutter 侧不再转发，
+                        // 避免双重执行（execCmd + JS handleEditorShortcut）。
+                        if (_mode == EditorMode.preview &&
+                            _editingBlockIndex == null) {
+                          return;
+                        }
+                        _applyToolbarAction(action);
+                      },
+                      onEscape: _closeSearch,
+                      onNextSearchMatch: _jumpToNextSearchMatch,
+                      onPrevSearchMatch: _jumpToPrevSearchMatch,
+                    ),
+                    child: Stack(
+                      children: [
+                        _buildBody(),
+                        if (!_isLoading && _error == null)
+                          _buildFixedFloatingButtons(),
+                        if (_showToc)
+                          TocOverlay(
+                            items: _tocItems,
+                            onClose: () => setState(() => _showToc = false),
+                            onJumpToHeading: _jumpToHeading,
+                            controller: _tocOverlayController,
+                            currentHeadingIndex: _currentTocIndex,
+                            keepOpenOnJump: false,
+                          ),
+                        // 版本历史和 Diff 视图在浮动按钮之上
+                        if (_showVersionHistoryOverlay)
+                          VersionHistorySheet(
+                            versions: _versions,
+                            onClose: _closeVersionHistory,
+                            onVersionSelected: _showDiffView,
+                            onVersionNoteUpdated: _updateVersionNote,
+                            controller: _versionHistoryController,
+                            isLoading: _isLoadingVersions,
+                            errorMessage: _versionErrorMessage,
+                            isModified: _isModified,
+                            onUnsavedChangesSelected: _showUnsavedChangesDiff,
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-                child: Stack(
-                  children: [
-                    _buildBody(),
-                    if (!_isLoading && _error == null)
-                      _buildFixedFloatingButtons(),
-                    if (_showToc)
-                      TocOverlay(
-                        items: _tocItems,
-                        onClose: () => setState(() => _showToc = false),
-                        onJumpToHeading: _jumpToHeading,
-                        controller: _tocOverlayController,
-                        currentHeadingIndex: _currentTocIndex,
-                        keepOpenOnJump: false,
-                      ),
-                    // 版本历史和 Diff 视图在浮动按钮之上
-                    if (_showVersionHistoryOverlay)
-                      VersionHistorySheet(
-                        versions: _versions,
-                        onClose: _closeVersionHistory,
-                        onVersionSelected: _showDiffView,
-                        onVersionNoteUpdated: _updateVersionNote,
-                        controller: _versionHistoryController,
-                        isLoading: _isLoadingVersions,
-                        errorMessage: _versionErrorMessage,
-                        isModified: _isModified,
-                        onUnsavedChangesSelected: _showUnsavedChangesDiff,
-                      ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ],
         ),
@@ -2294,9 +2306,17 @@ class _EditorScreenState extends State<EditorScreen>
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsProvider>();
     final isFocusMode = settings.focusMode;
-    final keyboardInset = MediaQuery.of(context).viewInsets.bottom;
+    final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
     final isPreviewUndoRedo =
         _mode == EditorMode.preview && _editingBlockIndex == null;
+
+    if (_hidePreviewToolbar) {
+      _previewToolbarRevealTimer?.cancel();
+      _previewToolbarRevealTimer = Timer(const Duration(milliseconds: 220), () {
+        if (!mounted) return;
+        setState(() => _hidePreviewToolbar = false);
+      });
+    }
 
     if (_error != null && !_isLoading) {
       return Container(
@@ -2332,249 +2352,247 @@ class _EditorScreenState extends State<EditorScreen>
 
     return Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [const Color(0xFF1a1a2e), const Color(0xFF16213e)]
-              : [const Color(0xFFf8f9ff), const Color(0xFFf0f4ff)],
-        ),
+        gradient:
+            (settings.editorBackgroundImagePath == null ||
+                !settings.editorBackgroundImageExists)
+            ? LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: isDark
+                    ? [const Color(0xFF1a1a2e), const Color(0xFF16213e)]
+                    : [const Color(0xFFf8f9ff), const Color(0xFFf0f4ff)],
+              )
+            : null,
       ),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          SafeArea(
-            bottom: false,
-            child: Stack(
-              children: [
-                Positioned.fill(
-                  child: Stack(
-                    children: [
-                      Positioned.fill(
-                        child: Padding(
-                          // 预览模式下键盘弹出时，收缩编辑器区域，
-                          // 让 WebView 内容区不被键盘遮挡
-                          padding: EdgeInsets.only(
-                            bottom:
-                                (_mode == EditorMode.preview &&
-                                    _editingBlockIndex == null &&
-                                    keyboardInset > 0)
-                                ? keyboardInset
-                                : 0,
+      child: SafeArea(
+        bottom: false,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: Padding(
+                      // 预览模式下键盘弹出时，收缩编辑器区域，
+                      // 让 WebView 内容区不被键盘遮挡
+                      padding: EdgeInsets.only(
+                        bottom:
+                            (_mode == EditorMode.preview &&
+                                _editingBlockIndex == null &&
+                                keyboardInset > 0)
+                            ? keyboardInset
+                            : 0,
+                      ),
+                      child: _buildDesktopEditorFrame(
+                        child: _buildEditorWithGesture(),
+                      ),
+                    ),
+                  ),
+                  if (_showSearchBar)
+                    Positioned(
+                      top: 10,
+                      left: ResponsiveLayout.isDesktopWidth(context) ? 0 : 12,
+                      right: ResponsiveLayout.isDesktopWidth(context) ? 0 : 12,
+                      child: _buildDesktopEditorFrame(
+                        child: EditorSearchBar(
+                          controller: _searchController,
+                          focusNode: _searchFocusNode,
+                          matches: _searchMatches,
+                          activeMatchIndex: _activeSearchMatchIndex,
+                          onSearch: _performInlineSearch,
+                          onJumpToMatch: _jumpToSearchMatch,
+                          onJumpToNext: _jumpToNextSearchMatch,
+                          onJumpToPrevious: _jumpToPrevSearchMatch,
+                          onClose: _closeSearch,
+                          showCandidates: _showSearchCandidates,
+                          searchOptions: _searchOptions,
+                          onOptionsChanged: _updateSearchOptions,
+                          searchHistory: _searchHistory,
+                          onHistorySelected: _onHistorySelected,
+                        ),
+                      ),
+                    ),
+                  // Toolbar with smooth slide-up animation
+                  if (!_isLoading && _error == null && !isFocusMode)
+                    Positioned(
+                      bottom: keyboardInset,
+                      left: 0,
+                      right: 0,
+                      child: _buildDesktopEditorFrame(
+                        child: AnimatedSlide(
+                          offset: Offset(
+                            0,
+                            (_editingBlockIndex != null ||
+                                    _isMilkdownEditorFocused ||
+                                    _mode == EditorMode.edit ||
+                                    !_hidePreviewToolbar)
+                                ? 0
+                                : 1,
                           ),
-                          child: _buildDesktopEditorFrame(
-                            child: _buildEditorWithGesture(),
+                          duration: const Duration(milliseconds: 150),
+                          curve: Curves.easeOutCubic,
+                          child: AnimatedOpacity(
+                            opacity:
+                                (_editingBlockIndex != null ||
+                                    _isMilkdownEditorFocused ||
+                                    _mode == EditorMode.edit ||
+                                    !_hidePreviewToolbar)
+                                ? 1.0
+                                : 0.0,
+                            duration: const Duration(milliseconds: 100),
+                            curve: Curves.easeOut,
+                            child: IgnorePointer(
+                              ignoring:
+                                  !(_editingBlockIndex != null ||
+                                      _isMilkdownEditorFocused ||
+                                      _mode == EditorMode.edit ||
+                                      !_hidePreviewToolbar),
+                              child: MarkdownToolbar(
+                                controller: _editingBlockIndex != null
+                                    ? _inlineEditController
+                                    : _textController,
+                                undoController: isPreviewUndoRedo
+                                    ? null
+                                    : _editingBlockIndex != null
+                                    ? null
+                                    : _undoController,
+                                canUndo: _editingBlockIndex != null
+                                    ? _historyIndex > 0
+                                    : isPreviewUndoRedo
+                                    ? _previewCanUndo
+                                    : null,
+                                canRedo: _editingBlockIndex != null
+                                    ? (_historyIndex >= 0 &&
+                                          _historyIndex <
+                                              _editHistory.length - 1)
+                                    : isPreviewUndoRedo
+                                    ? _previewCanRedo
+                                    : null,
+                                onUndo: _editingBlockIndex != null
+                                    ? _undoEditHistory
+                                    : isPreviewUndoRedo
+                                    ? () {
+                                        _undoEditHistory();
+                                      }
+                                    : null,
+                                onRedo: _editingBlockIndex != null
+                                    ? _redoEditHistory
+                                    : isPreviewUndoRedo
+                                    ? () {
+                                        _redoEditHistory();
+                                      }
+                                    : null,
+                                filePath: widget.filePath,
+                                onSearchPressed: _showInlineSearch,
+                                onAction:
+                                    _mode == EditorMode.preview &&
+                                        _editingBlockIndex == null
+                                    ? _handlePreviewToolbarAction
+                                    : null,
+                              ),
+                            ),
                           ),
                         ),
                       ),
-                      if (_showSearchBar)
-                        Positioned(
-                          top: 10,
-                          left: ResponsiveLayout.isDesktopWidth(context)
-                              ? 0
-                              : 12,
-                          right: ResponsiveLayout.isDesktopWidth(context)
-                              ? 0
-                              : 12,
-                          child: _buildDesktopEditorFrame(
-                            child: EditorSearchBar(
-                              controller: _searchController,
-                              focusNode: _searchFocusNode,
-                              matches: _searchMatches,
-                              activeMatchIndex: _activeSearchMatchIndex,
-                              onSearch: _performInlineSearch,
-                              onJumpToMatch: _jumpToSearchMatch,
-                              onJumpToNext: _jumpToNextSearchMatch,
-                              onJumpToPrevious: _jumpToPrevSearchMatch,
-                              onClose: _closeSearch,
-                              showCandidates: _showSearchCandidates,
-                              searchOptions: _searchOptions,
-                              onOptionsChanged: _updateSearchOptions,
-                              searchHistory: _searchHistory,
-                              onHistorySelected: _onHistorySelected,
-                            ),
-                          ),
-                        ),
-                      // Toolbar with smooth slide-up animation
-                      if (!_isLoading && _error == null && !isFocusMode)
-                        Positioned(
-                          bottom: keyboardInset,
-                          left: 0,
-                          right: 0,
-                          child: _buildDesktopEditorFrame(
-                            child: AnimatedSlide(
-                              offset: Offset(
-                                0,
-                                (_mode != EditorMode.preview ||
-                                        _editingBlockIndex != null ||
-                                        _isMilkdownEditorFocused)
-                                    ? 0
-                                    : 1,
-                              ),
-                              duration: const Duration(milliseconds: 150),
-                              curve: Curves.easeOutCubic,
-                              child: AnimatedOpacity(
-                                opacity:
-                                    (_mode != EditorMode.preview ||
-                                        _editingBlockIndex != null ||
-                                        _isMilkdownEditorFocused)
-                                    ? 1.0
-                                    : 0.0,
-                                duration: const Duration(milliseconds: 100),
-                                curve: Curves.easeOut,
-                                child: IgnorePointer(
-                                  ignoring:
-                                      !(_mode != EditorMode.preview ||
-                                          _editingBlockIndex != null ||
-                                          _isMilkdownEditorFocused),
-                                  child: MarkdownToolbar(
-                                    controller: _editingBlockIndex != null
-                                        ? _inlineEditController
-                                        : _textController,
-                                    undoController: isPreviewUndoRedo
-                                        ? null
-                                        : _editingBlockIndex != null
-                                        ? null
-                                        : _undoController,
-                                    canUndo: _editingBlockIndex != null
-                                        ? _historyIndex > 0
-                                        : isPreviewUndoRedo
-                                        ? _previewCanUndo
-                                        : null,
-                                    canRedo: _editingBlockIndex != null
-                                        ? (_historyIndex >= 0 &&
-                                              _historyIndex <
-                                                  _editHistory.length - 1)
-                                        : isPreviewUndoRedo
-                                        ? _previewCanRedo
-                                        : null,
-                                    onUndo: _editingBlockIndex != null
-                                        ? _undoEditHistory
-                                        : isPreviewUndoRedo
-                                        ? () => _handlePreviewToolbarAction(
-                                            MarkdownToolbarAction.undo,
-                                          )
-                                        : null,
-                                    onRedo: _editingBlockIndex != null
-                                        ? _redoEditHistory
-                                        : isPreviewUndoRedo
-                                        ? () => _handlePreviewToolbarAction(
-                                            MarkdownToolbarAction.redo,
-                                          )
-                                        : null,
-                                    filePath: widget.filePath,
-                                    onSearchPressed: _showInlineSearch,
-                                    onAction:
-                                        _mode == EditorMode.preview &&
-                                            _editingBlockIndex == null
-                                        ? _handlePreviewToolbarAction
-                                        : null,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      // Focus mode exit hint
-                      if (isFocusMode)
-                        Positioned(
-                          top: 16,
-                          left: 0,
-                          right: 0,
-                          child: Center(
-                            child: _FocusModeHint(
-                              onHide: () {
-                                final settings = context
-                                    .read<SettingsProvider>();
-                                settings.setFocusMode(false);
-                              },
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-                if (!isFocusMode && !_showSearchBar)
-                  Positioned(
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    child: EditorHeader(
-                      fileName: fileName,
-                      fullFilePath: widget.filePath,
-                      wordCount: _getWordCount(),
-                      isModified: _isModified,
-                      isSaving: _isSaving,
-                      isAutoSaving: _isAutoSaving,
-                      lastSaveTime: _lastSaveTime,
-                      canUndo: _historyIndex > 0,
-                      canRedo:
-                          _historyIndex >= 0 &&
-                          _historyIndex < _editHistory.length - 1,
-                      onBack: () async {
-                        if (_isModified) {
-                          final shouldPop = await _onWillPop();
-                          if (shouldPop && mounted) {
-                            Navigator.of(context).pop();
-                          }
-                        } else {
-                          Navigator.of(context).pop();
-                        }
-                      },
-                      onSave: _saveFile,
-                      onMore: _showMoreMenu,
                     ),
-                  ),
-              ],
+                  // Focus mode exit hint
+                  if (isFocusMode)
+                    Positioned(
+                      top: 16,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: _FocusModeHint(
+                          onHide: () {
+                            final settings = context.read<SettingsProvider>();
+                            settings.setFocusMode(false);
+                          },
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          if (_lastActionFeedback != null)
-            Positioned(
-              top: 60,
-              left: 0,
-              right: 0,
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    _lastActionFeedback!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontSize: 14,
+            // EditorHeader
+            if (!isFocusMode && !_showSearchBar)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                child: EditorHeader(
+                  fileName: fileName,
+                  fullFilePath: widget.filePath,
+                  wordCount: _getWordCount(),
+                  isModified: _isModified,
+                  isSaving: _isSaving,
+                  isAutoSaving: _isAutoSaving,
+                  lastSaveTime: _lastSaveTime,
+                  canUndo: _historyIndex > 0,
+                  canRedo:
+                      _historyIndex >= 0 &&
+                      _historyIndex < _editHistory.length - 1,
+                  onBack: () async {
+                    if (_isModified) {
+                      final shouldPop = await _onWillPop();
+                      if (shouldPop && mounted) {
+                        Navigator.of(context).pop();
+                      }
+                    } else {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                  onSave: _saveFile,
+                  onMore: _showMoreMenu,
+                ),
+              ),
+            if (_lastActionFeedback != null)
+              Positioned(
+                top: 60,
+                left: 0,
+                right: 0,
+                child: Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      _lastActionFeedback!,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontSize: 14,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-          if (settings.particleEnabled &&
-              settings.particleGlobal &&
-              !settings.focusMode)
-            Positioned.fill(
-              child: IgnorePointer(
-                child: RepaintBoundary(
-                  child: TickerMode(
-                    enabled: true,
-                    child: ParticleEffectWidget(
-                      particleType: settings.particleType,
-                      speed: settings.particleSpeed,
-                      count: settings.particleCount,
-                      size: settings.particleSize,
-                      opacity: settings.particleOpacity,
-                      wind: settings.particleWind,
+            if (settings.particleEnabled &&
+                settings.particleGlobal &&
+                !settings.focusMode)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: RepaintBoundary(
+                    child: TickerMode(
                       enabled: true,
+                      child: ParticleEffectWidget(
+                        particleType: settings.particleType,
+                        speed: settings.particleSpeed,
+                        count: settings.particleCount,
+                        size: settings.particleSize,
+                        opacity: settings.particleOpacity,
+                        wind: settings.particleWind,
+                        enabled: true,
+                      ),
                     ),
                   ),
                 ),
               ),
-            ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -2614,14 +2632,16 @@ class _EditorScreenState extends State<EditorScreen>
           }
         },
         behavior: HitTestBehavior.translucent,
-        child: _buildEditor(),
+        child: _buildEditor(includeBackground: false),
       ),
     );
   }
 
-  Widget _buildEditor() {
+  Widget _buildEditor({required bool includeBackground}) {
     final settings = context.watch<SettingsProvider>();
-    final editorBackground = _buildEditorBackgroundLayer(settings);
+    final editorBackground = includeBackground
+        ? _buildEditorBackgroundLayer(settings)
+        : null;
     final isDesktop = ResponsiveLayout.isDesktopWidth(context);
 
     switch (_mode) {
@@ -2636,7 +2656,14 @@ class _EditorScreenState extends State<EditorScreen>
               if (editorBackground != null) editorBackground,
               Container(
                 color: editorBackground == null
-                    ? Theme.of(context).colorScheme.surface
+                    ? Theme.of(context).colorScheme.surface.withValues(
+                        alpha:
+                            Theme.of(
+                              context,
+                            ).extension<AppStyleTheme>()!.useLiquidGlass
+                            ? 0.0
+                            : 1.0,
+                      )
                     : Colors.transparent,
                 child: _buildEditPanel(settings, toolbarPadding: 56),
               ),
@@ -2654,7 +2681,14 @@ class _EditorScreenState extends State<EditorScreen>
               if (editorBackground != null) editorBackground,
               Container(
                 color: editorBackground == null
-                    ? Theme.of(context).colorScheme.surface
+                    ? Theme.of(context).colorScheme.surface.withValues(
+                        alpha:
+                            Theme.of(
+                              context,
+                            ).extension<AppStyleTheme>()!.useLiquidGlass
+                            ? 0.0
+                            : 1.0,
+                      )
                     : Colors.transparent,
                 child: _buildInlineEditablePreview(settings),
               ),
@@ -2754,20 +2788,21 @@ class _EditorScreenState extends State<EditorScreen>
           bottom: editBottom,
           child: showButtons
               ? AnimatedScale(
-                scale: 1.0,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                child: AnimatedFab(
-                  icon: Icons.visibility,
-                  color: Theme.of(context).colorScheme.primary,
-                  onTap: () => setState(() {
-                    _mode = EditorMode.preview;
-                    _isMilkdownEditorFocused = false;
-                    _previewCanUndo = false;
-                    _previewCanRedo = false;
-                  }),
-                ),
-              )
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  child: AnimatedFab(
+                    icon: Icons.visibility,
+                    color: Theme.of(context).colorScheme.primary,
+                    onTap: () => setState(() {
+                      _mode = EditorMode.preview;
+                      _isMilkdownEditorFocused = false;
+                      _hidePreviewToolbar = true;
+                      _previewCanUndo = false;
+                      _previewCanRedo = false;
+                    }),
+                  ),
+                )
               : const SizedBox.shrink(),
         );
       case EditorMode.preview:
@@ -2779,38 +2814,38 @@ class _EditorScreenState extends State<EditorScreen>
           bottom: previewBottom,
           child: showButtons
               ? AnimatedScale(
-                scale: 1.0,
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOut,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AnimatedFab(
-                      icon: Icons.edit,
-                      color: Theme.of(context).colorScheme.tertiary,
-                      onTap: () {
-                        _flushPendingMilkdownMerge();
-                        setState(() {
-                          _mode = EditorMode.edit;
-                          _isMilkdownEditorFocused = false;
-                        });
-                      },
-                    ),
-                    const SizedBox(height: 12),
-                    AnimatedFab(
-                      icon: Icons.list,
-                      color: Theme.of(context).colorScheme.primary,
-                      onTap: () {
-                        if (_showToc) {
-                          _tocOverlayController.close();
-                          return;
-                        }
-                        setState(() => _showToc = true);
-                      },
-                    ),
-                  ],
-                ),
-              )
+                  scale: 1.0,
+                  duration: const Duration(milliseconds: 200),
+                  curve: Curves.easeOut,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimatedFab(
+                        icon: Icons.edit,
+                        color: Theme.of(context).colorScheme.tertiary,
+                        onTap: () {
+                          _flushPendingMilkdownMerge();
+                          setState(() {
+                            _mode = EditorMode.edit;
+                            _isMilkdownEditorFocused = false;
+                          });
+                        },
+                      ),
+                      const SizedBox(height: 12),
+                      AnimatedFab(
+                        icon: Icons.list,
+                        color: Theme.of(context).colorScheme.primary,
+                        onTap: () {
+                          if (_showToc) {
+                            _tocOverlayController.close();
+                            return;
+                          }
+                          setState(() => _showToc = true);
+                        },
+                      ),
+                    ],
+                  ),
+                )
               : const SizedBox.shrink(),
         );
     }

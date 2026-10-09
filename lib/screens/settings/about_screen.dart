@@ -65,6 +65,7 @@ class _AboutScreenState extends State<AboutScreen> {
             ]),
             const SizedBox(height: 16),
             _buildSection(l10n.updates, Icons.system_update, [
+              _buildUpdateChannelTile(),
               _buildAutoCheckToggle(),
               _buildCheckUpdateButton(),
             ]),
@@ -244,12 +245,43 @@ class _AboutScreenState extends State<AboutScreen> {
     );
   }
 
+  Widget _buildUpdateChannelTile() {
+    final l10n = AppLocalizations.of(context)!;
+    final settings = context.watch<SettingsProvider>();
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(Icons.route_outlined, color: context.appMutedIconColor),
+      title: Text(l10n.updateChannel),
+      subtitle: Text(
+        settings.updateChannel == 'prerelease'
+            ? l10n.updateChannelPrereleaseDesc
+            : l10n.updateChannelStableDesc,
+      ),
+      trailing: SegmentedButton<String>(
+        segments: [
+          ButtonSegment(value: 'stable', label: Text(l10n.updateChannelStable)),
+          ButtonSegment(
+            value: 'prerelease',
+            label: Text(l10n.updateChannelPrerelease),
+          ),
+        ],
+        selected: {settings.updateChannel},
+        onSelectionChanged: (selection) {
+          settings.setUpdateChannel(selection.first);
+        },
+      ),
+    );
+  }
+
   Future<void> _checkForUpdates() async {
     setState(() => _isCheckingUpdate = true);
 
     try {
       final updateInfo = await UpdateService.checkForUpdate(
         AppConstants.appVersion,
+        channel: context.read<SettingsProvider>().updateChannel == 'prerelease'
+            ? UpdateChannel.prerelease
+            : UpdateChannel.stable,
       );
 
       if (!mounted) return;

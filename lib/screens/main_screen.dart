@@ -174,9 +174,13 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   Future<void> _checkUpdateOnStartup() async {
     if (!mounted) return;
     final l10n = AppLocalizations.of(context)!;
+    final settingsProvider = context.read<SettingsProvider>();
     try {
       final updateInfo = await UpdateService.checkForUpdate(
         AppConstants.appVersion,
+        channel: settingsProvider.updateChannel == 'prerelease'
+            ? UpdateChannel.prerelease
+            : UpdateChannel.stable,
       );
       if (!mounted) return;
       if (updateInfo != null && updateInfo.hasUpdate) {
@@ -227,6 +231,11 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
     final l10n = AppLocalizations.of(context)!;
     return Consumer<FileProvider>(
       builder: (context, fileProvider, child) {
+        if (!fileProvider.permissionChecked) {
+          // 启动期只做占位，避免初始化未完成时先闪现权限页。
+          return const Scaffold(body: SizedBox.shrink());
+        }
+
         if (!fileProvider.hasPermission) {
           return PermissionScreen(fileProvider: fileProvider);
         }

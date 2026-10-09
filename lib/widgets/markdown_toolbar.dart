@@ -85,231 +85,230 @@ class MarkdownToolbar extends StatelessWidget {
         vertical: isTouchDevice ? 10 : 6,
       ),
       children: [
-          // 撤回重做按钮组
-          if (undoController != null)
-            _ToolbarButtonGroup(
-              children: [
-                ValueListenableBuilder<UndoHistoryValue>(
-                  valueListenable: undoController!,
-                  builder: (context, value, child) {
-                    return _ToolbarButton(
-                      icon: Icons.undo,
-                      tooltip: '撤回',
-                      enabled: value.canUndo,
-                      onPressed: () => _runAction(
-                        MarkdownToolbarAction.undo,
-                        () => undoController!.undo(),
-                      ),
-                    );
-                  },
-                ),
-                ValueListenableBuilder<UndoHistoryValue>(
-                  valueListenable: undoController!,
-                  builder: (context, value, child) {
-                    return _ToolbarButton(
-                      icon: Icons.redo,
-                      tooltip: '重做',
-                      enabled: value.canRedo,
-                      onPressed: () => _runAction(
-                        MarkdownToolbarAction.redo,
-                        () => undoController!.redo(),
-                      ),
-                    );
-                  },
-                ),
-              ],
-            ),
-          if (showCustomUndoRedo)
-            _ToolbarButtonGroup(
-              children: [
-                _ToolbarButton(
-                  icon: Icons.undo,
-                  tooltip: '撤回',
-                  enabled: canUndo ?? false,
-                  onPressed: () =>
-                      _runAction(MarkdownToolbarAction.undo, onUndo!),
-                ),
-                _ToolbarButton(
-                  icon: Icons.redo,
-                  tooltip: '重做',
-                  enabled: canRedo ?? false,
-                  onPressed: () =>
-                      _runAction(MarkdownToolbarAction.redo, onRedo!),
-                ),
-              ],
-            ),
-          if (undoController != null || showCustomUndoRedo)
-            _buildDivider(context),
+        // 撤回重做按钮组
+        if (undoController != null)
           _ToolbarButtonGroup(
             children: [
-              _ToolbarButton(
-                icon: Icons.format_bold,
-                tooltip: '粗体',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.bold,
-                  () => _wrapSelection('**', '**'),
-                ),
+              ValueListenableBuilder<UndoHistoryValue>(
+                valueListenable: undoController!,
+                builder: (context, value, child) {
+                  return _ToolbarButton(
+                    icon: Icons.undo,
+                    tooltip: '撤回',
+                    enabled: value.canUndo,
+                    onPressed: () => _runAction(
+                      MarkdownToolbarAction.undo,
+                      () => undoController!.undo(),
+                    ),
+                  );
+                },
               ),
-              _ToolbarButton(
-                icon: Icons.format_italic,
-                tooltip: '斜体',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.italic,
-                  () => _wrapSelection('*', '*'),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.format_strikethrough,
-                tooltip: '删除线',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.strikethrough,
-                  () => _wrapSelection('~~', '~~'),
-                ),
+              ValueListenableBuilder<UndoHistoryValue>(
+                valueListenable: undoController!,
+                builder: (context, value, child) {
+                  return _ToolbarButton(
+                    icon: Icons.redo,
+                    tooltip: '重做',
+                    enabled: value.canRedo,
+                    onPressed: () => _runAction(
+                      MarkdownToolbarAction.redo,
+                      () => undoController!.redo(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
-          _buildDivider(context),
+        if (showCustomUndoRedo)
           _ToolbarButtonGroup(
             children: [
               _ToolbarButton(
-                icon: Icons.looks_one,
-                tooltip: '标题 1',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.heading1,
-                  () => _insertAtLineStart('# '),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.looks_two,
-                tooltip: '标题 2',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.heading2,
-                  () => _insertAtLineStart('## '),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.looks_3,
-                tooltip: '标题 3',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.heading3,
-                  () => _insertAtLineStart('### '),
-                ),
-              ),
-            ],
-          ),
-          _buildDivider(context),
-          _ToolbarButtonGroup(
-            children: [
-              _ToolbarButton(
-                icon: Icons.format_list_bulleted,
-                tooltip: '无序列表',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.bulletList,
-                  () => _insertAtLineStart('- '),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.format_list_numbered,
-                tooltip: '有序列表',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.orderedList,
-                  () => _insertAtLineStart('1. '),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.check_box_outlined,
-                tooltip: '任务列表',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.taskList,
-                  () => _insertAtLineStart('- [ ] '),
-                ),
-              ),
-            ],
-          ),
-          _buildDivider(context),
-          _ToolbarButtonGroup(
-            children: [
-              _ToolbarButton(
-                icon: Icons.format_quote,
-                tooltip: '引用',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.blockquote,
-                  () => _insertAtLineStart('> '),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.code,
-                tooltip: '行内代码',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.inlineCode,
-                  () => _wrapSelection('`', '`'),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.data_object,
-                tooltip: '代码块',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.codeBlock,
-                  _insertCodeBlock,
-                ),
-              ),
-            ],
-          ),
-          _buildDivider(context),
-          _ToolbarButtonGroup(
-            children: [
-              _ToolbarButton(
-                icon: Icons.link,
-                tooltip: '链接',
+                icon: Icons.undo,
+                tooltip: '撤回',
+                enabled: canUndo ?? false,
                 onPressed: () =>
-                    _runAction(MarkdownToolbarAction.link, _insertLink),
+                    _runAction(MarkdownToolbarAction.undo, onUndo!),
               ),
               _ToolbarButton(
-                icon: Icons.image,
-                tooltip: '图片',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.image,
-                  () => _showImageDialog(context),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.horizontal_rule,
-                tooltip: '分割线',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.horizontalRule,
-                  () => _insertText('\n---\n'),
-                ),
-              ),
-              _ToolbarButton(
-                icon: Icons.table_chart,
-                tooltip: '表格',
-                onPressed: () => _runAction(
-                  MarkdownToolbarAction.table,
-                  () => _showTableDialog(context),
-                ),
+                icon: Icons.redo,
+                tooltip: '重做',
+                enabled: canRedo ?? false,
+                onPressed: () =>
+                    _runAction(MarkdownToolbarAction.redo, onRedo!),
               ),
             ],
           ),
-          // 搜索按钮
-          if (onSearchPressed != null) ...[
-            _buildDivider(context),
-            _ToolbarButtonGroup(
-              children: [
-                _ToolbarButton(
-                  icon: Icons.search,
-                  tooltip: '搜索',
-                  onPressed: () => _runAction(
-                    MarkdownToolbarAction.search,
-                    onSearchPressed!,
-                  ),
-                ),
-              ],
+        if (undoController != null || showCustomUndoRedo)
+          _buildDivider(context),
+        _ToolbarButtonGroup(
+          children: [
+            _ToolbarButton(
+              icon: Icons.format_bold,
+              tooltip: '粗体',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.bold,
+                () => _wrapSelection('**', '**'),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.format_italic,
+              tooltip: '斜体',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.italic,
+                () => _wrapSelection('*', '*'),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.format_strikethrough,
+              tooltip: '删除线',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.strikethrough,
+                () => _wrapSelection('~~', '~~'),
+              ),
             ),
           ],
+        ),
+        _buildDivider(context),
+        _ToolbarButtonGroup(
+          children: [
+            _ToolbarButton(
+              icon: Icons.looks_one,
+              tooltip: '标题 1',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.heading1,
+                () => _insertAtLineStart('# '),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.looks_two,
+              tooltip: '标题 2',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.heading2,
+                () => _insertAtLineStart('## '),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.looks_3,
+              tooltip: '标题 3',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.heading3,
+                () => _insertAtLineStart('### '),
+              ),
+            ),
+          ],
+        ),
+        _buildDivider(context),
+        _ToolbarButtonGroup(
+          children: [
+            _ToolbarButton(
+              icon: Icons.format_list_bulleted,
+              tooltip: '无序列表',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.bulletList,
+                () => _insertAtLineStart('- '),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.format_list_numbered,
+              tooltip: '有序列表',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.orderedList,
+                () => _insertAtLineStart('1. '),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.check_box_outlined,
+              tooltip: '任务列表',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.taskList,
+                () => _insertAtLineStart('- [ ] '),
+              ),
+            ),
+          ],
+        ),
+        _buildDivider(context),
+        _ToolbarButtonGroup(
+          children: [
+            _ToolbarButton(
+              icon: Icons.format_quote,
+              tooltip: '引用',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.blockquote,
+                () => _insertAtLineStart('> '),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.code,
+              tooltip: '行内代码',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.inlineCode,
+                () => _wrapSelection('`', '`'),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.data_object,
+              tooltip: '代码块',
+              onPressed: () =>
+                  _runAction(MarkdownToolbarAction.codeBlock, _insertCodeBlock),
+            ),
+          ],
+        ),
+        _buildDivider(context),
+        _ToolbarButtonGroup(
+          children: [
+            _ToolbarButton(
+              icon: Icons.link,
+              tooltip: '链接',
+              onPressed: () =>
+                  _runAction(MarkdownToolbarAction.link, _insertLink),
+            ),
+            _ToolbarButton(
+              icon: Icons.image,
+              tooltip: '图片',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.image,
+                () => _showImageDialog(context),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.horizontal_rule,
+              tooltip: '分割线',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.horizontalRule,
+                () => _insertText('\n---\n'),
+              ),
+            ),
+            _ToolbarButton(
+              icon: Icons.table_chart,
+              tooltip: '表格',
+              onPressed: () => _runAction(
+                MarkdownToolbarAction.table,
+                () => _showTableDialog(context),
+              ),
+            ),
+          ],
+        ),
+        // 搜索按钮
+        if (onSearchPressed != null) ...[
+          _buildDivider(context),
+          _ToolbarButtonGroup(
+            children: [
+              _ToolbarButton(
+                icon: Icons.search,
+                tooltip: '搜索',
+                onPressed: () =>
+                    _runAction(MarkdownToolbarAction.search, onSearchPressed!),
+              ),
+            ],
+          ),
+        ],
       ],
     );
     if (appStyle.useLiquidGlass) {
-      return LiquidGlassCard(borderRadius: borderRadius, child: list);
+      return SizedBox(
+        height: toolbarHeight,
+        child: LiquidGlassCard(borderRadius: borderRadius, child: list),
+      );
     }
     return Container(
       height: toolbarHeight,
@@ -974,29 +973,6 @@ class MarkdownToolbar extends StatelessWidget {
         .skip(1)
         .map((row) => '| ${row.join(' | ')} |')
         .join('\n');
-
-    final table = '\n$header\n$separator\n$dataRows\n\n';
-
-    controller.text =
-        text.substring(0, selection.start) +
-        table +
-        text.substring(selection.end);
-    controller.selection = TextSelection.collapsed(
-      offset: selection.start + table.length,
-    );
-  }
-
-  void _insertTable({int rows = 2, int cols = 3}) {
-    final text = controller.text;
-    final selection = controller.selection;
-
-    // Header row
-    final header = '| ${List.generate(cols, (i) => '列${i + 1}').join(' | ')} |';
-    // Separator row
-    final separator = '| ${List.generate(cols, (_) => '-----').join(' | ')} |';
-    // Data rows
-    final dataRow = '| ${List.generate(cols, (_) => '内容').join(' | ')} |';
-    final dataRows = List.generate(rows, (_) => dataRow).join('\n');
 
     final table = '\n$header\n$separator\n$dataRows\n\n';
 

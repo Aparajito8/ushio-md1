@@ -8,7 +8,6 @@
 
 import 'dart:convert';
 import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
@@ -48,28 +47,49 @@ class UpdateInfo {
   });
 }
 
+/// 更新规则
+enum UpdateChannel { stable, prerelease }
+
 /// 更新检查服务
 class UpdateService {
-  /// GitHub API 地址
+  /// GitHub 稳定版 API 地址
   static const String _apiUrl =
       'https://api.github.com/repos/jiuxina/ushio-md/releases/latest';
+
+  /// GitHub 全部发布列表地址
+  static const String _allReleasesUrl =
+      'https://api.github.com/repos/jiuxina/ushio-md/releases';
 
   /// 检查更新
   ///
   /// [currentVersion] 当前应用版本号
+  /// [channel] 更新规则，稳定版检查 latest，测试版扫描全部发布
   /// 返回 UpdateInfo 或 null（检查失败时）
-  static Future<UpdateInfo?> checkForUpdate(String currentVersion) async {
+  static Future<UpdateInfo?> checkForUpdate(
+    String currentVersion, {
+    UpdateChannel channel = UpdateChannel.stable,
+  }) async {
     final client = http.Client();
     try {
+      final url = channel == UpdateChannel.stable ? _apiUrl : _allReleasesUrl;
       final response = await client
           .get(
-            Uri.parse(_apiUrl),
+            Uri.parse(url),
             headers: {'Accept': 'application/vnd.github.v3+json'},
           )
           .timeout(const Duration(seconds: 10));
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
+        final dynamic decoded = jsonDecode(response.body);
+
+        final List<dynamic> releases = decoded is List ? decoded : [decoded];
+        final Map<String, dynamic>? release = _selectRelease(releases, channel);
+
+        if (release == null) {
+          appDebugLog('没有找到符合更新规则的发布版本');
+          return null;
+        }
+        final data = release;
 
         // 获取最新版本号（去掉 v 前缀）
         final latestVersion = (data['tag_name'] as String).replaceFirst(
@@ -124,6 +144,25 @@ class UpdateService {
     } finally {
       client.close();
     }
+  }
+
+  /// 按更新规则选择 GitHub release
+  static Map<String, dynamic>? _selectRelease(
+    List<dynamic> releases,
+    UpdateChannel channel,
+  ) {
+    if (channel == UpdateChannel.stable) {
+      final release = releases.isNotEmpty ? releases.first : null;
+      return release is Map<String, dynamic> ? release : null;
+    }
+
+    for (final release in releases) {
+      if (release is! Map<String, dynamic>) continue;
+      if (release['draft'] == true) continue;
+      if (release['prerelease'] != true) continue;
+      return release;
+    }
+    return null;
   }
 
   /// 比较版本号
@@ -215,7 +254,7 @@ class UpdateService {
     final bool shouldCloseClient = client == null;
     final http.Client finalClient = client ?? http.Client();
     IOSink? sink;
-    
+
     try {
       final request = http.Request('GET', Uri.parse(url));
       final response = await finalClient

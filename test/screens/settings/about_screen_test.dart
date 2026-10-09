@@ -51,6 +51,7 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   bool _autoSyncEnabled = false;
   DateTime? _lastSyncTime;
   bool _autoCheckUpdate = true;
+  String _updateChannel = 'stable';
 
   // Getters
   @override ThemeMode get themeMode => _themeMode;
@@ -86,9 +87,11 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   @override DateTime? get lastSyncTime => _lastSyncTime;
   @override bool get isWebdavConfigured => false;
   @override bool get autoCheckUpdate => _autoCheckUpdate;
+  @override String get updateChannel => _updateChannel;
 
   @override void loadSettings() {}
   @override Future<void> setAutoCheckUpdate(bool value) async { _autoCheckUpdate = value; }
+  @override Future<void> setUpdateChannel(String value) async { _updateChannel = value; }
   @override dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 

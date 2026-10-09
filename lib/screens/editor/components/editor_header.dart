@@ -43,19 +43,16 @@ class EditorHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
     return Container(
-      padding: const EdgeInsets.fromLTRB(8, 8, 12, 8),
+      padding: const EdgeInsets.fromLTRB(8, 8, 8, 8),
       child: Row(
         children: [
-          GlassHeaderButton(
-            icon: Icons.arrow_back,
-            onPressed: onBack,
-          ),
-          const SizedBox(width: 6),
+          GlassHeaderButton(icon: Icons.arrow_back, onPressed: onBack),
+          const SizedBox(width: 8),
           Expanded(
             child: Container(
               child: appStyle.useLiquidGlass
                   ? LiquidGlassCard(
-                      borderRadius: BorderRadius.circular(20),
+                      borderRadius: BorderRadius.circular(12),
                       child: _buildInfoContent(context),
                     )
                   : Container(
@@ -64,23 +61,21 @@ class EditorHeader extends StatelessWidget {
                           Theme.of(context).colorScheme,
                           alpha: 0.6,
                         ),
-                        borderRadius: BorderRadius.circular(20),
+                        borderRadius: BorderRadius.circular(12),
                       ),
                       child: _buildInfoContent(context),
                     ),
             ),
           ),
+          const SizedBox(width: 8),
           _buildSaveButton(context),
           if (canUndo || canRedo) ...[
-            const SizedBox(width: 6),
+            const SizedBox(width: 8),
             _buildUndoRedoIndicators(context),
           ],
           if (onMore != null) ...[
             const SizedBox(width: 8),
-            GlassHeaderButton(
-              icon: Icons.more_vert,
-              onPressed: onMore!,
-            ),
+            GlassHeaderButton(icon: Icons.more_vert, onPressed: onMore!),
           ],
         ],
       ),

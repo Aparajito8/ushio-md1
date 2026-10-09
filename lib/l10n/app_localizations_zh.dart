@@ -567,6 +567,21 @@ class AppLocalizationsZh extends AppLocalizations {
   String get autoCheckUpdate => '启动时自动检查更新';
 
   @override
+  String get updateChannel => '更新规则';
+
+  @override
+  String get updateChannelStable => '稳定版';
+
+  @override
+  String get updateChannelPrerelease => '测试版';
+
+  @override
+  String get updateChannelStableDesc => '仅检查 GitHub latest 稳定版';
+
+  @override
+  String get updateChannelPrereleaseDesc => '优先检查最新 pre-release';
+
+  @override
   String get autoCheckUpdateDesc => '有新版本时显示提示';
 
   @override

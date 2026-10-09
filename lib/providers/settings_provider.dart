@@ -242,6 +242,9 @@ class SettingsProvider extends ChangeNotifier {
   /// 是否在启动时自动检查更新（默认开启）
   bool _autoCheckUpdate = true;
 
+  /// 更新规则：stable=稳定版，prerelease=测试版
+  String _updateChannel = 'stable';
+
   // ==================== 底栏设置 ====================
 
   /// 卡片透明度（0.4–1.0）
@@ -434,6 +437,9 @@ class SettingsProvider extends ChangeNotifier {
   double get backgroundOverlayOpacity => _backgroundOverlayOpacity;
 
   bool get autoCheckUpdate => _autoCheckUpdate;
+
+  /// 当前更新规则
+  String get updateChannel => _updateChannel;
   double get cardOpacity => _cardOpacity;
   double get tabBarOpacity => _tabBarOpacity;
   Color? get customCardColor => _customCardColor;
@@ -712,6 +718,9 @@ class SettingsProvider extends ChangeNotifier {
 
     // 更新设置
     _autoCheckUpdate = prefs.getBool('auto_check_update') ?? true;
+    _updateChannel = prefs.getString('update_channel') == 'prerelease'
+        ? 'prerelease'
+        : 'stable';
 
     // 底栏设置
     _cardOpacity = prefs.getDouble('card_opacity') ?? 1.0;
@@ -1164,7 +1173,6 @@ class SettingsProvider extends ChangeNotifier {
     _schedulePersist('particle_enabled', enabled);
   }
 
-
   /// 设置粒子效果类型
   Future<void> setParticleType(String type) async {
     _particleType = type;
@@ -1365,6 +1373,13 @@ class SettingsProvider extends ChangeNotifier {
     _autoCheckUpdate = value;
     notifyListeners();
     _schedulePersist('auto_check_update', value);
+  }
+
+  /// 设置更新规则
+  Future<void> setUpdateChannel(String value) async {
+    _updateChannel = value == 'prerelease' ? 'prerelease' : 'stable';
+    notifyListeners();
+    _schedulePersist('update_channel', _updateChannel);
   }
 
   /// 设置卡片透明度

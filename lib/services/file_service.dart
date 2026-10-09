@@ -192,30 +192,28 @@ class FileService {
   /// 请求存储权限
   ///
   /// Android 权限策略：
-  /// 1. 首先检查是否已有 MANAGE_EXTERNAL_STORAGE 权限
-  /// 2. 请求基本存储权限
+  /// 1. 先做只读检查，已授权时不会弹出系统对话框
+  /// 2. 未授权时请求基本存储权限
   /// 3. 对于 Android 11+，需要请求 MANAGE_EXTERNAL_STORAGE
   ///
   /// 返回 true 表示获得权限
   Future<bool> requestPermissions() async {
-    if (Platform.isAndroid) {
-      // 检查是否已有完全存储访问权限
-      if (await Permission.manageExternalStorage.isGranted) {
-        return true;
-      }
-
-      // 请求基本存储权限
-      var status = await Permission.storage.request();
-      if (status.isGranted) {
-        return true;
-      }
-
-      // Android 11+ 需要额外的管理权限
-      status = await Permission.manageExternalStorage.request();
-      return status.isGranted;
+    if (!Platform.isAndroid) {
+      return true;
     }
-    // iOS 和其他平台默认返回 true
-    return true;
+
+    if (await hasPermissions()) {
+      return true;
+    }
+
+    var status = await Permission.storage.request();
+    if (status.isGranted) {
+      return true;
+    }
+
+    // Android 11+ 需要额外的管理权限
+    status = await Permission.manageExternalStorage.request();
+    return status.isGranted;
   }
 
   /// 检查是否已有存储权限
@@ -386,19 +384,13 @@ class FileService {
 
     final bytes = await file.readAsBytes();
     if (!looksLikeTextBytes(bytes)) {
-      throw FileEncodingException(
-        '文件不是有效的 UTF-8 文本，可能包含二进制内容（$path）',
-        path,
-      );
+      throw FileEncodingException('文件不是有效的 UTF-8 文本，可能包含二进制内容（$path）', path);
     }
     String content;
     try {
       content = utf8.decode(bytes);
     } on FormatException {
-      throw FileEncodingException(
-        '文件不是有效的 UTF-8 文本（$path）',
-        path,
-      );
+      throw FileEncodingException('文件不是有效的 UTF-8 文本（$path）', path);
     }
     _storeInCache(path, content, lastModified: stat.modified, size: stat.size);
     return content;

@@ -575,6 +575,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get autoCheckUpdate => 'Auto check for updates on startup';
 
   @override
+  String get updateChannel => 'Update channel';
+
+  @override
+  String get updateChannelStable => 'Stable';
+
+  @override
+  String get updateChannelPrerelease => 'Pre-release';
+
+  @override
+  String get updateChannelStableDesc => 'Check the latest stable release';
+
+  @override
+  String get updateChannelPrereleaseDesc => 'Prefer the latest pre-release';
+
+  @override
   String get autoCheckUpdateDesc =>
       'Show notification when new version available';
 

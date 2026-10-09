@@ -1202,6 +1202,36 @@ abstract class AppLocalizations {
   /// **'启动时自动检查更新'**
   String get autoCheckUpdate;
 
+  /// No description provided for @updateChannel.
+  ///
+  /// In zh, this message translates to:
+  /// **'更新规则'**
+  String get updateChannel;
+
+  /// No description provided for @updateChannelStable.
+  ///
+  /// In zh, this message translates to:
+  /// **'稳定版'**
+  String get updateChannelStable;
+
+  /// No description provided for @updateChannelPrerelease.
+  ///
+  /// In zh, this message translates to:
+  /// **'测试版'**
+  String get updateChannelPrerelease;
+
+  /// No description provided for @updateChannelStableDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'仅检查 GitHub latest 稳定版'**
+  String get updateChannelStableDesc;
+
+  /// No description provided for @updateChannelPrereleaseDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'优先检查最新 pre-release'**
+  String get updateChannelPrereleaseDesc;
+
   /// No description provided for @autoCheckUpdateDesc.
   ///
   /// In zh, this message translates to:

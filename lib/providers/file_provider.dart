@@ -1,12 +1,12 @@
 // ============================================================================
 // 文件状态管理器
-// 
+//
 // 管理应用的文件相关状态，包括：
 // - 文件列表和当前目录
 // - 最近访问的文件/文件夹
 // - 置顶的文件/文件夹
 // - 存储权限管理
-// 
+//
 // 使用 SharedPreferences 持久化存储用户数据。
 // ============================================================================
 
@@ -17,89 +17,97 @@ import '../models/markdown_file.dart';
 import '../services/file_service.dart';
 
 /// 文件状态提供者
-/// 
+///
 /// 通过 ChangeNotifier 实现响应式状态管理，
 /// 当状态变化时自动通知 UI 更新。
 class FileProvider extends ChangeNotifier {
   // ==================== 依赖 ====================
-  
+
   /// 文件服务（处理实际的文件系统操作）
   final FileService _fileService;
 
-  FileProvider({FileService? fileService}) 
-      : _fileService = fileService ?? FileService();
+  FileProvider({FileService? fileService})
+    : _fileService = fileService ?? FileService();
 
   // ==================== 状态 ====================
-  
+
   /// 当前目录下的 Markdown 文件列表
   List<MarkdownFile> _files = [];
-  
+
   /// 最近打开的文件路径列表（最多保存 20 个）
   List<String> _recentFiles = [];
-  
+
   /// 最近访问的文件夹路径列表（最多保存 20 个）
   List<String> _recentFolders = [];
-  
+
   /// 置顶的文件路径列表
   List<String> _pinnedFiles = [];
-  
+
   /// 置顶的文件夹路径列表
   List<String> _pinnedFolders = [];
-  
+
   /// 当前浏览的目录路径（null 表示在首页）
   String? _currentDirectory;
-  
+
   /// 是否正在加载
   bool _isLoading = false;
-  
+
   /// 错误信息
   String? _error;
-  
+
   /// 是否已获取存储权限
   bool _hasPermission = false;
 
+  /// 是否已完成只读权限检查
+  bool _permissionChecked = false;
   // ==================== 缓存的验证结果 ====================
 
   /// 已验证存在的最近文件列表（异步验证后缓存）
   List<String> _validatedRecentFiles = [];
+
   /// 已验证存在的最近文件夹列表
   List<String> _validatedRecentFolders = [];
+
   /// 已验证存在的置顶文件列表
   List<String> _validatedPinnedFiles = [];
+
   /// 已验证存在的置顶文件夹列表
   List<String> _validatedPinnedFolders = [];
 
   // ==================== Getters ====================
-  
+
   List<MarkdownFile> get files => _files;
-  
+
   /// 获取最近文件列表（使用异步验证后的缓存）
   List<String> get recentFiles => _validatedRecentFiles;
-  
+
   /// 获取最近文件夹列表（使用异步验证后的缓存）
   List<String> get recentFolders => _validatedRecentFolders;
-  
+
   /// 获取置顶文件列表（使用异步验证后的缓存）
   List<String> get pinnedFiles => _validatedPinnedFiles;
-  
+
   /// 获取置顶文件夹列表（使用异步验证后的缓存）
   List<String> get pinnedFolders => _validatedPinnedFolders;
-  
+
   String? get currentDirectory => _currentDirectory;
   bool get isLoading => _isLoading;
   String? get error => _error;
   bool get hasPermission => _hasPermission;
+
+  /// 只读权限检查完成前，UI 不应直接显示权限请求页
+  bool get permissionChecked => _permissionChecked;
   FileService get fileService => _fileService;
 
   // ==================== 初始化 ====================
 
   /// 初始化提供者
-  /// 
+  ///
   /// 从本地存储加载：
   /// - 最近文件列表
   /// - 最近文件夹列表
   /// - 置顶项目列表
-  /// 
+  ///
   /// 并检查存储权限状态
   Future<void> initialize() async {
     await _loadRecentFiles();
@@ -113,7 +121,9 @@ class FileProvider extends ChangeNotifier {
   Future<void> _validateAllPaths() async {
     // 并行验证所有路径，避免串行 I/O 阻塞启动
     final recentFileResults = await Future.wait(
-      _recentFiles.map((path) async => MapEntry(path, await File(path).exists())),
+      _recentFiles.map(
+        (path) async => MapEntry(path, await File(path).exists()),
+      ),
     );
     final validatedRecent = recentFileResults
         .where((e) => e.value)
@@ -121,7 +131,9 @@ class FileProvider extends ChangeNotifier {
         .toList();
 
     final recentFolderResults = await Future.wait(
-      _recentFolders.map((path) async => MapEntry(path, await Directory(path).exists())),
+      _recentFolders.map(
+        (path) async => MapEntry(path, await Directory(path).exists()),
+      ),
     );
     final validatedRecentFolders = recentFolderResults
         .where((e) => e.value)
@@ -129,7 +141,9 @@ class FileProvider extends ChangeNotifier {
         .toList();
 
     final pinnedFileResults = await Future.wait(
-      _pinnedFiles.map((path) async => MapEntry(path, await File(path).exists())),
+      _pinnedFiles.map(
+        (path) async => MapEntry(path, await File(path).exists()),
+      ),
     );
     final validatedPinned = pinnedFileResults
         .where((e) => e.value)
@@ -137,7 +151,9 @@ class FileProvider extends ChangeNotifier {
         .toList();
 
     final pinnedFolderResults = await Future.wait(
-      _pinnedFolders.map((path) async => MapEntry(path, await Directory(path).exists())),
+      _pinnedFolders.map(
+        (path) async => MapEntry(path, await Directory(path).exists()),
+      ),
     );
     final validatedPinnedFolders = pinnedFolderResults
         .where((e) => e.value)
@@ -161,26 +177,28 @@ class FileProvider extends ChangeNotifier {
   // ==================== 权限管理 ====================
 
   /// 检查存储权限
-  /// 
+  ///
   /// 返回 true 表示已获取权限
   Future<bool> checkPermissions() async {
     _hasPermission = await _fileService.hasPermissions();
+    _permissionChecked = true;
     notifyListeners();
     return _hasPermission;
   }
 
   /// 请求存储权限
-  /// 
+  ///
   /// 弹出系统权限请求对话框
   /// 返回 true 表示用户授权
   Future<bool> requestPermissions() async {
     _hasPermission = await _fileService.requestPermissions();
+    _permissionChecked = true;
     notifyListeners();
     return _hasPermission;
   }
 
   /// 打开系统设置页面
-  /// 
+  ///
   /// 用户可在设置中手动开启权限
   Future<void> openSettings() async {
     await _fileService.openSettings();
@@ -189,9 +207,9 @@ class FileProvider extends ChangeNotifier {
   // ==================== 目录操作 ====================
 
   /// 设置当前目录并加载文件
-  /// 
+  ///
   /// [path] 目录的绝对路径
-  /// 
+  ///
   /// 加载该目录下的所有 Markdown 文件
   Future<void> setDirectory(String path) async {
     _isLoading = true;
@@ -212,7 +230,7 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 刷新当前目录
-  /// 
+  ///
   /// 重新加载当前目录下的文件列表
   Future<void> refresh() async {
     if (_currentDirectory != null) {
@@ -229,7 +247,7 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 选择目录
-  /// 
+  ///
   /// 打开系统文件选择器，让用户选择一个目录
   /// 返回选中的目录路径（用户取消则返回 null）
   Future<String?> pickDirectory() async {
@@ -238,10 +256,10 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 选择并打开文件
-  /// 
+  ///
   /// 打开系统文件选择器，选择一个 Markdown 文件
   /// 并将其添加到最近文件列表
-  /// 
+  ///
   /// 返回选中的文件路径（用户取消则返回 null）
   Future<String?> pickAndOpenFile() async {
     final path = await _fileService.pickMarkdownFile();
@@ -252,7 +270,7 @@ class FileProvider extends ChangeNotifier {
   }
 
   // ==================== 最近文件管理 ====================
-  
+
   /// 从本地存储加载最近文件列表
   Future<void> _loadRecentFiles() async {
     final prefs = await SharedPreferences.getInstance();
@@ -261,17 +279,17 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 添加文件到最近列表
-  /// 
+  ///
   /// [path] 文件的绝对路径
-  /// 
+  ///
   /// 如果文件已存在，会移动到列表首位
   /// 列表最多保存 20 个文件
   Future<void> addToRecentFiles(String path) async {
-    _recentFiles.remove(path);  // 移除已存在的（确保不重复）
-    _recentFiles.insert(0, path);  // 添加到首位
+    _recentFiles.remove(path); // 移除已存在的（确保不重复）
+    _recentFiles.insert(0, path); // 添加到首位
     _validatedRecentFiles.remove(path);
     _validatedRecentFiles.insert(0, path);
-    
+
     // 限制最大数量
     if (_recentFiles.length > 20) {
       _recentFiles = _recentFiles.sublist(0, 20);
@@ -308,15 +326,18 @@ class FileProvider extends ChangeNotifier {
     final item = _recentFiles.removeAt(oldIndex);
     _recentFiles.insert(newIndex, item);
     _validatedRecentFiles.remove(item);
-    _validatedRecentFiles.insert(newIndex.clamp(0, _validatedRecentFiles.length), item);
+    _validatedRecentFiles.insert(
+      newIndex.clamp(0, _validatedRecentFiles.length),
+      item,
+    );
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('recent_files', _recentFiles);
   }
 
   // ==================== 最近文件夹管理 ====================
-  
+
   /// 从本地存储加载最近文件夹列表
   Future<void> _loadRecentFolders() async {
     final prefs = await SharedPreferences.getInstance();
@@ -364,9 +385,12 @@ class FileProvider extends ChangeNotifier {
     final item = _recentFolders.removeAt(oldIndex);
     _recentFolders.insert(newIndex, item);
     _validatedRecentFolders.remove(item);
-    _validatedRecentFolders.insert(newIndex.clamp(0, _validatedRecentFolders.length), item);
+    _validatedRecentFolders.insert(
+      newIndex.clamp(0, _validatedRecentFolders.length),
+      item,
+    );
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('recent_folders', _recentFolders);
   }
@@ -384,12 +408,12 @@ class FileProvider extends ChangeNotifier {
 
   /// 检查文件是否已置顶
   bool isFilePinned(String path) => _pinnedFiles.contains(path);
-  
+
   /// 检查文件夹是否已置顶
   bool isFolderPinned(String path) => _pinnedFolders.contains(path);
 
   /// 切换文件置顶状态
-  /// 
+  ///
   /// 已置顶则取消，未置顶则添加
   Future<void> togglePinFile(String path) async {
     if (_pinnedFiles.contains(path)) {
@@ -400,7 +424,7 @@ class FileProvider extends ChangeNotifier {
       _validatedPinnedFiles.insert(0, path);
     }
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('pinned_files', _pinnedFiles);
   }
@@ -415,7 +439,7 @@ class FileProvider extends ChangeNotifier {
       _validatedPinnedFolders.insert(0, path);
     }
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('pinned_folders', _pinnedFolders);
   }
@@ -426,9 +450,12 @@ class FileProvider extends ChangeNotifier {
     final item = _pinnedFiles.removeAt(oldIndex);
     _pinnedFiles.insert(newIndex, item);
     _validatedPinnedFiles.remove(item);
-    _validatedPinnedFiles.insert(newIndex.clamp(0, _validatedPinnedFiles.length), item);
+    _validatedPinnedFiles.insert(
+      newIndex.clamp(0, _validatedPinnedFiles.length),
+      item,
+    );
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('pinned_files', _pinnedFiles);
   }
@@ -439,9 +466,12 @@ class FileProvider extends ChangeNotifier {
     final item = _pinnedFolders.removeAt(oldIndex);
     _pinnedFolders.insert(newIndex, item);
     _validatedPinnedFolders.remove(item);
-    _validatedPinnedFolders.insert(newIndex.clamp(0, _validatedPinnedFolders.length), item);
+    _validatedPinnedFolders.insert(
+      newIndex.clamp(0, _validatedPinnedFolders.length),
+      item,
+    );
     notifyListeners();
-    
+
     final prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('pinned_folders', _pinnedFolders);
   }
@@ -449,10 +479,10 @@ class FileProvider extends ChangeNotifier {
   // ==================== 文件操作 ====================
 
   /// 创建新文件
-  /// 
+  ///
   /// [directory] 目标目录路径
   /// [name] 文件名（不含扩展名）
-  /// 
+  ///
   /// 返回创建的文件对象，失败返回 null
   Future<MarkdownFile?> createFile(String directory, String name) async {
     try {
@@ -468,9 +498,9 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 删除文件
-  /// 
+  ///
   /// [path] 文件的绝对路径
-  /// 
+  ///
   /// 同时从最近列表和置顶列表中移除
   /// 返回 true 表示删除成功
   Future<bool> deleteFile(String path) async {
@@ -482,7 +512,7 @@ class FileProvider extends ChangeNotifier {
       // Persist pinned removal
       final prefs = await SharedPreferences.getInstance();
       await prefs.setStringList('pinned_files', _pinnedFiles);
-      
+
       await refresh();
       return true;
     } catch (e) {
@@ -501,10 +531,10 @@ class FileProvider extends ChangeNotifier {
         await removeFromRecentFolders(path);
         _pinnedFolders.remove(path);
         _validatedPinnedFolders.remove(path);
-        
+
         final prefs = await SharedPreferences.getInstance();
         await prefs.setStringList('pinned_folders', _pinnedFolders);
-        
+
         await refresh();
         return true;
       }
@@ -517,7 +547,7 @@ class FileProvider extends ChangeNotifier {
   }
 
   /// 获取常用路径列表
-  /// 
+  ///
   /// 返回设备上的常用目录（如 Download、Documents 等）
   Future<List<String>> getCommonPaths() async {
     return await _fileService.getCommonPaths();
