@@ -5,6 +5,7 @@
 // ============================================================================
 
 import 'package:flutter/material.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/file_provider.dart';
@@ -303,48 +304,39 @@ class _StorageSettingsScreenState extends State<StorageSettingsScreen> {
     VoidCallback onConfirm,
     AppLocalizations l10n,
   ) {
-    showDialog(
+    GlassDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Icon(Icons.warning, color: context.appIconColor),
-            const SizedBox(width: 12),
-            Flexible(child: Text(title)),
-          ],
+      title: title,
+      message: message,
+      actions: [
+        GlassDialogAction(
+          label: l10n.cancel,
+          onPressed: () => Navigator.pop(context),
         ),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              Navigator.pop(context);
-              onConfirm();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Row(
-                    children: [
-                      const Icon(Icons.check, color: Colors.green),
-                      const SizedBox(width: 12),
-                      Text(l10n.cleared),
-                    ],
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+        GlassDialogAction(
+          label: l10n.confirm,
+          isDestructive: true,
+          onPressed: () {
+            Navigator.pop(context);
+            onConfirm();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Row(
+                  children: [
+                    const Icon(Icons.check, color: Colors.green),
+                    const SizedBox(width: 12),
+                    Text(l10n.cleared),
+                  ],
                 ),
-              );
-            },
-            child: Text(l10n.confirm),
-          ),
-        ],
-      ),
+                behavior: SnackBarBehavior.floating,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 

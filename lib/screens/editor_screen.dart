@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -906,26 +907,21 @@ class _EditorScreenState extends State<EditorScreen>
 
   /// 丢弃未保存的修改，恢复到上次保存的内容
   Future<void> _discardUnsavedChanges() async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await GlassDialog.show<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Text('丢弃修改'),
-        content: const Text('确定要丢弃所有未保存的修改吗？\n此操作无法撤销。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(context).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('丢弃'),
-          ),
-        ],
-      ),
+      title: '丢弃修改',
+      message: '确定要丢弃所有未保存的修改吗？\n此操作无法撤销。',
+      actions: [
+        GlassDialogAction(
+          label: '取消',
+          onPressed: () => Navigator.pop(context, false),
+        ),
+        GlassDialogAction(
+          label: '丢弃',
+          isDestructive: true,
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ],
     );
 
     if (confirmed != true) return;
@@ -1019,39 +1015,21 @@ class _EditorScreenState extends State<EditorScreen>
     _diffOverlayEntry?.remove();
 
     // 显示确认对话框
-    final confirmed = await showDialog<bool>(
+    final confirmed = await GlassDialog.show<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Icon(Icons.restore, color: Colors.orange),
-            ),
-            const SizedBox(width: 12),
-            const Expanded(
-              child: Text('确认回退版本', overflow: TextOverflow.ellipsis),
-            ),
-          ],
+      title: '确认回退版本',
+      message: '将回退到版本 v${version.versionNumber}，当前内容会自动备份。',
+      actions: [
+        GlassDialogAction(
+          label: '取消',
+          onPressed: () => Navigator.pop(context, false),
         ),
-        content: Text('将回退到版本 v${version.versionNumber}，当前内容会自动备份。'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('取消'),
-          ),
-          FilledButton.icon(
-            onPressed: () => Navigator.pop(context, true),
-            icon: const Icon(Icons.restore, size: 18),
-            label: const Text('回退'),
-          ),
-        ],
-      ),
+        GlassDialogAction(
+          label: '回退',
+          isPrimary: true,
+          onPressed: () => Navigator.pop(context, true),
+        ),
+      ],
     );
 
     // 用户取消，重新显示 diff 覆盖层

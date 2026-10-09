@@ -100,33 +100,30 @@ class _HistoryTabState extends State<HistoryTab> {
 
   void _showClearHistoryDialog() {
     final l10n = AppLocalizations.of(context)!;
-    showDialog(
+    GlassDialog.show(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(l10n.clearHistoryConfirm),
-        content: Text(
-          l10n.clearHistoryConfirmMessage(
-            _viewMode == HistoryViewMode.files ? l10n.file : l10n.folder,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(l10n.cancel),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              if (_viewMode == HistoryViewMode.files) {
-                widget.fileProvider.clearRecentFiles();
-              } else {
-                widget.fileProvider.clearRecentFolders();
-              }
-            },
-            child: Text(l10n.clear, style: const TextStyle(color: Colors.red)),
-          ),
-        ],
+      title: l10n.clearHistoryConfirm,
+      message: l10n.clearHistoryConfirmMessage(
+        _viewMode == HistoryViewMode.files ? l10n.file : l10n.folder,
       ),
+      actions: [
+        GlassDialogAction(
+          label: l10n.cancel,
+          onPressed: () => Navigator.pop(context),
+        ),
+        GlassDialogAction(
+          label: l10n.clear,
+          isDestructive: true,
+          onPressed: () {
+            Navigator.pop(context);
+            if (_viewMode == HistoryViewMode.files) {
+              widget.fileProvider.clearRecentFiles();
+            } else {
+              widget.fileProvider.clearRecentFolders();
+            }
+          },
+        ),
+      ],
     );
   }
 
