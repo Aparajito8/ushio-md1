@@ -9,6 +9,26 @@
 
 ## [Unreleased]
 
+### 修复（液态玻璃审计）
+
+- 接入根级 `GlassPage`：玻璃模式下补全全局玻璃渲染层、状态栏跟随主题、
+  WebView 平台视图透传（不再渲染黑色块），并修复悬浮按钮缩放的玻璃采样。
+- 补全 `ColorScheme` 语义角色：默认主题路径现在提供 `onSurface`、
+  `onSurfaceVariant`、`outline`、`outlineVariant`、`secondaryContainer`，
+  并清空 `surfaceTint`，修复约 249 处实色黑/白回退。
+- 统一图标取色：`IconButton` 改用应用图标色，头部玻璃按钮在禁用时
+  交给 `GlassIconButton` 处理，不再被外层显式色绕过。
+- 编辑器渲染修正：悬浮按钮移除 `AnimatedOpacity` 合成层隔离，
+  `GlassCard` 修复玻璃模式下双重 16px 内边距，Markdown 工具栏容器
+  与历史页分段开关在玻璃模式下接入真实玻璃材质。
+- 高频确认对话框改用 `GlassDialog`：清空历史、删除文件/文件夹、
+  丢弃修改、回退版本、新建文件夹等 7 处玻璃模式下显示玻璃材质。
+- 桌面端隐藏系统标题栏，消除双标题栏；桌面导航栏在玻璃模式下使用
+  玻璃容器。
+- 清理死代码：移除已替换的旧外观设置页、旧 Markdown 预览与
+  `unified_ui.dart`（约 4450 行），删除遗留的静态 `lightTheme` /
+  `darkTheme` 与未使用的 `flutter_highlight` 依赖。
+
 ### 修复
 
 - 修复软键盘弹出时主界面整体被顶起的问题：主界面不再跟随键盘压缩，
