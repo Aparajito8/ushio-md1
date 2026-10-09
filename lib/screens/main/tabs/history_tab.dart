@@ -131,20 +131,27 @@ class _HistoryTabState extends State<HistoryTab> {
     final l10n = AppLocalizations.of(context)!;
     final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
     if (appStyle.useLiquidGlass) {
-      return GlassSegmentedControl(
-        height: 36,
-        selectedIndex: _viewMode == HistoryViewMode.files ? 0 : 1,
-        onSegmentSelected: (index) => setState(() {
-          _viewMode =
-              index == 0 ? HistoryViewMode.files : HistoryViewMode.folders;
-        }),
-        segments: [
-          GlassSegment(
-            icon: Icon(Icons.description, size: 16),
-            label: l10n.file,
-          ),
-          GlassSegment(icon: Icon(Icons.folder, size: 16), label: l10n.folder),
-        ],
+      // 固定宽度可给两个中文标签留出呼吸空间，避免相邻文字贴在一起。
+      return SizedBox(
+        width: 140,
+        child: GlassSegmentedControl(
+          height: 36,
+          selectedIndex: _viewMode == HistoryViewMode.files ? 0 : 1,
+          onSegmentSelected: (index) => setState(() {
+            _viewMode =
+                index == 0 ? HistoryViewMode.files : HistoryViewMode.folders;
+          }),
+          segments: [
+            GlassSegment(
+              icon: Icon(Icons.description, size: 16),
+              label: l10n.file,
+            ),
+            GlassSegment(
+              icon: Icon(Icons.folder, size: 16),
+              label: l10n.folder,
+            ),
+          ],
+        ),
       );
     }
     return AppSurface(

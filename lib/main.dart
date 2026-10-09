@@ -22,6 +22,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
@@ -146,6 +147,13 @@ class MyApp extends StatelessWidget {
               Locale('en'), // 英文
             ],
             locale: settings.locale, // 使用动态语言设置
+            // Android 系统返回不做预测性退出预览；页面间仍使用普通缩放过渡。
+            onNavigationNotification: (notification) {
+              SystemNavigator.setFrameworkHandlesBack(
+                notification.canHandlePop,
+              );
+              return false;
+            },
             // 确保 locale 正确匹配
             localeResolutionCallback: (locale, supportedLocales) {
               if (locale == null) {
@@ -198,6 +206,10 @@ class MyApp extends StatelessWidget {
 
               return GlassPage(
                 settings: LiquidGlassSettings(
+                  glassColor: Theme.of(context).brightness == Brightness.dark
+                      ? const Color(0x2E101828)
+                      : const Color(0x66FFFFFF),
+                  blur: 16,
                   platformViewMode: PlatformViewGlassMode.passthrough,
                 ),
                 statusBarStyle: GlassStatusBarStyle.auto,
@@ -394,10 +406,17 @@ class MyApp extends StatelessWidget {
       );
     }
 
+    final pageTransitionsTheme = PageTransitionsTheme(
+      builders: {
+        TargetPlatform.android: const FadeForwardsPageTransitionsBuilder(),
+      },
+    );
+
     ThemeData theme = ThemeData(
       useMaterial3: true,
       brightness: brightness,
       colorScheme: effectiveColorScheme,
+      pageTransitionsTheme: pageTransitionsTheme,
       iconTheme: IconThemeData(color: appStyle.iconColor),
       scaffoldBackgroundColor: backgroundColor,
       extensions: [appStyle],
@@ -461,112 +480,112 @@ class MyApp extends StatelessWidget {
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: appStyle.useBorderlessButtons
-              ? textColor
-              : isGlass
-              ? textColor
-              : colorScheme.primary,
-          backgroundColor: isGlass
-              ? Colors.transparent
-              : appStyle.useBorderlessButtons
-              ? appStyle.strongSurface
-              : Colors.transparent,
-          side: BorderSide(
-            color: appStyle.useBorderlessButtons && !isGlass
-                ? Colors.transparent
-                : appStyle.outlineColor,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        ).copyWith(
-          overlayColor: WidgetStatePropertyAll(
-            colorScheme.primary.withValues(alpha: 0.08),
-          ),
-          backgroundBuilder: isGlass
-              ? (context, states, child) => glassButtonBackground(
-                  borderRadius: BorderRadius.circular(16),
-                  child: child,
-                )
-              : null,
-        ),
+              foregroundColor: appStyle.useBorderlessButtons
+                  ? textColor
+                  : isGlass
+                  ? textColor
+                  : colorScheme.primary,
+              backgroundColor: isGlass
+                  ? Colors.transparent
+                  : appStyle.useBorderlessButtons
+                  ? appStyle.strongSurface
+                  : Colors.transparent,
+              side: BorderSide(
+                color: appStyle.useBorderlessButtons && !isGlass
+                    ? Colors.transparent
+                    : appStyle.outlineColor,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            ).copyWith(
+              overlayColor: WidgetStatePropertyAll(
+                colorScheme.primary.withValues(alpha: 0.08),
+              ),
+              backgroundBuilder: isGlass
+                  ? (context, states, child) => glassButtonBackground(
+                      borderRadius: BorderRadius.circular(16),
+                      child: child,
+                    )
+                  : null,
+            ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          foregroundColor: isGlass ? textColor : buttonForeground,
-          backgroundColor: isGlass ? Colors.transparent : buttonBackground,
-          elevation: appStyle.useBorderlessButtons ? 4 : 0,
-          shadowColor: Colors.black.withValues(alpha: 0.18),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: appStyle.useBorderlessButtons
-                  ? Colors.transparent
-                  : colorScheme.primary,
+              foregroundColor: isGlass ? textColor : buttonForeground,
+              backgroundColor: isGlass ? Colors.transparent : buttonBackground,
+              elevation: appStyle.useBorderlessButtons ? 4 : 0,
+              shadowColor: Colors.black.withValues(alpha: 0.18),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+                side: BorderSide(
+                  color: appStyle.useBorderlessButtons
+                      ? Colors.transparent
+                      : colorScheme.primary,
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+            ).copyWith(
+              overlayColor: WidgetStatePropertyAll(
+                colorScheme.primary.withValues(alpha: 0.08),
+              ),
+              backgroundBuilder: isGlass
+                  ? (context, states, child) => glassButtonBackground(
+                      borderRadius: BorderRadius.circular(16),
+                      child: child,
+                    )
+                  : null,
             ),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-        ).copyWith(
-          overlayColor: WidgetStatePropertyAll(
-            colorScheme.primary.withValues(alpha: 0.08),
-          ),
-          backgroundBuilder: isGlass
-              ? (context, states, child) => glassButtonBackground(
-                  borderRadius: BorderRadius.circular(16),
-                  child: child,
-                )
-              : null,
-        ),
       ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: appStyle.useBorderlessButtons
-              ? textColor
-              : isGlass
-              ? textColor
-              : colorScheme.primary,
-          backgroundColor:
-              appStyle.useBorderlessButtons
-              ? appStyle.strongSurface
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        ).copyWith(
-          overlayColor: WidgetStatePropertyAll(
-            colorScheme.primary.withValues(alpha: 0.08),
-          ),
-          backgroundBuilder: isGlass
-              ? (context, states, child) => glassButtonBackground(
-                  borderRadius: BorderRadius.circular(14),
-                  child: child,
-                )
-              : null,
-        ),
+              foregroundColor: appStyle.useBorderlessButtons
+                  ? textColor
+                  : isGlass
+                  ? textColor
+                  : colorScheme.primary,
+              backgroundColor:
+                  appStyle.useBorderlessButtons
+                  ? appStyle.strongSurface
+                  : null,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            ).copyWith(
+              overlayColor: WidgetStatePropertyAll(
+                colorScheme.primary.withValues(alpha: 0.08),
+              ),
+              backgroundBuilder: isGlass
+                  ? (context, states, child) => glassButtonBackground(
+                      borderRadius: BorderRadius.circular(14),
+                      child: child,
+                    )
+                  : null,
+            ),
       ),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
-          foregroundColor: appStyle.iconColor,
-          backgroundColor:
-              appStyle.useBorderlessButtons
-              ? appStyle.strongSurface
-              : null,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(14),
-          ),
-        ).copyWith(
-          overlayColor: WidgetStatePropertyAll(
-            colorScheme.primary.withValues(alpha: 0.08),
-          ),
-          backgroundBuilder: isGlass
-              ? (context, states, child) => glassButtonBackground(
-                  borderRadius: BorderRadius.circular(14),
-                  child: child,
-                )
-              : null,
-        ),
+              foregroundColor: appStyle.iconColor,
+              backgroundColor:
+                  appStyle.useBorderlessButtons
+                  ? appStyle.strongSurface
+                  : null,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+            ).copyWith(
+              overlayColor: WidgetStatePropertyAll(
+                colorScheme.primary.withValues(alpha: 0.08),
+              ),
+              backgroundBuilder: isGlass
+                  ? (context, states, child) => glassButtonBackground(
+                      borderRadius: BorderRadius.circular(14),
+                      child: child,
+                    )
+                  : null,
+            ),
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
