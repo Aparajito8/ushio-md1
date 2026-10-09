@@ -153,13 +153,13 @@ class _SearchSheetState extends State<SearchSheet> {
                             radius: 14,
                             backgroundColor: index == _currentMatchIndex
                                 ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+                                : Theme.of(context).colorScheme.secondaryContainer,
                             child: Text(
                               '${index + 1}',
                               style: TextStyle(
                                 fontSize: 12,
                                 color: index == _currentMatchIndex
-                                    ? Colors.white
+                                    ? Theme.of(context).colorScheme.onPrimary
                                     : Theme.of(context).colorScheme.onSurface,
                               ),
                             ),

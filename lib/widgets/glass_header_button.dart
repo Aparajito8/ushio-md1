@@ -28,20 +28,29 @@ class GlassHeaderButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    final effectiveIconColor =
-        iconColor ??
-        (isActive
-            ? Theme.of(context).colorScheme.primary
-            : context.appIconColor);
+    final bool glassButton = appStyle.useLiquidGlass;
+    final Color? explicitColor = iconColor ??
+        (isActive ? Theme.of(context).colorScheme.primary : null);
+    final Color? effectiveIconColor;
+    if (explicitColor != null) {
+      effectiveIconColor = explicitColor;
+    } else if (glassButton && onPressed == null) {
+      // Let GlassIconButton apply its own disabled-state tint.
+      effectiveIconColor = null;
+    } else {
+      effectiveIconColor = context.appIconColor;
+    }
 
-    final button = appStyle.useLiquidGlass
+    final button = glassButton
         ? GlassIconButton(
             onPressed: onPressed,
             size: size,
             iconSize: iconSize,
             shape: GlassIconButtonShape.roundedSquare,
             borderRadius: 12,
-            icon: Icon(icon, color: effectiveIconColor, size: iconSize),
+            icon: effectiveIconColor != null
+                ? Icon(icon, color: effectiveIconColor, size: iconSize)
+                : Icon(icon, size: iconSize),
           )
         : SizedBox(
             width: size,

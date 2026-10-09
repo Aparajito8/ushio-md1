@@ -251,6 +251,7 @@ class MyApp extends StatelessWidget {
       colorScheme: colorScheme,
       backgroundColor: monetColorScheme?.background ?? scheme.background,
       textColor: uiFontColor,
+      contentTextColor: scheme.text,
       textSecondaryColor:
           monetColorScheme?.onSurfaceVariant ?? scheme.textSecondary,
       fontFamily: fontFamily,
@@ -308,6 +309,7 @@ class MyApp extends StatelessWidget {
       colorScheme: colorScheme,
       backgroundColor: monetColorScheme?.background ?? scheme.background,
       textColor: scheme.text,
+      contentTextColor: scheme.text,
       textSecondaryColor:
           monetColorScheme?.onSurfaceVariant ?? scheme.textSecondary,
       fontFamily: fontFamily,
@@ -325,6 +327,7 @@ class MyApp extends StatelessWidget {
     required ColorScheme colorScheme,
     required Color backgroundColor,
     required Color textColor,
+    required Color contentTextColor,
     required Color textSecondaryColor,
     required String? fontFamily,
     required AppButtonStyleMode buttonStyleMode,
@@ -334,8 +337,34 @@ class MyApp extends StatelessWidget {
     Color? customIconColor,
     bool useCustomIconColor = false,
   }) {
+    final isDark = brightness == Brightness.dark;
+    final resolvedOutline = colorScheme.outline != const Color(0xFF000000)
+        ? colorScheme.outline
+        : textSecondaryColor.withValues(alpha: isDark ? 0.35 : 0.22);
+    final resolvedOutlineVariant = colorScheme.outlineVariant !=
+            const Color(0xFF000000)
+        ? colorScheme.outlineVariant
+        : textSecondaryColor.withValues(alpha: isDark ? 0.20 : 0.12);
+    final resolvedOnSurface = colorScheme.onSurface != const Color(0xFF000000)
+        ? colorScheme.onSurface
+        : contentTextColor;
+    final resolvedOnSurfaceVariant =
+        colorScheme.onSurfaceVariant != const Color(0xFF000000)
+        ? colorScheme.onSurfaceVariant
+        : textSecondaryColor;
+    final resolvedSecondaryContainer = colorScheme.secondaryContainer !=
+            const Color(0xFF000000)
+        ? colorScheme.secondaryContainer
+        : colorScheme.primary.withValues(alpha: isDark ? 0.28 : 0.14);
     final effectiveColorScheme = _applyGlobalCardOpacity(
-      colorScheme,
+      colorScheme.copyWith(
+        onSurface: resolvedOnSurface,
+        onSurfaceVariant: resolvedOnSurfaceVariant,
+        outline: resolvedOutline,
+        outlineVariant: resolvedOutlineVariant,
+        surfaceTint: Colors.transparent,
+        secondaryContainer: resolvedSecondaryContainer,
+      ),
       cardOpacity,
       customCardColor: customCardColor,
       useCustomCardColor: useCustomCardColor,
@@ -523,7 +552,7 @@ class MyApp extends StatelessWidget {
       ),
       iconButtonTheme: IconButtonThemeData(
         style: IconButton.styleFrom(
-          foregroundColor: textColor,
+          foregroundColor: appStyle.iconColor,
           backgroundColor:
               appStyle.useBorderlessButtons
               ? appStyle.strongSurface
@@ -620,6 +649,23 @@ class MyApp extends StatelessWidget {
           alpha: 0.95,
         ),
         contentTextStyle: TextStyle(color: textColor),
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: appStyle.iconColor,
+        textColor: textColor,
+        subtitleTextStyle: TextStyle(color: textSecondaryColor),
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: isGlass
+              ? appStyle.strongSurface
+              : effectiveColorScheme.inverseSurface,
+          borderRadius: BorderRadius.circular(8),
+        ),
+        textStyle: TextStyle(
+          color: isGlass ? textColor : effectiveColorScheme.onInverseSurface,
+          fontSize: 12,
+        ),
       ),
       textTheme: TextTheme(
         bodyLarge: TextStyle(color: textColor),
