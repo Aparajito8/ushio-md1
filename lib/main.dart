@@ -188,8 +188,24 @@ class MyApp extends StatelessWidget {
             ), // 深色主题
             themeMode: settings.themeMode, // 主题模式（跟随系统/浅色/深色）
             builder: (context, child) {
-              return GlobalParticleOverlay(
+              final pageChild = GlobalParticleOverlay(
                 child: child ?? const SizedBox.shrink(),
+              );
+
+              if (!_isLiquidGlassMode()) {
+                return pageChild;
+              }
+
+              final fallbackColor = Theme.of(context)
+                  .colorScheme
+                  .surface
+                  .withValues(alpha: 0.92);
+              return GlassPage(
+                settings: LiquidGlassSettings(
+                  platformViewFallbackColor: fallbackColor,
+                ),
+                statusBarStyle: GlassStatusBarStyle.auto,
+                child: pageChild,
               );
             },
             home: const MainScreen(), // 主页面
@@ -245,6 +261,14 @@ class MyApp extends StatelessWidget {
       customIconColor: customIconColor,
       useCustomIconColor: useCustomIconColor,
     );
+  }
+
+  /// 判断是否处于液态玻璃模式。
+  static bool _isLiquidGlassMode() {
+    final context = WidgetsBinding.instance.rootElement;
+    if (context == null) return false;
+    final appStyle = Theme.of(context).extension<AppStyleTheme>();
+    return appStyle?.useLiquidGlass ?? false;
   }
 
   /// 构建深色主题
