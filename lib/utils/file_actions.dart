@@ -3,7 +3,6 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import '../providers/file_provider.dart';
 import '../providers/settings_provider.dart';
@@ -1093,21 +1092,24 @@ class FileActions {
   }) async {
     final fileName = path.split(Platform.pathSeparator).last;
 
-    final confirm = await GlassDialog.show<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
-      title: '删除文件',
-      message: '确定要删除 "$fileName" 吗？此操作不可撤销。',
-      actions: [
-        GlassDialogAction(
-          label: '取消',
-          onPressed: () => Navigator.pop(context, false),
-        ),
-        GlassDialogAction(
-          label: '删除',
-          isDestructive: true,
-          onPressed: () => Navigator.pop(context, true),
-        ),
-      ],
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('删除文件'),
+        content: Text('确定要删除 "$fileName" 吗？此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
     );
 
     if (confirm == true) {
@@ -1601,21 +1603,24 @@ class FileActions {
   }) async {
     final folderName = path.split(Platform.pathSeparator).last;
 
-    final confirm = await GlassDialog.show<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
-      title: '删除文件夹',
-      message: '确定要删除 "$folderName" 及其所有内容吗？此操作不可撤销。',
-      actions: [
-        GlassDialogAction(
-          label: '取消',
-          onPressed: () => Navigator.pop(context, false),
-        ),
-        GlassDialogAction(
-          label: '删除',
-          isDestructive: true,
-          onPressed: () => Navigator.pop(context, true),
-        ),
-      ],
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: const Text('删除文件夹'),
+        content: Text('确定要删除 "$folderName" 及其所有内容吗？此操作不可撤销。'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext, false),
+            child: const Text('取消'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(dialogContext, true),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('删除'),
+          ),
+        ],
+      ),
     );
 
     if (confirm == true) {

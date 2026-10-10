@@ -100,30 +100,35 @@ class _HistoryTabState extends State<HistoryTab> {
 
   void _showClearHistoryDialog() {
     final l10n = AppLocalizations.of(context)!;
-    GlassDialog.show(
+    showDialog(
       context: context,
-      title: l10n.clearHistoryConfirm,
-      message: l10n.clearHistoryConfirmMessage(
-        _viewMode == HistoryViewMode.files ? l10n.file : l10n.folder,
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(l10n.clearHistoryConfirm),
+        content: Text(
+          l10n.clearHistoryConfirmMessage(
+            _viewMode == HistoryViewMode.files ? l10n.file : l10n.folder,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n.cancel),
+          ),
+          FilledButton(
+            onPressed: () {
+              Navigator.pop(dialogContext);
+              if (_viewMode == HistoryViewMode.files) {
+                widget.fileProvider.clearRecentFiles();
+              } else {
+                widget.fileProvider.clearRecentFolders();
+              }
+            },
+            style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: Text(l10n.clear),
+          ),
+        ],
       ),
-      actions: [
-        GlassDialogAction(
-          label: l10n.cancel,
-          onPressed: () => Navigator.pop(context),
-        ),
-        GlassDialogAction(
-          label: l10n.clear,
-          isDestructive: true,
-          onPressed: () {
-            Navigator.pop(context);
-            if (_viewMode == HistoryViewMode.files) {
-              widget.fileProvider.clearRecentFiles();
-            } else {
-              widget.fileProvider.clearRecentFolders();
-            }
-          },
-        ),
-      ],
     );
   }
 

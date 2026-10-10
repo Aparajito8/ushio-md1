@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../providers/file_provider.dart';
@@ -290,47 +289,49 @@ class FolderBrowserScreenState extends State<FolderBrowserScreen> {
     final l10n = AppLocalizations.of(context);
     // 简化的新建文件夹 Dialog，直接在当前目录
     final nameController = TextEditingController();
-    GlassDialog.show(
+    showDialog(
       context: context,
-      title: l10n?.createFolder ?? 'Create Folder',
-      content: TextField(
-        controller: nameController,
-        autofocus: true,
-        decoration: InputDecoration(
-          labelText: l10n?.folderName ?? 'Folder Name',
+      builder: (dialogContext) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text(l10n?.createFolder ?? 'Create Folder'),
+        content: TextField(
+          controller: nameController,
+          autofocus: true,
+          decoration: InputDecoration(
+            labelText: l10n?.folderName ?? 'Folder Name',
+          ),
         ),
-      ),
-      actions: [
-        GlassDialogAction(
-          label: l10n?.cancel ?? 'Cancel',
-          onPressed: () => Navigator.pop(context),
-        ),
-        GlassDialogAction(
-          label: l10n?.create ?? 'Create',
-          isPrimary: true,
-          onPressed: () async {
-            Navigator.pop(context);
-            if (nameController.text.isNotEmpty) {
-              try {
-                final newPath =
-                    '${widget.folderPath}${Platform.pathSeparator}${nameController.text}';
-                await Directory(newPath).create();
-                _loadFiles();
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        '${l10n?.createFailed ?? 'Create failed'}: $e',
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogContext),
+            child: Text(l10n?.cancel ?? 'Cancel'),
+          ),
+          FilledButton(
+            onPressed: () async {
+              Navigator.pop(dialogContext);
+              if (nameController.text.isNotEmpty) {
+                try {
+                  final newPath =
+                      '${widget.folderPath}${Platform.pathSeparator}${nameController.text}';
+                  await Directory(newPath).create();
+                  _loadFiles();
+                } catch (e) {
+                  if (mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          '${l10n?.createFailed ?? 'Create failed'}: $e',
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
                 }
               }
-            }
-          },
-        ),
-      ],
+            },
+            child: Text(l10n?.create ?? 'Create'),
+          ),
+        ],
+      ),
     );
   }
 
