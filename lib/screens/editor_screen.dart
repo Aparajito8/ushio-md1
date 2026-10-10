@@ -104,6 +104,13 @@ class _EditorScreenState extends State<EditorScreen>
   late FocusNode _inlineEditFocusNode;
 
   EditorMode _mode = EditorMode.preview;
+
+  /// 编辑态下冻结给预览 WebView 的 markdown。
+  ///
+  /// 预览面板是 Android 平台视图，卸载再挂回的代价是整个编辑器重新加载与求值
+  /// （实测冷 ~1.4s、热 ~440ms），所以编辑态只把它 Offstage 掉。既然实例还在，
+  /// 就不能再跟随 _textController 每次按键重发全文，故进入编辑态时冻结一份。
+  String _webViewMarkdownInEdit = '';
   bool _isLoading = true;
   bool _isModified = false;
   bool _isSaving = false;
@@ -184,6 +191,29 @@ class _EditorScreenState extends State<EditorScreen>
       if (mounted && !_floatingButtonsVisible) {
         setState(() => _floatingButtonsVisible = true);
       }
+    });
+  }
+
+  /// 进入编辑态：冻结下发给预览的内容，并把 IME 从平台视图上摘下来。
+  void _enterEditMode() {
+    _flushPendingMilkdownMerge();
+    _webViewMarkdownInEdit = _textController.text;
+    unawaited(_previewWebViewController.execCmd('blur_editor'));
+    unawaited(_previewWebViewController.clearFocus());
+    setState(() {
+      _mode = EditorMode.edit;
+      _isMilkdownEditorFocused = false;
+    });
+  }
+
+  /// 回到预览态：预览重新跟随文本，差异由 WebView 的 didUpdateWidget 增量下发。
+  void _enterPreviewMode() {
+    setState(() {
+      _mode = EditorMode.preview;
+      _isMilkdownEditorFocused = false;
+      _hidePreviewToolbar = true;
+      _previewCanUndo = false;
+      _previewCanRedo = false;
     });
   }
 
@@ -2035,7 +2065,9 @@ class _EditorScreenState extends State<EditorScreen>
   Widget _buildInlineEditablePreview(SettingsProvider settings) {
     if (_hidePlatformViews) return const SizedBox.expand();
     return MilkdownWebViewEditor(
-      initialMarkdown: _textController.text,
+      initialMarkdown: _mode == EditorMode.edit
+          ? _webViewMarkdownInEdit
+          : _textController.text,
       readOnly: false,
       fontSize: settings.fontSize,
       lineHeight: settings.lineHeight,
@@ -2641,59 +2673,46 @@ class _EditorScreenState extends State<EditorScreen>
         ? _buildEditorBackgroundLayer(settings)
         : null;
     final isDesktop = ResponsiveLayout.isDesktopWidth(context);
+    final theme = Theme.of(context);
 
-    switch (_mode) {
-      case EditorMode.edit:
-        return ClipRRect(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(isDesktop ? 12 : 20),
+    Widget panel({required Widget child}) => ClipRRect(
+      borderRadius: BorderRadius.vertical(
+        top: Radius.circular(isDesktop ? 12 : 20),
+      ),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          if (editorBackground != null) editorBackground,
+          Container(
+            color: editorBackground == null
+                ? theme.colorScheme.surface.withValues(
+                    alpha: theme.extension<AppStyleTheme>()!.useLiquidGlass
+                        ? 0.0
+                        : 1.0,
+                  )
+                : Colors.transparent,
+            child: child,
           ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (editorBackground != null) editorBackground,
-              Container(
-                color: editorBackground == null
-                    ? Theme.of(context).colorScheme.surface.withValues(
-                        alpha:
-                            Theme.of(
-                              context,
-                            ).extension<AppStyleTheme>()!.useLiquidGlass
-                            ? 0.0
-                            : 1.0,
-                      )
-                    : Colors.transparent,
-                child: _buildEditPanel(settings, toolbarPadding: 56),
-              ),
-            ],
-          ),
-        );
-      case EditorMode.preview:
-        return ClipRRect(
-          borderRadius: BorderRadius.vertical(
-            top: Radius.circular(isDesktop ? 12 : 20),
-          ),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              if (editorBackground != null) editorBackground,
-              Container(
-                color: editorBackground == null
-                    ? Theme.of(context).colorScheme.surface.withValues(
-                        alpha:
-                            Theme.of(
-                              context,
-                            ).extension<AppStyleTheme>()!.useLiquidGlass
-                            ? 0.0
-                            : 1.0,
-                      )
-                    : Colors.transparent,
-                child: _buildInlineEditablePreview(settings),
-              ),
-            ],
-          ),
-        );
-    }
+        ],
+      ),
+    );
+
+    // 两个面板都留在树里，只用 Offstage 切可见性。预览面板是 Android 平台视图，
+    // 一旦随模式切换被卸载，回到预览就要重新加载并求值整个编辑器（实测热态
+    // ~440ms、冷态 ~1.4s），而这成本会摊到每一次预览/编辑来回切换上。
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Offstage(
+          offstage: _mode != EditorMode.preview,
+          child: panel(child: _buildInlineEditablePreview(settings)),
+        ),
+        Offstage(
+          offstage: _mode != EditorMode.edit,
+          child: panel(child: _buildEditPanel(settings, toolbarPadding: 56)),
+        ),
+      ],
+    );
   }
 
   Widget? _buildEditorBackgroundLayer(SettingsProvider settings) {
@@ -2794,13 +2813,7 @@ class _EditorScreenState extends State<EditorScreen>
                     icon: Icons.visibility,
                     color: Theme.of(context).colorScheme.primary,
                     hitPadding: const EdgeInsets.all(10),
-                    onTap: () => setState(() {
-                      _mode = EditorMode.preview;
-                      _isMilkdownEditorFocused = false;
-                      _hidePreviewToolbar = true;
-                      _previewCanUndo = false;
-                      _previewCanRedo = false;
-                    }),
+                    onTap: _enterPreviewMode,
                   ),
                 )
               : const SizedBox.shrink(),
@@ -2825,13 +2838,7 @@ class _EditorScreenState extends State<EditorScreen>
                         icon: Icons.edit,
                         color: Theme.of(context).colorScheme.tertiary,
                         hitPadding: const EdgeInsets.all(10),
-                        onTap: () {
-                          _flushPendingMilkdownMerge();
-                          setState(() {
-                            _mode = EditorMode.edit;
-                            _isMilkdownEditorFocused = false;
-                          });
-                        },
+                        onTap: _enterEditMode,
                       ),
                       const SizedBox(height: 0),
                       AnimatedFab(
