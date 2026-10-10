@@ -27,6 +27,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:window_manager/window_manager.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import 'l10n/app_localizations.dart';
 import 'models/monet_config.dart';
@@ -78,6 +79,16 @@ void main() async {
   await FontService.loadAllCustomFonts();
 
   await LiquidGlassWidgets.initialize();
+
+  // 用平台真实版本号覆盖硬编码默认值，避免更新检查/关于页的版本漂移
+  try {
+    final packageInfo = await PackageInfo.fromPlatform();
+    if (packageInfo.version.isNotEmpty) {
+      AppConstants.appVersion = packageInfo.version;
+    }
+  } catch (_) {
+    // 读取失败时保留 constants.dart 中的兜底默认值
+  }
 
   runApp(
     LiquidGlassWidgets.wrap(
