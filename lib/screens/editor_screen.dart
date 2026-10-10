@@ -2778,8 +2778,9 @@ class _EditorScreenState extends State<EditorScreen>
       case EditorMode.edit:
         final editBottom = safeBottom + 56.0 + 16.0;
         return Positioned(
-          right: desktopRightInset,
-          bottom: editBottom,
+          // -10 抵消 hitPadding 带来的外扩，保持按钮视觉位置不变
+          right: desktopRightInset - 10,
+          bottom: editBottom - 10,
           child: showButtons
               ? AnimatedScale(
                   scale: 1.0,
@@ -2788,6 +2789,7 @@ class _EditorScreenState extends State<EditorScreen>
                   child: AnimatedFab(
                     icon: Icons.visibility,
                     color: Theme.of(context).colorScheme.primary,
+                    hitPadding: const EdgeInsets.all(10),
                     onTap: () => setState(() {
                       _mode = EditorMode.preview;
                       _isMilkdownEditorFocused = false;
@@ -2804,8 +2806,9 @@ class _EditorScreenState extends State<EditorScreen>
         // 悬浮按钮列固定放在底部工具栏上方，避免遮挡“标题 1/标题 2”。
         final previewBottom = safeBottom + 56.0 + 16.0;
         return Positioned(
-          right: desktopRightInset,
-          bottom: previewBottom,
+          // -10 抵消 hitPadding 带来的外扩，保持按钮视觉位置不变
+          right: desktopRightInset - 10,
+          bottom: previewBottom - 10,
           child: showButtons
               ? AnimatedScale(
                   scale: 1.0,
@@ -2817,6 +2820,7 @@ class _EditorScreenState extends State<EditorScreen>
                       AnimatedFab(
                         icon: Icons.edit,
                         color: Theme.of(context).colorScheme.tertiary,
+                        hitPadding: const EdgeInsets.all(10),
                         onTap: () {
                           _flushPendingMilkdownMerge();
                           setState(() {
@@ -2825,10 +2829,11 @@ class _EditorScreenState extends State<EditorScreen>
                           });
                         },
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 0),
                       AnimatedFab(
                         icon: Icons.list,
                         color: Theme.of(context).colorScheme.primary,
+                        hitPadding: const EdgeInsets.all(10),
                         onTap: () {
                           if (_showToc) {
                             _tocOverlayController.close();

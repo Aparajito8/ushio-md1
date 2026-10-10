@@ -21,12 +21,18 @@ class AnimatedFab extends StatefulWidget {
   /// Optional tooltip.
   final String? tooltip;
 
+  /// Transparent padding that enlarges the tap target beyond the button's
+  /// visual size without changing how the button looks. Null keeps the default
+  /// (hit area == visual bounds).
+  final EdgeInsetsGeometry? hitPadding;
+
   const AnimatedFab({
     super.key,
     required this.icon,
     required this.color,
     required this.onTap,
     this.tooltip,
+    this.hitPadding,
   });
 
   @override
@@ -67,18 +73,24 @@ class _AnimatedFabState extends State<AnimatedFab> {
           );
 
     final child = GestureDetector(
+      behavior: widget.hitPadding != null
+          ? HitTestBehavior.opaque
+          : HitTestBehavior.deferToChild,
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) {
         setState(() => _pressed = false);
         widget.onTap();
       },
       onTapCancel: () => setState(() => _pressed = false),
+      child: Padding(
+        padding: widget.hitPadding ?? EdgeInsets.zero,
         child: AnimatedScale(
           scale: _pressed ? 0.85 : 1.0,
           duration: const Duration(milliseconds: 100),
           curve: Curves.easeOut,
           child: core,
         ),
+      ),
     );
 
     if (widget.tooltip != null) {
