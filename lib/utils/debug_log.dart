@@ -14,3 +14,16 @@ void appDebugLog(String message) {
     debugPrint(message);
   }
 }
+
+/// 打开文档的里程碑计时开关：`flutter build --dart-define=OPEN_TRACE=true` 才生效。
+///
+/// 注意 `bool.fromEnvironment` 只认字符串 "true"/"false"，写 `=1` 会被当成未定义。
+/// 默认关闭（const 为 false，整段被 tree-shaking 消除），这样 release 里既没有
+/// 平台通道打印开销，又能在需要时量出真机上每次打开的分段耗时。
+const bool openTraceEnabled = bool.fromEnvironment('OPEN_TRACE');
+
+void openTrace(String message) {
+  if (openTraceEnabled) {
+    debugPrint('[OPEN] $message');
+  }
+}

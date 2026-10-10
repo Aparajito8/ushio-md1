@@ -14,6 +14,7 @@ import '../utils/editor_navigation_helper.dart';
 import '../utils/file_import_helper.dart';
 import '../widgets/app_background.dart';
 import '../widgets/custom_title_bar.dart';
+import '../widgets/milkdown_warmup_view.dart';
 import '../widgets/milkdown_webview_editor.dart';
 import '../widgets/themed_feedback.dart';
 import 'main/tabs/home_tab.dart';
@@ -39,6 +40,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   int _currentIndex = 0;
   double _capsuleTabBarInset = 0;
   final GlobalKey _capsuleTabBarKey = GlobalKey();
+
+  /// 冷启动 WebView 预热：先等首页画完，再挂一个离屏视图把编辑器启动成本提前付掉。
+  bool _warmupRequested = false;
+  bool _warmupDone = false;
 
   // PageController for swipe gesture with follow-through effect
   late PageController _pageController;
@@ -132,9 +137,22 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
             if (!mounted) return;
             EditorNavigationHelper.openEditor(context, lastFilePath);
           });
+          // 已经在打开文档了，那次打开本身就是预热，不必再抢 CPU。
+          return;
         }
       }
     }
+
+    _scheduleWebViewWarmup();
+  }
+
+  /// 首页画完、启动动画结束后再预热，避免和首帧渲染抢资源。
+  void _scheduleWebViewWarmup() {
+    if (Platform.isLinux) return;
+    Timer(const Duration(milliseconds: 1200), () {
+      if (!mounted || _warmupDone) return;
+      setState(() => _warmupRequested = true);
+    });
   }
 
   Future<void> _runFirstLaunchWarmupIfNeeded() async {
@@ -271,6 +289,19 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
                 right: 0,
                 bottom: 0,
                 child: _buildCapsuleTabBar(l10n, key: _capsuleTabBarKey),
+              ),
+            if (_warmupRequested && !_warmupDone)
+              Positioned(
+                left: -100,
+                top: -100,
+                width: 1,
+                height: 1,
+                child: MilkdownWarmupView(
+                  onWarmed: () {
+                    if (!mounted) return;
+                    setState(() => _warmupDone = true);
+                  },
+                ),
               ),
           ],
         );

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/file_provider.dart';
 import '../screens/editor_screen.dart';
+import '../widgets/milkdown_warmup_view.dart';
 import '../widgets/milkdown_webview_editor.dart';
 import '../widgets/themed_feedback.dart';
 import 'debug_log.dart';
@@ -21,6 +22,8 @@ class EditorNavigationHelper {
     String? initialContent,
   }) async {
     appDebugLog('[NAV] openEditor called for: $filePath');
+    // 真正的编辑器要起来了，放弃可能还在跑的冷启动预热。
+    MilkdownWarmupView.cancel();
     appDebugLog(
       '[NAV] initialContent provided: ${initialContent != null}, length: ${initialContent?.length ?? "N/A"}',
     );
@@ -54,9 +57,7 @@ class EditorNavigationHelper {
           dialogContext = currentDialogContext;
           return PopScope(
             canPop: false,
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           );
         },
       );

@@ -154,6 +154,27 @@ Future<MilkdownAssetServer?> _startMilkdownServer({
   return null;
 }
 
+/// 编辑器页面的运行时 URL（含缓存键）。
+///
+/// index.html 打包在 APK 内，只有版本升级才会变，所以用版本号做查询参数：WebView 的
+/// HTTP 缓存与 V8 代码缓存因此能跨「打开文档」复用。此前每次都用微秒时间戳，等于每
+/// 打开一篇就把 ~2.8MB 资源重新拉取、重新解析、重新编译一遍。
+/// 调试构建按进程取一个时间戳：既能避开旧缓存，又让预热视图与编辑器命中同一 URL。
+final String _debugUrlStamp = DateTime.now().microsecondsSinceEpoch.toString();
+
+String buildMilkdownRuntimeUrl(MilkdownAssetServer server) {
+  final stamp = kDebugMode ? _debugUrlStamp : AppConstants.appVersion;
+  return 'http://localhost:${server.port}/index.html?v=$stamp';
+}
+
+/// 取得（必要时先拉起）资源服务器并返回编辑器 URL。
+Future<String?> milkdownRuntimeUrl() async {
+  await warmUpMilkdownWebAssets();
+  final server = _warmServer;
+  if (server == null) return null;
+  return buildMilkdownRuntimeUrl(server);
+}
+
 Future<void> warmUpMilkdownWebAssets() async {
   appDebugLog('[WARMUP] warmUpMilkdownWebAssets() called');
 
@@ -453,16 +474,8 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   static const int _maxUploadPersistRetries = 2;
   static const String _localFileScheme = 'ushio-local-file';
 
-  /// index.html 打包在 APK 内，只有版本升级才会变。用版本号做查询参数，WebView 的
-  /// HTTP 缓存与 V8 代码缓存就能跨“打开文档”复用；每次都用时间戳会把 ~2.8MB 资源
-  /// 重新拉取并重新解析/编译一遍，是打开卡顿的主要来源之一。
-  /// 调试构建保留时间戳，避免改动 web 资源后被旧缓存盖住。
-  String _buildRuntimeUrl(MilkdownAssetServer server) {
-    final stamp = kDebugMode
-        ? DateTime.now().microsecondsSinceEpoch.toString()
-        : AppConstants.appVersion;
-    return 'http://localhost:${server.port}/index.html?v=$stamp';
-  }
+  String _buildRuntimeUrl(MilkdownAssetServer server) =>
+      buildMilkdownRuntimeUrl(server);
 
   InAppWebViewController? _controller;
   MilkdownAssetServer? _localhostServer;
@@ -481,6 +494,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
 
   /// 页面内 `window.__USHIO_BRIDGE__` 就绪信号（由 JS 主动回推）。
   final Completer<void> _bridgeReady = Completer<void>();
+
+  /// 打开文档的分段计时基准，输出见 `openTrace`。
+  final Stopwatch _openTraceWatch = Stopwatch();
 
   /// Log errors only (minimal logging for production)
   void _logError(String message) {
@@ -607,6 +623,8 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       '[WEBVIEW] initState called, initialMarkdown length: ${widget.initialMarkdown.length}',
     );
     _lastSyncedMarkdown = widget.initialMarkdown;
+    _openTraceWatch.start();
+    openTrace('webview widget created');
     // 预热服务器已就绪时同步取用：否则首帧只能画「正在初始化编辑器…」骨架，
     // 等一次异步回调 + setState 才创建 WebView，白白多花一到数帧。
     final warm = _warmServer;
@@ -1217,9 +1235,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
     // 直接把 JSON 文本当 JS 对象字面量注入：JSON 是 JS 表达式的合法子集，省掉
     // 「再转义成字符串 + JS 端 JSON.parse」这一层，大文档的注入体积近乎减半。
     // U+2028/U+2029 在 JSON 字符串中合法，但会被老引擎当成行终止符，显式转义。
-    final payload = jsonEncode(msg)
-        .replaceAll('\u2028', r'\u2028')
-        .replaceAll('\u2029', r'\u2029');
+    final payload = jsonEncode(
+      msg,
+    ).replaceAll('\u2028', r'\u2028').replaceAll('\u2029', r'\u2029');
 
     try {
       final result = await _controller!.evaluateJavascript(
@@ -1308,6 +1326,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
         if (!_didFinishFirstRender) {
           _didFinishFirstRender = true;
           appDebugLog('[WEBVIEW] _didFinishFirstRender set to true');
+          openTrace('first render done');
         }
         if (mounted) {
           setState(() {
@@ -1439,6 +1458,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
           ),
           onWebViewCreated: (controller) {
             appDebugLog('[WEBVIEW] onWebViewCreated called');
+            openTrace('android platform view attached');
             _controller = controller;
             widget.controller?._attach(this);
             widget.controller?._attachWebViewController(controller);
@@ -1457,6 +1477,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
           onLoadStop: (controller, _) async {
             appDebugLog('[WEBVIEW] onLoadStop called');
             final bridgeReady = await _waitForBridgeReady(controller);
+            openTrace('page loaded + bridge ready (ready=$bridgeReady)');
 
             // If bridge not ready, force a reload to re-execute JavaScript
             // This handles the case where WebView uses bfcache and doesn't re-run JS
@@ -1486,8 +1507,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             if (kDebugMode) {
               try {
                 final runtimeTag = await controller.evaluateJavascript(
-                  source:
-                      'window.__USHIO_RUNTIME_TAG || "missing_runtime_tag"',
+                  source: 'window.__USHIO_RUNTIME_TAG || "missing_runtime_tag"',
                 );
                 appDebugLog('[MilkdownRuntimeTag] $runtimeTag');
               } catch (e) {
@@ -1506,6 +1526,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             }
             appDebugLog('[WEBVIEW] onLoadStop: calling _sendInitDoc()');
             await _sendInitDoc();
+            openTrace('document handed to webview');
             appDebugLog('[WEBVIEW] onLoadStop: calling _sendTheme()');
             await _sendTheme();
             appDebugLog('[WEBVIEW] onLoadStop: done');
