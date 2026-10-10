@@ -10,7 +10,9 @@ import 'package:file_picker/file_picker.dart';
 import 'package:mime/mime.dart';
 
 import '../models/milkdown_bridge.dart';
+import '../services/milkdown_asset_server.dart';
 import '../services/my_files_service.dart';
+import '../utils/constants.dart';
 import '../utils/debug_log.dart';
 import '../utils/app_style.dart';
 
@@ -123,7 +125,7 @@ class _ContentSanitizer {
 }
 
 // Global warm server instance and mutex
-InAppLocalhostServer? _warmServer;
+MilkdownAssetServer? _warmServer;
 bool _isWarmingUp = false;
 Completer<void>? _warmupCompleter;
 const _localhostPortStart = 8080;
@@ -132,15 +134,13 @@ const _serverStartTimeout = Duration(seconds: 3);
 
 /// Starts a local Milkdown asset server, falling back to adjacent ports.
 ///
-/// `flutter_inappwebview` 的默认服务器在端口被占用时不会完成 `start()`
-/// Future（内部只把错误交给 zone handler），这里用超时 + 端口回退避免编辑器
-/// 永远停留在“正在初始化编辑器...”状态。
-Future<InAppLocalhostServer?> _startMilkdownServer({
+/// 端口占用时逐个回退，并保留超时兜底，避免编辑器永远停留在“正在初始化编辑器...”。
+Future<MilkdownAssetServer?> _startMilkdownServer({
   String documentRoot = 'assets/milkdown_web',
 }) async {
   for (var i = 0; i < _localhostPortAttempts; i++) {
     final port = _localhostPortStart + i;
-    final server = InAppLocalhostServer(port: port, documentRoot: documentRoot);
+    final server = MilkdownAssetServer(port: port, documentRoot: documentRoot);
     try {
       appDebugLog('[SERVER] Trying port $port...');
       await server.start().timeout(_serverStartTimeout);
@@ -188,7 +188,7 @@ Future<void> warmUpMilkdownWebAssets() async {
       appDebugLog(
         '[WARMUP] Server started in ${stopwatch.elapsedMilliseconds}ms',
       );
-      appDebugLog('[WARMUP] Server assigned to _warmServer');
+      unawaited(_warmServer!.preloadEntryAssets());
     }
   } catch (e) {
     appDebugLog('[WARMUP] FAILED: $e');
@@ -453,13 +453,19 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   static const int _maxUploadPersistRetries = 2;
   static const String _localFileScheme = 'ushio-local-file';
 
-  String _buildRuntimeUrl(InAppLocalhostServer server) {
-    final stamp = DateTime.now().microsecondsSinceEpoch;
+  /// index.html 打包在 APK 内，只有版本升级才会变。用版本号做查询参数，WebView 的
+  /// HTTP 缓存与 V8 代码缓存就能跨“打开文档”复用；每次都用时间戳会把 ~2.8MB 资源
+  /// 重新拉取并重新解析/编译一遍，是打开卡顿的主要来源之一。
+  /// 调试构建保留时间戳，避免改动 web 资源后被旧缓存盖住。
+  String _buildRuntimeUrl(MilkdownAssetServer server) {
+    final stamp = kDebugMode
+        ? DateTime.now().microsecondsSinceEpoch.toString()
+        : AppConstants.appVersion;
     return 'http://localhost:${server.port}/index.html?v=$stamp';
   }
 
   InAppWebViewController? _controller;
-  InAppLocalhostServer? _localhostServer;
+  MilkdownAssetServer? _localhostServer;
   String? _initialUrl;
   String? _lastThemeSignature;
   String? _lastSyncedMarkdown;
@@ -472,6 +478,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   static const _suppressTtlMs = 2000; // 2 秒有效期
   DateTime? _suppressReloadToken;
   bool _isDisposed = false;
+
+  /// 页面内 `window.__USHIO_BRIDGE__` 就绪信号（由 JS 主动回推）。
+  final Completer<void> _bridgeReady = Completer<void>();
 
   /// Log errors only (minimal logging for production)
   void _logError(String message) {
@@ -598,7 +607,16 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       '[WEBVIEW] initState called, initialMarkdown length: ${widget.initialMarkdown.length}',
     );
     _lastSyncedMarkdown = widget.initialMarkdown;
-    _startLocalhostServer();
+    // 预热服务器已就绪时同步取用：否则首帧只能画「正在初始化编辑器…」骨架，
+    // 等一次异步回调 + setState 才创建 WebView，白白多花一到数帧。
+    final warm = _warmServer;
+    if (warm != null && !_isWarmingUp) {
+      _localhostServer = warm;
+      _initialUrl = _buildRuntimeUrl(warm);
+      appDebugLog('[WEBVIEW] warm server taken synchronously in initState');
+    } else {
+      _startLocalhostServer();
+    }
     if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
       InAppWebViewController.setWebContentsDebuggingEnabled(kDebugMode);
     }
@@ -650,7 +668,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       }
 
       appDebugLog(
-        '[WEBVIEW] No warmup server, creating new InAppLocalhostServer...',
+        '[WEBVIEW] No warmup server, creating new MilkdownAssetServer...',
       );
       final server = await _startMilkdownServer(documentRoot: _documentRoot);
       if (server == null) {
@@ -685,6 +703,33 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       _isServerStarting = false;
       appDebugLog('[WEBVIEW] _startLocalhostServer done');
     }
+  }
+
+  /// 等待页面内的 `window.__USHIO_BRIDGE__` 就绪。
+  ///
+  /// JS 在定义 bridge 后立刻回推 on_bridge_ready，所以正常路径只有一次平台通道往返；
+  /// 固定 100ms 步长的轮询会让首帧白等最多 100ms，这里只作为收不到通知（如 bfcache
+  /// 恢复、JS 未执行）时的兜底。
+  Future<bool> _waitForBridgeReady(InAppWebViewController controller) async {
+    try {
+      await _bridgeReady.future.timeout(const Duration(milliseconds: 1500));
+      return true;
+    } on TimeoutException {
+      appDebugLog('[WEBVIEW] bridge push timed out, polling as fallback');
+    }
+    for (var attempts = 0; attempts < 100; attempts++) {
+      try {
+        final ready = await controller.evaluateJavascript(
+          source:
+              '!!(window.__USHIO_BRIDGE__ && window.__USHIO_BRIDGE__.onFlutterMessage)',
+        );
+        if (ready == true) return true;
+      } catch (_) {
+        // 页面仍在切文档时会抛异常，继续等
+      }
+      await Future.delayed(const Duration(milliseconds: 25));
+    }
+    return false;
   }
 
   ThemePalettePayload _buildThemePayload() {
@@ -1169,8 +1214,12 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
       return;
     }
 
-    final encoded = jsonEncode(msg);
-    final encodedLiteral = jsonEncode(encoded);
+    // 直接把 JSON 文本当 JS 对象字面量注入：JSON 是 JS 表达式的合法子集，省掉
+    // 「再转义成字符串 + JS 端 JSON.parse」这一层，大文档的注入体积近乎减半。
+    // U+2028/U+2029 在 JSON 字符串中合法，但会被老引擎当成行终止符，显式转义。
+    final payload = jsonEncode(msg)
+        .replaceAll('\u2028', r'\u2028')
+        .replaceAll('\u2029', r'\u2029');
 
     try {
       final result = await _controller!.evaluateJavascript(
@@ -1185,9 +1234,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
               console.error('[JS ERROR] onFlutterMessage not defined');
               return 'error: onFlutterMessage not defined';
             }
-            const raw = $encodedLiteral;
-            const m = JSON.parse(raw);
-            window.__USHIO_BRIDGE__.onFlutterMessage(m);
+            window.__USHIO_BRIDGE__.onFlutterMessage($payload);
             return 'ok';
           })();
         ''',
@@ -1205,6 +1252,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
     }
     final map = Map<String, dynamic>.from(args.first as Map);
     final msgType = map['type'] as String?;
+    if (msgType == 'on_bridge_ready' && !_bridgeReady.isCompleted) {
+      _bridgeReady.complete();
+    }
     appDebugLog('[WEBVIEW] Bridge message received: type=$msgType');
 
     widget.onBridgeMessage?.call(map);
@@ -1380,8 +1430,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             supportZoom: false,
             builtInZoomControls: false,
             displayZoomControls: false,
-            cacheEnabled: false,
-            clearCache: true,
+            cacheEnabled: true,
             resourceCustomSchemes: [_localFileScheme],
             // 额外的安全设置
             mixedContentMode:
@@ -1400,44 +1449,14 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
                 return {'ok': true};
               },
             );
-            // Explicitly clear cache to ensure fresh JavaScript execution
-            controller
-                .clearCache()
-                .then((_) {
-                  appDebugLog('[WEBVIEW] Cache cleared');
-                })
-                .catchError((e) {
-                  appDebugLog('[WEBVIEW] Cache clear error: $e');
-                });
+            // 不做 clearCache：每次新建的 InAppWebView 都是全新文档与全新 JS 上下文，
+            // JS 本就会重新执行；清掉的是整个 WebView 缓存，代价是每次都重取、重编译
+            // 这份 ~2.8MB 资源。
             appDebugLog('[WEBVIEW] onWebViewCreated done');
           },
           onLoadStop: (controller, _) async {
             appDebugLog('[WEBVIEW] onLoadStop called');
-
-            // Wait for JavaScript bridge to be ready
-            appDebugLog('[WEBVIEW] Waiting for JS bridge to be ready...');
-            int attempts = 0;
-            const maxAttempts = 50; // 5 seconds max
-            bool bridgeReady = false;
-            while (attempts < maxAttempts) {
-              try {
-                final ready = await controller.evaluateJavascript(
-                  source:
-                      '!!(window.__USHIO_BRIDGE__ && window.__USHIO_BRIDGE__.onFlutterMessage)',
-                );
-                if (ready == true) {
-                  appDebugLog(
-                    '[WEBVIEW] JS bridge ready after ${attempts * 100}ms',
-                  );
-                  bridgeReady = true;
-                  break;
-                }
-              } catch (e) {
-                // Ignore errors during polling
-              }
-              await Future.delayed(const Duration(milliseconds: 100));
-              attempts++;
-            }
+            final bridgeReady = await _waitForBridgeReady(controller);
 
             // If bridge not ready, force a reload to re-execute JavaScript
             // This handles the case where WebView uses bfcache and doesn't re-run JS
@@ -1463,25 +1482,28 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
               }
             }
 
-            try {
-              final runtimeTag = await controller.evaluateJavascript(
-                source: 'window.__USHIO_RUNTIME_TAG || "missing_runtime_tag"',
+            // 纯诊断信息：release 下省掉两次 Dart→JS 往返。
+            if (kDebugMode) {
+              try {
+                final runtimeTag = await controller.evaluateJavascript(
+                  source:
+                      'window.__USHIO_RUNTIME_TAG || "missing_runtime_tag"',
+                );
+                appDebugLog('[MilkdownRuntimeTag] $runtimeTag');
+              } catch (e) {
+                appDebugLog('[MilkdownRuntimeTag] eval_failed: $e');
+              }
+              await controller.evaluateJavascript(
+                source:
+                    '''
+                  (function() {
+                    if (window.__USHIO_BRIDGE__ && window.__USHIO_BRIDGE__.emitDebug) {
+                      window.__USHIO_BRIDGE__.emitDebug('[Flutter] onLoadStop - baseDirectory: "${widget.baseDirectory ?? ''}"');
+                    }
+                  })();
+                ''',
               );
-              appDebugLog('[MilkdownRuntimeTag] $runtimeTag');
-            } catch (e) {
-              appDebugLog('[MilkdownRuntimeTag] eval_failed: $e');
             }
-            // Log baseDirectory via JS bridge
-            await controller.evaluateJavascript(
-              source:
-                  '''
-                (function() {
-                  if (window.__USHIO_BRIDGE__ && window.__USHIO_BRIDGE__.emitDebug) {
-                    window.__USHIO_BRIDGE__.emitDebug('[Flutter] onLoadStop - baseDirectory: "${widget.baseDirectory ?? ''}"');
-                  }
-                })();
-              ''',
-            );
             appDebugLog('[WEBVIEW] onLoadStop: calling _sendInitDoc()');
             await _sendInitDoc();
             appDebugLog('[WEBVIEW] onLoadStop: calling _sendTheme()');
@@ -1489,19 +1511,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             appDebugLog('[WEBVIEW] onLoadStop: done');
           },
           onLoadResourceWithCustomScheme: (controller, request) async {
-            final url = request.url;
-            // Log via JS bridge
-            await controller.evaluateJavascript(
-              source:
-                  '''
-                (function() {
-                  if (window.__USHIO_BRIDGE__ && window.__USHIO_BRIDGE__.emitDebug) {
-                    window.__USHIO_BRIDGE__.emitDebug('[Flutter] CustomScheme request: "$url"');
-                  }
-                })();
-              ''',
-            );
-            return _serveLocalFileRequest(Uri.parse(url.toString()));
+            // 这里每请求一次就会读一张本地图片；曾经为打日志额外做一次 Dart→JS
+            // 往返，等于给每张图都加一次平台通道延迟，故不再记录。
+            return _serveLocalFileRequest(Uri.parse(request.url.toString()));
           },
           onConsoleMessage: (controller, consoleMessage) {
             appDebugLog('[WebView Console] ${consoleMessage.message}');

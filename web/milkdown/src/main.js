@@ -4207,10 +4207,10 @@ window.__USHIO_BRIDGE__ = {
   emitDebug,
 };
 
-// 通知 Flutter 端 JS Bridge 已就绪
-if (window.flutter_inappwebview && window.flutter_inappwebview.callHandler) {
-  window.flutter_inappwebview.callHandler('onBridgeReady');
-}
+// 通过 bridge handler 主动通知 Flutter「JS 已就绪」。
+// 之前这里 callHandler('onBridgeReady')，而 Flutter 只注册了 'bridge'，通知被丢弃，
+// Flutter 只能靠 100ms 步长轮询判断就绪，白白拖慢每次打开文档的首帧。
+emit('on_bridge_ready', { runtimeTag: RUNTIME_BUILD_TAG });
 
 // Prevent bfcache (back-forward cache) from restoring page without re-running JS
 // This ensures JavaScript is always executed when the page is loaded
