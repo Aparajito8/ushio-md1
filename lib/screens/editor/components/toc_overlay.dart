@@ -158,12 +158,15 @@ class _TocOverlayState extends State<TocOverlay>
                                 ),
                               ),
                               const SizedBox(width: 12),
-                              Text(
-                                l10n.tableOfContents,
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(fontWeight: FontWeight.bold),
+                              Expanded(
+                                child: Text(
+                                  l10n.tableOfContents,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context).textTheme.titleLarge
+                                      ?.copyWith(fontWeight: FontWeight.bold),
+                                ),
                               ),
-                              const Spacer(),
                               // Keep open toggle
                               Tooltip(
                                 message: _keepOpen ? '跳转后保持打开' : '跳转后关闭',
