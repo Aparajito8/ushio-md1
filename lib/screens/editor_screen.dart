@@ -2210,6 +2210,31 @@ class _EditorScreenState extends State<EditorScreen>
 
   // ==================== UI 构建 ====================
 
+  /// 退场动画期间保留最后一帧，动画播完再销毁平台视图。
+  ///
+  /// 一按返回就把内容抽掉，会被看成「白一下再滑走」的卡顿；提前销毁并不会让退出
+  /// 变快，只是把销毁的代价挪进了动画中间。
+  void _schedulePlatformViewTeardown() {
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null || animation.status == AnimationStatus.dismissed) {
+      _hidePlatformViewsNow();
+      return;
+    }
+    animation.addStatusListener(_onRouteExitStatus);
+  }
+
+  void _onRouteExitStatus(AnimationStatus status) {
+    if (status != AnimationStatus.dismissed) return;
+    ModalRoute.of(context)?.animation?.removeStatusListener(_onRouteExitStatus);
+    _hidePlatformViewsNow();
+  }
+
+  void _hidePlatformViewsNow() {
+    if (mounted && !_hidePlatformViews) {
+      setState(() => _hidePlatformViews = true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     appDebugLog(
@@ -2225,7 +2250,7 @@ class _EditorScreenState extends State<EditorScreen>
       canPop: !_isModified && !shouldInterceptForMilkdownBlur,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
-          if (mounted) setState(() => _hidePlatformViews = true);
+          _schedulePlatformViewTeardown();
           return;
         }
         if (shouldInterceptForMilkdownBlur) {
@@ -2247,7 +2272,7 @@ class _EditorScreenState extends State<EditorScreen>
         if (!didPop) {
           final shouldPop = await _onWillPop();
           if (shouldPop && context.mounted) {
-            setState(() => _hidePlatformViews = true);
+            _schedulePlatformViewTeardown();
             Navigator.of(context).pop();
           }
         }

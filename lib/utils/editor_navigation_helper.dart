@@ -38,32 +38,11 @@ class EditorNavigationHelper {
 
     final fileProvider = context.read<FileProvider>();
     final fileService = fileProvider.fileService;
-    final isCached =
-        initialContent != null || fileService.isFileCached(filePath);
-    appDebugLog('[NAV] isCached: $isCached');
-    BuildContext? dialogContext;
 
     onFileOpened?.call();
 
-    bool dialogShown = false;
-    if (!isCached && context.mounted) {
-      appDebugLog('[NAV] Showing loading dialog');
-      dialogShown = true;
-      showDialog<void>(
-        context: context,
-        barrierDismissible: false,
-        barrierColor: Colors.black38,
-        builder: (currentDialogContext) {
-          dialogContext = currentDialogContext;
-          return PopScope(
-            canPop: false,
-            child: const Center(child: CircularProgressIndicator()),
-          );
-        },
-      );
-      // 让对话框先绘制一帧，再进行较重的初始化。
-      await Future<void>.delayed(const Duration(milliseconds: 16));
-    }
+    // 这里不再叠一层「加载中」模态框：编辑器路由自带骨架屏，多一个转圈只会多一次
+    // 「出现-消失」的视觉断点，正是打开动作显得卡顿的原因之一。
 
     try {
       appDebugLog('[NAV] Starting file preload...');
@@ -95,8 +74,7 @@ class EditorNavigationHelper {
         ),
       );
 
-      appDebugLog('[NAV] Dismissing dialog and navigating...');
-      _dismissDialog(dialogShown, dialogContext, context);
+      appDebugLog('[NAV] Navigating...');
       if (!context.mounted) {
         appDebugLog('[NAV] Context no longer mounted, returning');
         return;
@@ -117,7 +95,6 @@ class EditorNavigationHelper {
       );
     } catch (e) {
       appDebugLog('[NAV] ERROR: $e');
-      _dismissDialog(dialogShown, dialogContext, context);
       if (!context.mounted) return;
 
       showThemedSnackBar(
@@ -128,28 +105,7 @@ class EditorNavigationHelper {
         duration: const Duration(seconds: 3),
       );
     } finally {
-      _dismissDialog(dialogShown, dialogContext, context);
       _isOpeningDocument = false;
-    }
-  }
-
-  static void _dismissDialog(
-    bool dialogShown,
-    BuildContext? dialogContext,
-    BuildContext fallbackContext,
-  ) {
-    if (!dialogShown) return;
-
-    if (dialogContext != null && dialogContext.mounted) {
-      Navigator.of(dialogContext).pop();
-      return;
-    }
-
-    if (fallbackContext.mounted) {
-      final navigator = Navigator.of(fallbackContext, rootNavigator: true);
-      if (navigator.canPop()) {
-        navigator.pop();
-      }
     }
   }
 }

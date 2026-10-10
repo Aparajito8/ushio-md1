@@ -484,6 +484,9 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   String? _lastSyncedMarkdown;
   bool _isServerStarting = false;
   bool _didFinishFirstRender = false;
+
+  /// 首屏遮罩是否还留在树上（淡出动画播完才摘）。
+  bool _overlayMounted = true;
   Timer? _firstRenderTimer;
   bool _renderTimedOut = false;
   double _renderProgress = 0;
@@ -506,6 +509,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   void _resetFirstRenderState() {
     _firstRenderTimer?.cancel();
     _didFinishFirstRender = false;
+    _overlayMounted = true;
     _renderTimedOut = false;
     _renderProgress = 0;
   }
@@ -1540,17 +1544,31 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             appDebugLog('[WebView Console] ${consoleMessage.message}');
           },
         ),
-        // Loading overlay until first render
-        if (!_didFinishFirstRender)
+        // 加载遮罩：内容就绪后淡出而不是直接摘掉，避免「骨架屏 → 内容」的硬切
+        // 被感知成一次卡顿。淡出结束后才真正移出树，避免留一层空转的透明层。
+        if (_overlayMounted)
           Positioned.fill(
-            child: _renderTimedOut
-                ? _buildRenderTimeoutOverlay()
-                : _buildLoadingSkeleton(
-                    context,
-                    _renderProgress > 0
-                        ? '正在加载内容... ${(_renderProgress * 100).round()}%'
-                        : '正在加载内容...',
-                  ),
+            child: AnimatedOpacity(
+              opacity: _didFinishFirstRender ? 0 : 1,
+              duration: const Duration(milliseconds: 180),
+              curve: Curves.easeOut,
+              onEnd: () {
+                if (_didFinishFirstRender && _overlayMounted && mounted) {
+                  setState(() => _overlayMounted = false);
+                }
+              },
+              child: IgnorePointer(
+                ignoring: _didFinishFirstRender,
+                child: _renderTimedOut
+                    ? _buildRenderTimeoutOverlay()
+                    : _buildLoadingSkeleton(
+                        context,
+                        _renderProgress > 0
+                            ? '正在加载内容... ${(_renderProgress * 100).round()}%'
+                            : '正在加载内容...',
+                      ),
+              ),
+            ),
           ),
       ],
     );
@@ -1597,10 +1615,12 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
   Widget _buildLoadingSkeleton(BuildContext context, String message) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final isLiquidGlass = theme.extension<AppStyleTheme>()!.useLiquidGlass;
 
     return Container(
-      color: isLiquidGlass ? Colors.transparent : colorScheme.surface,
+      // 加载期间必须是实色底板。之前跟随液态玻璃取透明，结果路由淡入时整页是
+      // 「幽灵页」——能透过编辑器看到上一页，内容再在几百毫秒后凭空出现，
+      // 这段空窗就是「打开卡顿」的主要观感来源。
+      color: colorScheme.surface,
       child: Column(
         children: [
           // Simulated title
@@ -1608,7 +1628,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
             height: 32,
             margin: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: colorScheme.outline.withValues(alpha: 0.1),
+              color: colorScheme.outline.withValues(alpha: 0.16),
               borderRadius: BorderRadius.circular(8),
             ),
           ),
@@ -1619,7 +1639,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
               height: 16,
               margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: colorScheme.outline.withValues(alpha: 0.08),
+                color: colorScheme.outline.withValues(alpha: 0.13),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
