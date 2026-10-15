@@ -2061,16 +2061,8 @@ class _EditorScreenState extends State<EditorScreen>
     _applyMilkdownContentChange(pending, seq);
   }
 
-  /// 深色表面上亮度不足的墨色预设几乎不可读，此时回退主题前景色。
-  Color _documentTextColor(SettingsProvider settings) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final chosen = settings.editorFontColor;
-    final onDarkSurface = colorScheme.surface.computeLuminance() < 0.5;
-    if (onDarkSurface && chosen.computeLuminance() < 0.35) {
-      return colorScheme.onSurface;
-    }
-    return chosen;
-  }
+  Color _documentTextColor(SettingsProvider settings) =>
+      settings.editorFontColorFor(Theme.of(context).brightness);
 
   Widget _buildInlineEditablePreview(SettingsProvider settings) {
     if (_hidePlatformViews) return const SizedBox.expand();

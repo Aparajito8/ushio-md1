@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mdreader/providers/settings_provider.dart';
 import 'package:mdreader/utils/constants.dart';
 
 void main() {
@@ -67,6 +68,55 @@ void main() {
           minimumContrast: 3.0,
         );
       }
+    });
+  });
+
+  group('文字色预设的深色变体', () {
+    // 深色模式下预设会被 legibleOnDark 变换，变换结果必须在全部深色方案上可读
+    for (final scheme in AppConstants.darkThemeSchemes) {
+      test('全部文字预设在「${scheme.name}」上满足 WCAG AA', () {
+        for (var i = 0; i < SettingsProvider.uiFontColors.length; i++) {
+          final color = SettingsProvider.legibleOnDark(
+            SettingsProvider.uiFontColors[i],
+          );
+          _expectReadableText(
+            'uiFontColors[$i]',
+            color,
+            scheme.background,
+            scheme.surface,
+            minimumContrast: 4.5,
+          );
+        }
+        for (var i = 0; i < SettingsProvider.editorFontColors.length; i++) {
+          final color = SettingsProvider.legibleOnDark(
+            SettingsProvider.editorFontColors[i],
+          );
+          _expectReadableText(
+            'editorFontColors[$i]',
+            color,
+            scheme.background,
+            scheme.surface,
+            minimumContrast: 4.5,
+          );
+        }
+      });
+    }
+
+    test('深色变体只提亮不降亮，且饱和度被压住', () {
+      for (final preset in SettingsProvider.uiFontColors) {
+        final dark = SettingsProvider.legibleOnDark(preset);
+        final src = HSLColor.fromColor(preset);
+        final dst = HSLColor.fromColor(dark);
+        // HSL→RGB→HSL 往返有精度损失，留 0.01 容差
+        expect(dst.lightness, greaterThanOrEqualTo(src.lightness - 0.01));
+        expect(dst.lightness, greaterThanOrEqualTo(0.81));
+        expect(dst.saturation, lessThanOrEqualTo(0.51));
+      }
+    });
+
+    test('已满足亮度要求的颜色不被改动', () {
+      const alreadyLight = Color(0xFFEDEDED);
+      expect(SettingsProvider.legibleOnDark(alreadyLight), alreadyLight);
     });
   });
 }

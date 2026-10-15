@@ -97,15 +97,17 @@ void main() {
     test('颜色未自定义时应取预设', () {
       expect(provider.customThemeColor, isNull);
       expect(provider.primaryColor, SettingsProvider.themeColors[0]);
-      expect(provider.uiFontColor, SettingsProvider.uiFontColors[0]);
-      expect(provider.editorFontColor, SettingsProvider.editorFontColors[0]);
+      expect(provider.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[0]);
+      expect(provider.editorFontColorFor(Brightness.light),
+        SettingsProvider.editorFontColors[0]);
     });
 
     test('setCustomEditorFontColor 应立即生效并持久化', () async {
       const color = Color(0xFF123456);
       await provider.setCustomEditorFontColor(color);
 
-      expect(provider.editorFontColor, color);
+      expect(provider.editorFontColorFor(Brightness.light), color);
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getInt('custom_editor_font_color'), color.toARGB32());
     });
@@ -115,7 +117,8 @@ void main() {
       await provider.setUiFontColorIndex(2);
 
       expect(provider.customUiFontColor, isNull);
-      expect(provider.uiFontColor, SettingsProvider.uiFontColors[2]);
+      expect(provider.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[2]);
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.containsKey('custom_ui_font_color'), isFalse);
@@ -132,7 +135,7 @@ void main() {
       final restored = SettingsProvider();
       await restored.initialize();
 
-      expect(restored.uiFontColor, color);
+      expect(restored.uiFontColorFor(Brightness.light), color);
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.containsKey('use_custom_ui_font_color'), isFalse);
@@ -154,7 +157,8 @@ void main() {
       final second = SettingsProvider();
       await second.initialize();
       expect(second.customUiFontColor, isNull);
-      expect(second.uiFontColor, SettingsProvider.uiFontColors[0]);
+      expect(second.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[0]);
     });
 
     test('initialize 应加载自定义图标颜色', () async {

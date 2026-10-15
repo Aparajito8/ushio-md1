@@ -103,7 +103,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                         : null,
                     customColor: settings.customUiFontColor,
                     customLabel: l10n.customUiFontColor,
-                    pickerInitialColor: settings.uiFontColor,
+                    pickerInitialColor: settings.uiFontColorFor(
+                      Theme.of(context).brightness,
+                    ),
                     showTextPreview: true,
                     onPresetSelected: (index) =>
                         settings.setUiFontColorIndex(index),
@@ -123,7 +125,9 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                         : null,
                     customColor: settings.customEditorFontColor,
                     customLabel: l10n.customEditorFontColor,
-                    pickerInitialColor: settings.editorFontColor,
+                    pickerInitialColor: settings.editorFontColorFor(
+                      Theme.of(context).brightness,
+                    ),
                     description: l10n.editorFontColorDesc,
                     showTextPreview: true,
                     onPresetSelected: (index) =>

@@ -125,9 +125,6 @@ class MyApp extends StatelessWidget {
           Color primaryColor = settings.primaryColor;
 
 
-          // 获取界面字体颜色
-          Color uiFontColor = settings.uiFontColor;
-
           // 获取字体设置（System 表示使用系统默认）
           final fontFamily = settings.uiFontFamily == 'System'
               ? null
@@ -174,7 +171,7 @@ class MyApp extends StatelessWidget {
             },
             theme: _buildLightTheme(
               primaryColor,
-              uiFontColor,
+              settings.uiFontColorFor(Brightness.light),
               fontFamily,
               lightThemeIndex,
               settings.buttonStyleMode,
@@ -184,7 +181,7 @@ class MyApp extends StatelessWidget {
             ), // 浅色主题
             darkTheme: _buildDarkTheme(
               primaryColor,
-              settings.customUiFontColor,
+              settings.uiFontColorFor(Brightness.dark),
               darkThemeIndex,
               fontFamily,
               settings.buttonStyleMode,
@@ -269,12 +266,12 @@ class MyApp extends StatelessWidget {
   /// 构建深色主题
   ///
   /// [primaryColor] 用户选择的主题色
-  /// [customUiFontColor] 用户显式取选的界面字体颜色（null 表示沿用主题方案文字色）
+  /// [uiFontColor] 已按深色表面解析出的界面字体颜色
   /// [darkThemeIndex] 夜间主题配色方案索引
   /// [fontFamily] 用户选择的字体（null 表示系统默认）
   ThemeData _buildDarkTheme(
     Color primaryColor,
-    Color? customUiFontColor,
+    Color uiFontColor,
     int darkThemeIndex,
     String? fontFamily,
     AppButtonStyleMode buttonStyleMode,
@@ -295,9 +292,7 @@ class MyApp extends StatelessWidget {
       brightness: Brightness.dark,
       colorScheme: colorScheme,
       backgroundColor: scheme.background,
-      // 预设色是为浅色表面调校的强调色，直接铺到深色背景会掉对比度；
-      // 因此深色下只尊重用户显式取的值，其余沿用主题方案文字色。
-      textColor: customUiFontColor ?? scheme.text,
+      textColor: uiFontColor,
       contentTextColor: scheme.text,
       textSecondaryColor: scheme.textSecondary,
       fontFamily: fontFamily,

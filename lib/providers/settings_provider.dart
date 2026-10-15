@@ -338,15 +338,47 @@ class SettingsProvider extends ChangeNotifier {
 
   // 界面字体颜色 Getters
   int get uiFontColorIndex => _uiFontColorIndex;
-  Color get uiFontColor =>
-      _customUiFontColor ?? uiFontColors[_uiFontColorIndex];
   Color? get customUiFontColor => _customUiFontColor;
 
   // 编辑器文字颜色 Getters
   int get editorFontColorIndex => _editorFontColorIndex;
-  Color get editorFontColor =>
-      _customEditorFontColor ?? editorFontColors[_editorFontColorIndex];
   Color? get customEditorFontColor => _customEditorFontColor;
+
+  /// 强调色与墨色预设都是为浅色纸面调校的，深色表面上需压饱和并提亮才可读。
+  static Color legibleOnDark(Color color) {
+    final hsl = HSLColor.fromColor(color);
+    return hsl
+        .withSaturation(
+          hsl.saturation > 0.5 ? 0.5 : hsl.saturation,
+        )
+        .withLightness(
+          // 0.82 为实测下限：再低，靛蓝预设在最暗的深色方案上会跌破 WCAG AA 4.5:1
+          hsl.lightness < 0.82 ? 0.82 : hsl.lightness,
+        )
+        .toColor();
+  }
+
+  /// 自定义色是用户显式取的，两种模式下都原样生效；预设则按表面明暗取变体。
+  static Color _resolveTextColor(
+    Color? custom,
+    Color preset,
+    Brightness brightness,
+  ) {
+    if (custom != null) return custom;
+    return brightness == Brightness.dark ? legibleOnDark(preset) : preset;
+  }
+
+  Color uiFontColorFor(Brightness brightness) => _resolveTextColor(
+    _customUiFontColor,
+    uiFontColors[_uiFontColorIndex],
+    brightness,
+  );
+
+  Color editorFontColorFor(Brightness brightness) => _resolveTextColor(
+    _customEditorFontColor,
+    editorFontColors[_editorFontColorIndex],
+    brightness,
+  );
 
   String? get backgroundImagePath => _backgroundImagePath;
   String? get editorBackgroundImagePath => _editorBackgroundImagePath;
