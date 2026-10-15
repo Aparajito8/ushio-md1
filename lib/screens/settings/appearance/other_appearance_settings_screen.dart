@@ -79,7 +79,13 @@ class _OtherAppearanceSettingsScreenState
                     Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(height: 12),
-                  buildTabBarOpacitySlider(settings, l10n),
+                  buildOpacitySlider(
+                    label: l10n.opacity,
+                    value: settings.tabBarOpacity,
+                    min: 0.1,
+                    divisions: 18,
+                    onChanged: settings.setTabBarOpacity,
+                  ),
                 ]),
 
               ],

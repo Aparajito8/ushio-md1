@@ -4,9 +4,8 @@ import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../providers/settings_provider.dart';
-import '../../utils/app_style.dart';
 import '../../widgets/app_background.dart';
-import '../../widgets/app_surface.dart';
+import '../../widgets/settings_section.dart';
 
 class DebugSettingsScreen extends StatelessWidget {
   const DebugSettingsScreen({super.key});
@@ -28,7 +27,7 @@ class DebugSettingsScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                _buildSection(context, l10n.debugSwitches, Icons.bug_report, [
+                _buildSection(l10n.debugSwitches, Icons.bug_report, [
                   SwitchListTile(
                     contentPadding: EdgeInsets.zero,
                     title: Text(l10n.enableDebugMode),
@@ -39,7 +38,6 @@ class DebugSettingsScreen extends StatelessWidget {
                 ]),
                 const SizedBox(height: 16),
                 _buildSection(
-                  context,
                   l10n.debugLogsSection,
                   Icons.article_outlined,
                   [
@@ -106,46 +104,10 @@ class DebugSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildSection(
-    BuildContext context,
     String title,
     IconData icon,
     List<Widget> children,
   ) {
-    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return AppSurface(
-      padding: const EdgeInsets.all(16),
-      color: appStyle.scaledSurfaceColor(
-        Theme.of(context).colorScheme,
-        alpha: 0.7,
-      ),
-      border: appStyle.useBorderlessButtons
-          ? null
-          : Border.all(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-            ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          ...children,
-        ],
-      ),
-    );
+    return SettingsSection(title: title, icon: icon, children: children);
   }
 }

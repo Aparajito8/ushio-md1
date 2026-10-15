@@ -14,6 +14,7 @@ import '../../../providers/settings_provider.dart';
 import '../../../utils/app_style.dart';
 import '../../../utils/constants.dart';
 import '../../../widgets/app_surface.dart';
+import '../../../widgets/settings_section.dart';
 import '../../../services/font_service.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/liquid_glass_card.dart';
@@ -89,32 +90,7 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
 
   /// 构建设置区块
   Widget buildSection(String title, IconData icon, List<Widget> children) {
-    return AppSurface(
-      padding: const EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
-    );
+    return SettingsSection(title: title, icon: icon, children: children);
   }
 
   /// 构建选项装饰
@@ -611,30 +587,31 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  /// 构建卡片透明度滑块
-  Widget buildCardOpacitySlider(
-    SettingsProvider settings,
-    AppLocalizations l10n,
-  ) {
+  /// 构建百分比透明度滑块
+  Widget buildOpacitySlider({
+    required String label,
+    required double value,
+    required double min,
+    required int divisions,
+    required ValueChanged<double> onChanged,
+  }) {
+    final percent = '${(value * 100).round()}%';
     return Row(
       children: [
-        Text(l10n.opacity),
+        Text(label),
         Expanded(
           child: Slider(
-            value: settings.cardOpacity,
-            min: 0.4,
+            value: value,
+            min: min,
             max: 1.0,
-            divisions: 12,
-            label: '${(settings.cardOpacity * 100).round()}%',
-            onChanged: (value) => settings.setCardOpacity(value),
+            divisions: divisions,
+            label: percent,
+            onChanged: onChanged,
           ),
         ),
         SizedBox(
           width: 44,
-          child: Text(
-            '${(settings.cardOpacity * 100).round()}%',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+          child: Text(percent, style: Theme.of(context).textTheme.bodySmall),
         ),
       ],
     );
@@ -743,8 +720,12 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  /// 构建浅色主题选择器
-  Widget buildLightThemeSelector(SettingsProvider settings) {
+  /// 构建主题配色方案选择器
+  Widget buildThemeSchemeSelector({
+    required List<ThemeScheme> schemes,
+    required int selectedIndex,
+    required ValueChanged<int> onSelect,
+  }) {
     return GridView.count(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -752,66 +733,11 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
       mainAxisSpacing: 8,
       crossAxisSpacing: 8,
       childAspectRatio: 1.6,
-      children: List.generate(AppConstants.lightThemeSchemes.length, (index) {
-        final scheme = AppConstants.lightThemeSchemes[index];
-        final isSelected = settings.lightThemeIndex == index;
+      children: List.generate(schemes.length, (index) {
+        final scheme = schemes[index];
+        final isSelected = selectedIndex == index;
         return GestureDetector(
-          onTap: () => settings.setLightThemeIndex(index),
-          child: Container(
-            decoration: BoxDecoration(
-              color: scheme.surface,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).dividerColor,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: scheme.background,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  scheme.name,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: scheme.text,
-                    fontWeight: isSelected
-                        ? FontWeight.bold
-                        : FontWeight.normal,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }),
-    );
-  }
-
-  /// 构建深色主题选择器
-  Widget buildDarkThemeSelector(SettingsProvider settings) {
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
-      mainAxisSpacing: 8,
-      crossAxisSpacing: 8,
-      childAspectRatio: 1.6,
-      children: List.generate(AppConstants.darkThemeSchemes.length, (index) {
-        final scheme = AppConstants.darkThemeSchemes[index];
-        final isSelected = settings.darkThemeIndex == index;
-        return GestureDetector(
-          onTap: () => settings.setDarkThemeIndex(index),
+          onTap: () => onSelect(index),
           child: Container(
             decoration: BoxDecoration(
               color: scheme.surface,
@@ -2018,35 +1944,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
         ),
       ),
       onChanged: (value) => settings.setHomeTitleText(value),
-    );
-  }
-
-  /// 构建底部导航栏透明度滑块
-  Widget buildTabBarOpacitySlider(
-    SettingsProvider settings,
-    AppLocalizations l10n,
-  ) {
-    return Row(
-      children: [
-        Text(l10n.opacity),
-        Expanded(
-          child: Slider(
-            value: settings.tabBarOpacity,
-            min: 0.1,
-            max: 1.0,
-            divisions: 18,
-            label: '${(settings.tabBarOpacity * 100).round()}%',
-            onChanged: (value) => settings.setTabBarOpacity(value),
-          ),
-        ),
-        SizedBox(
-          width: 44,
-          child: Text(
-            '${(settings.tabBarOpacity * 100).round()}%',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
-        ),
-      ],
     );
   }
 

@@ -10,36 +10,17 @@
 
 import 'package:flutter/material.dart';
 
-/// 夜间主题配色方案
+/// 主题配色方案
 ///
-/// 定义单个夜间主题的所有颜色属性
-class DarkThemeScheme {
+/// 定义单套主题（浅色或深色）的所有颜色属性
+class ThemeScheme {
   final String name;
   final Color background;
   final Color surface;
   final Color text;
   final Color textSecondary;
 
-  const DarkThemeScheme({
-    required this.name,
-    required this.background,
-    required this.surface,
-    required this.text,
-    required this.textSecondary,
-  });
-}
-
-/// 浅色主题配色方案
-///
-/// 定义单个浅色主题的所有颜色属性
-class LightThemeScheme {
-  final String name;
-  final Color background;
-  final Color surface;
-  final Color text;
-  final Color textSecondary;
-
-  const LightThemeScheme({
+  const ThemeScheme({
     required this.name,
     required this.background,
     required this.surface,
@@ -154,10 +135,10 @@ class AppConstants {
   ///
   /// 配色取自 Catppuccin、Rosé Pine、Nord、Tokyo Night、
   /// Dracula、Gruvbox 等开源配色方案。
-  static const List<DarkThemeScheme> darkThemeSchemes = [
+  static const List<ThemeScheme> darkThemeSchemes = [
     // 1. Catppuccin Mocha
     // https://github.com/catppuccin/palette
-    DarkThemeScheme(
+    ThemeScheme(
       name: '摩卡夜色',
       background: Color(0xFF1E1E2E),
       surface: Color(0xFF313244),
@@ -166,7 +147,7 @@ class AppConstants {
     ),
     // 2. Rosé Pine
     // https://github.com/rose-pine/palette
-    DarkThemeScheme(
+    ThemeScheme(
       name: '松林暮色',
       background: Color(0xFF191724),
       surface: Color(0xFF26233A),
@@ -175,7 +156,7 @@ class AppConstants {
     ),
     // 3. Nord
     // https://github.com/nordtheme/nord
-    DarkThemeScheme(
+    ThemeScheme(
       name: '极地冰蓝',
       background: Color(0xFF2E3440),
       surface: Color(0xFF3B4252),
@@ -184,7 +165,7 @@ class AppConstants {
     ),
     // 4. Tokyo Night
     // https://github.com/folke/tokyonight.nvim
-    DarkThemeScheme(
+    ThemeScheme(
       name: '东京夜蓝',
       background: Color(0xFF1A1B26),
       surface: Color(0xFF292E42),
@@ -193,7 +174,7 @@ class AppConstants {
     ),
     // 5. Dracula
     // https://github.com/dracula/dracula-theme
-    DarkThemeScheme(
+    ThemeScheme(
       name: '德古拉之夜',
       background: Color(0xFF282A36),
       surface: Color(0xFF44475A),
@@ -202,7 +183,7 @@ class AppConstants {
     ),
     // 6. Gruvbox Dark
     // https://github.com/morhetz/gruvbox
-    DarkThemeScheme(
+    ThemeScheme(
       name: '复古炭灰',
       background: Color(0xFF282828),
       surface: Color(0xFF3C3836),
@@ -217,10 +198,10 @@ class AppConstants {
   ///
   /// 配色取自 Catppuccin、Rosé Pine、Tokyo Night、
   /// Gruvbox、Solarized 等开源配色方案。
-  static const List<LightThemeScheme> lightThemeSchemes = [
+  static const List<ThemeScheme> lightThemeSchemes = [
     // 1. Catppuccin Latte
     // https://github.com/catppuccin/palette
-    LightThemeScheme(
+    ThemeScheme(
       name: '拿铁奶油',
       background: Color(0xFFEFF1F5),
       surface: Color(0xFFE6E9EF),
@@ -229,7 +210,7 @@ class AppConstants {
     ),
     // 2. Rosé Pine Dawn
     // https://github.com/rose-pine/palette
-    LightThemeScheme(
+    ThemeScheme(
       name: '松林晨光',
       background: Color(0xFFFAF4ED),
       surface: Color(0xFFFFFAF3),
@@ -238,7 +219,7 @@ class AppConstants {
     ),
     // 3. Tokyo Night Day
     // https://github.com/folke/tokyonight.nvim
-    LightThemeScheme(
+    ThemeScheme(
       name: '东京晨蓝',
       background: Color(0xFFE1E2E7),
       surface: Color(0xFFFFFFFF),
@@ -247,7 +228,7 @@ class AppConstants {
     ),
     // 4. Gruvbox Light
     // https://github.com/morhetz/gruvbox
-    LightThemeScheme(
+    ThemeScheme(
       name: '复古暖纸',
       background: Color(0xFFFBF1C7),
       surface: Color(0xFFF2E5BC),
@@ -256,7 +237,7 @@ class AppConstants {
     ),
     // 5. Solarized Light
     // https://github.com/altercation/solarized
-    LightThemeScheme(
+    ThemeScheme(
       name: '日光暖黄',
       background: Color(0xFFFDF6E3),
       surface: Color(0xFFEEE8D5),

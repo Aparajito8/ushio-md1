@@ -11,6 +11,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../../widgets/app_background.dart';
 import '../../../widgets/app_surface.dart';
 import '../../../utils/app_style.dart';
+import '../../../utils/constants.dart';
 import 'appearance_settings_mixin.dart';
 import 'color_setting_selector.dart';
 import 'monet_settings_screen.dart';
@@ -151,7 +152,13 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
 
                 // 卡片外观（独立于 UI 风格）
                 buildSection(l10n.cardAppearance, Icons.style, [
-                  buildCardOpacitySlider(settings, l10n),
+                  buildOpacitySlider(
+                    label: l10n.opacity,
+                    value: settings.cardOpacity,
+                    min: 0.4,
+                    divisions: 12,
+                    onChanged: settings.setCardOpacity,
+                  ),
                   const SizedBox(height: 12),
                   buildCardColorSelector(settings, l10n),
                 ]),
@@ -160,7 +167,11 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                 if (settings.themeMode == ThemeMode.light) ...[
                   const SizedBox(height: 16),
                   buildSection(l10n.lightTheme, Icons.light_mode, [
-                    buildLightThemeSelector(settings),
+                    buildThemeSchemeSelector(
+                      schemes: AppConstants.lightThemeSchemes,
+                      selectedIndex: settings.lightThemeIndex,
+                      onSelect: settings.setLightThemeIndex,
+                    ),
                   ]),
                 ],
 
@@ -168,7 +179,11 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                 if (settings.themeMode == ThemeMode.dark) ...[
                   const SizedBox(height: 16),
                   buildSection(l10n.darkTheme, Icons.dark_mode, [
-                    buildDarkThemeSelector(settings),
+                    buildThemeSchemeSelector(
+                      schemes: AppConstants.darkThemeSchemes,
+                      selectedIndex: settings.darkThemeIndex,
+                      onSelect: settings.setDarkThemeIndex,
+                    ),
                   ]),
                 ],
               ],

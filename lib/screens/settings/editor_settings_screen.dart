@@ -9,8 +9,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../providers/settings_provider.dart';
 import '../../widgets/app_background.dart';
-import '../../utils/app_style.dart';
-import '../../widgets/app_surface.dart';
+import '../../widgets/settings_section.dart';
 
 class EditorSettingsScreen extends StatelessWidget {
   const EditorSettingsScreen({super.key});
@@ -32,37 +31,37 @@ class EditorSettingsScreen extends StatelessWidget {
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                _buildSection(context, l10n.fontSize, Icons.format_size, [
+                _buildSection(l10n.fontSize, Icons.format_size, [
                   _buildFontSizeSlider(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.lineHeight, Icons.format_line_spacing, [
+                _buildSection(l10n.lineHeight, Icons.format_line_spacing, [
                   _buildLineHeightSlider(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.letterSpacing, Icons.text_fields, [
+                _buildSection(l10n.letterSpacing, Icons.text_fields, [
                   _buildLetterSpacingSlider(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.paragraphSpacing, Icons.format_line_spacing, [
+                _buildSection(l10n.paragraphSpacing, Icons.format_line_spacing, [
                   _buildParagraphSpacingSlider(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.startupBehavior, Icons.launch, [
+                _buildSection(l10n.startupBehavior, Icons.launch, [
                   _buildStartupBehaviorSelector(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.autoSave, Icons.save, [
+                _buildSection(l10n.autoSave, Icons.save, [
                   _buildAutoSaveToggle(context, settings, l10n),
                   if (settings.autoSave) ...[
                     const SizedBox(height: 16),
@@ -72,13 +71,13 @@ class EditorSettingsScreen extends StatelessWidget {
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.saveOnExit, Icons.exit_to_app, [
+                _buildSection(l10n.saveOnExit, Icons.exit_to_app, [
                   _buildSaveOnExitToggle(context, settings, l10n),
                 ]),
 
                 const SizedBox(height: 16),
 
-                _buildSection(context, l10n.permanentFloatingButtons, Icons.smart_button, [
+                _buildSection(l10n.permanentFloatingButtons, Icons.smart_button, [
                   _buildPermanentFloatingButtonsToggle(context, settings, l10n),
                 ]),
               ],
@@ -90,47 +89,11 @@ class EditorSettingsScreen extends StatelessWidget {
   }
 
   Widget _buildSection(
-    BuildContext context,
     String title,
     IconData icon,
     List<Widget> children,
   ) {
-    final appStyle = Theme.of(context).extension<AppStyleTheme>()!;
-    return AppSurface(
-      padding: const EdgeInsets.all(16),
-      color: appStyle.scaledSurfaceColor(
-        Theme.of(context).colorScheme,
-        alpha: 0.7,
-      ),
-      border: appStyle.useBorderlessButtons
-          ? null
-          : Border.all(
-              color: Theme.of(context).dividerColor.withValues(alpha: 0.5),
-            ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(
-                icon,
-                color: Theme.of(context).colorScheme.primary,
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                title,
-                style: Theme.of(
-                  context,
-                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          ...children,
-        ],
-      ),
-    );
+    return SettingsSection(title: title, icon: icon, children: children);
   }
 
   Widget _buildFontSizeSlider(
