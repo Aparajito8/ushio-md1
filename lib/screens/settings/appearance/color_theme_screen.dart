@@ -49,6 +49,9 @@ class _ColorThemeScreenState extends State<ColorThemeScreen>
         ),
         body: Consumer<SettingsProvider>(
           builder: (context, settings, child) {
+            // 用解析后的 brightness 而非 themeMode：跟随系统时按系统当前明暗显示对应方案。
+            final isDark = Theme.of(context).brightness == Brightness.dark;
+
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
@@ -78,27 +81,25 @@ class _ColorThemeScreenState extends State<ColorThemeScreen>
                   ),
                 ]),
 
-                // 两套配色方案都常驻：此前按 themeMode 二选一显示，
-                // 而默认值是 system，导致绝大多数用户从未见过这 11 套方案。
-                const SizedBox(height: 16),
-
-                buildSection(l10n.lightTheme, Icons.light_mode, [
-                  buildThemeSchemeSelector(
-                    schemes: AppConstants.lightThemeSchemes,
-                    selectedIndex: settings.lightThemeIndex,
-                    onSelect: settings.setLightThemeIndex,
-                  ),
-                ]),
-
-                const SizedBox(height: 16),
-
-                buildSection(l10n.darkTheme, Icons.dark_mode, [
-                  buildThemeSchemeSelector(
-                    schemes: AppConstants.darkThemeSchemes,
-                    selectedIndex: settings.darkThemeIndex,
-                    onSelect: settings.setDarkThemeIndex,
-                  ),
-                ]),
+                if (!isDark) ...[
+                  const SizedBox(height: 16),
+                  buildSection(l10n.lightTheme, Icons.light_mode, [
+                    buildThemeSchemeSelector(
+                      schemes: AppConstants.lightThemeSchemes,
+                      selectedIndex: settings.lightThemeIndex,
+                      onSelect: settings.setLightThemeIndex,
+                    ),
+                  ]),
+                ] else ...[
+                  const SizedBox(height: 16),
+                  buildSection(l10n.darkTheme, Icons.dark_mode, [
+                    buildThemeSchemeSelector(
+                      schemes: AppConstants.darkThemeSchemes,
+                      selectedIndex: settings.darkThemeIndex,
+                      onSelect: settings.setDarkThemeIndex,
+                    ),
+                  ]),
+                ],
               ],
             );
           },

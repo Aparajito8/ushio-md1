@@ -128,9 +128,6 @@
   "later": "Later",
   "version": "Version",
   "about": "About",
-  "debugMode": "Debug Mode",
-  "clearLog": "Clear Log",
-  "copyLog": "Copy Log",
   "lineNumber": "Line",
   "bold": "Bold",
   "italic": "Italic",
@@ -163,7 +160,6 @@
   "customFont": "Code Block Font",
   "installFont": "Install Custom Font",
   "fontInstalled": "Font installed successfully",
-  "buttonPreview": "Button Preview",
   "editorSettings": "Editor Settings",
   "current": "Current: {size}",
   "@current": {
@@ -688,29 +684,6 @@
   "appIconSelectorHint": "Select the app icon displayed on home screen",
   "brightness": "Brightness",
   "@brightness": { "description": "Brightness setting" },
-  "debugSettings": "Debug",
-  "@debugSettings": { "description": "Debug settings page title" },
-  "debugSwitches": "Debug Switches",
-  "@debugSwitches": { "description": "Debug switches section title" },
-  "enableDebugMode": "Enable Debug Mode",
-  "@enableDebugMode": { "description": "Enable debug mode switch title" },
-  "debugModeDescription": "Record Bridge messages, command execution, and diagnostic data",
-  "@debugModeDescription": { "description": "Debug mode description" },
-  "debugLogsSection": "Logs",
-  "@debugLogsSection": { "description": "Debug logs section title" },
-  "totalLogsCount": "Total: {count} entries",
-  "@totalLogsCount": {
-    "description": "Total log entries count",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "logCopiedToClipboard": "Log copied to clipboard",
-  "@logCopiedToClipboard": { "description": "Log copied to clipboard message" },
-  "noLogsYet": "No logs yet. Enable debug mode and use the editor, then check back.",
-  "@noLogsYet": { "description": "No logs placeholder text" },
   "noHeadingsFound": "No headings found",
   "@noHeadingsFound": { "description": "No headings found in TOC overlay" },
   "clearHistory": "Clear History",

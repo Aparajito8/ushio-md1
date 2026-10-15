@@ -262,18 +262,6 @@
   "@about": {
     "description": "关于"
   },
-  "debugMode": "调试模式",
-  "@debugMode": {
-    "description": "调试模式设置"
-  },
-  "clearLog": "清除日志",
-  "@clearLog": {
-    "description": "清除日志按钮"
-  },
-  "copyLog": "复制日志",
-  "@copyLog": {
-    "description": "复制日志按钮"
-  },
   "lineNumber": "行号",
   "@lineNumber": {
     "description": "行号"
@@ -489,10 +477,6 @@
   "fontInstalled": "字体安装成功",
   "@fontInstalled": {
     "description": "字体安装成功提示"
-  },
-  "buttonPreview": "按钮预览",
-  "@buttonPreview": {
-    "description": "按钮预览"
   },
   "editorSettings": "编辑器设置",
   "@editorSettings": {
@@ -1064,29 +1048,6 @@
   "@appIconSelectorHint": { "description": "应用图标选择器提示" },
   "brightness": "亮度",
   "@brightness": { "description": "亮度设置" },
-  "debugSettings": "调试",
-  "@debugSettings": { "description": "调试设置页面标题" },
-  "debugSwitches": "调试开关",
-  "@debugSwitches": { "description": "调试开关部分标题" },
-  "enableDebugMode": "启用调试模式",
-  "@enableDebugMode": { "description": "启用调试模式开关标题" },
-  "debugModeDescription": "记录 Bridge 消息、命令执行和问题诊断数据",
-  "@debugModeDescription": { "description": "调试模式描述" },
-  "debugLogsSection": "日志",
-  "@debugLogsSection": { "description": "调试日志部分标题" },
-  "totalLogsCount": "共 {count} 条",
-  "@totalLogsCount": {
-    "description": "日志条目总数",
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "logCopiedToClipboard": "日志已复制到剪贴板",
-  "@logCopiedToClipboard": { "description": "日志已复制到剪贴板提示" },
-  "noLogsYet": "暂无日志。开启调试后进入编辑器操作，再回来查看。",
-  "@noLogsYet": { "description": "无日志占位文本" },
   "noHeadingsFound": "没有找到标题",
   "@noHeadingsFound": { "description": "目录中没有找到标题" },
   "clearHistory": "清空历史",

@@ -30,64 +30,11 @@ class AppearanceUtils {
     return null;
   }
 
-  /// 构建 HSL 滑块
-  static List<Widget> buildHslSliders(Color color, void Function(Color) onUpdate) {
-    final hsl = HSLColor.fromColor(color);
-    
-    return [
-      // 色相滑块
-      Row(
-        children: [
-          SizedBox(width: 40, child: Text('H: ${(hsl.hue).round()}°')),
-          Expanded(
-            child: Slider(
-              value: hsl.hue,
-              min: 0,
-              max: 360,
-              onChanged: (value) {
-                onUpdate(HSLColor.fromAHSL(1.0, value, hsl.saturation, hsl.lightness).toColor());
-              },
-            ),
-          ),
-        ],
-      ),
-      // 饱和度滑块
-      Row(
-        children: [
-          SizedBox(width: 40, child: Text('S: ${(hsl.saturation * 100).round()}%')),
-          Expanded(
-            child: Slider(
-              value: hsl.saturation,
-              min: 0,
-              max: 1,
-              onChanged: (value) {
-                onUpdate(HSLColor.fromAHSL(1.0, hsl.hue, value, hsl.lightness).toColor());
-              },
-            ),
-          ),
-        ],
-      ),
-      // 亮度滑块
-      Row(
-        children: [
-          SizedBox(width: 40, child: Text('L: ${(hsl.lightness * 100).round()}%')),
-          Expanded(
-            child: Slider(
-              value: hsl.lightness,
-              min: 0,
-              max: 1,
-              onChanged: (value) {
-                onUpdate(HSLColor.fromAHSL(1.0, hsl.hue, hsl.saturation, value).toColor());
-              },
-            ),
-          ),
-        ],
-      ),
-    ];
-  }
-
   /// 构建 RGB 滑块
-  static List<Widget> buildRgbSliders(Color color, void Function(Color) onUpdate) {
+  static List<Widget> buildRgbSliders(
+    Color color,
+    void Function(Color) onUpdate,
+  ) {
     return [
       // R 滑块
       Row(
@@ -99,7 +46,9 @@ class AppearanceUtils {
               min: 0,
               max: 255,
               onChanged: (value) {
-                onUpdate(Color.fromARGB(255, value.round(), color.green, color.blue));
+                onUpdate(
+                  Color.fromARGB(255, value.round(), color.green, color.blue),
+                );
               },
             ),
           ),
@@ -115,7 +64,9 @@ class AppearanceUtils {
               min: 0,
               max: 255,
               onChanged: (value) {
-                onUpdate(Color.fromARGB(255, color.red, value.round(), color.blue));
+                onUpdate(
+                  Color.fromARGB(255, color.red, value.round(), color.blue),
+                );
               },
             ),
           ),
@@ -131,7 +82,9 @@ class AppearanceUtils {
               min: 0,
               max: 255,
               onChanged: (value) {
-                onUpdate(Color.fromARGB(255, color.red, color.green, value.round()));
+                onUpdate(
+                  Color.fromARGB(255, color.red, color.green, value.round()),
+                );
               },
             ),
           ),
@@ -155,18 +108,19 @@ class AppearanceUtils {
       context: context,
       builder: (context) {
         Color selectedColor = initialColor;
-        bool useHslMode = true;
         final hexController = TextEditingController(
-          text: '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
+          text:
+              '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}',
         );
-        
+
         return StatefulBuilder(
           builder: (context, setState) {
-            final newHex = '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}';
+            final newHex =
+                '#${selectedColor.value.toRadixString(16).substring(2).toUpperCase()}';
             if (hexController.text.toUpperCase() != newHex) {
               hexController.text = newHex;
             }
-            
+
             return AlertDialog(
               title: Text(title),
               content: SingleChildScrollView(
@@ -246,7 +200,10 @@ class AppearanceUtils {
                     // 十六进制输入
                     Row(
                       children: [
-                        Text('HEX', style: Theme.of(context).textTheme.bodySmall),
+                        Text(
+                          'HEX',
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
                         const SizedBox(width: 8),
                         Expanded(
                           child: TextField(
@@ -254,7 +211,10 @@ class AppearanceUtils {
                             decoration: InputDecoration(
                               hintText: '#RRGGBB',
                               isDense: true,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                              contentPadding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8),
                               ),
@@ -272,80 +232,12 @@ class AppearanceUtils {
                       ],
                     ),
                     const SizedBox(height: 12),
-                    // 模式切换
-                    Row(
-                      children: [
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => useHslMode = true),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: useHslMode
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              child: Text(
-                                'HSL',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: useHslMode
-                                      ? Colors.white
-                                      : Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: GestureDetector(
-                            onTap: () => setState(() => useHslMode = false),
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(vertical: 8),
-                              decoration: BoxDecoration(
-                                color: !useHslMode
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Theme.of(context).colorScheme.primary,
-                                ),
-                              ),
-                              child: Text(
-                                'RGB',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  color: !useHslMode
-                                      ? Colors.white
-                                      : Theme.of(context).colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
                     // 颜色滑块
-                    if (useHslMode)
-                      ...buildHslSliders(selectedColor, (color) {
-                        setState(() {
-                          selectedColor = color;
-                        });
-                      })
-                    else
-                      ...buildRgbSliders(selectedColor, (color) {
-                        setState(() {
-                          selectedColor = color;
-                        });
-                      }),
+                    ...buildRgbSliders(selectedColor, (color) {
+                      setState(() {
+                        selectedColor = color;
+                      });
+                    }),
                   ],
                 ),
               ),
@@ -368,5 +260,4 @@ class AppearanceUtils {
       },
     );
   }
-
 }

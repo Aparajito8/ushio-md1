@@ -205,15 +205,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get about => '关于';
 
   @override
-  String get debugMode => '调试模式';
-
-  @override
-  String get clearLog => '清除日志';
-
-  @override
-  String get copyLog => '复制日志';
-
-  @override
   String get lineNumber => '行号';
 
   @override
@@ -374,9 +365,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get fontInstalled => '字体安装成功';
-
-  @override
-  String get buttonPreview => '按钮预览';
 
   @override
   String get editorSettings => '编辑器设置';
@@ -821,32 +809,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get brightness => '亮度';
-
-  @override
-  String get debugSettings => '调试';
-
-  @override
-  String get debugSwitches => '调试开关';
-
-  @override
-  String get enableDebugMode => '启用调试模式';
-
-  @override
-  String get debugModeDescription => '记录 Bridge 消息、命令执行和问题诊断数据';
-
-  @override
-  String get debugLogsSection => '日志';
-
-  @override
-  String totalLogsCount(int count) {
-    return '共 $count 条';
-  }
-
-  @override
-  String get logCopiedToClipboard => '日志已复制到剪贴板';
-
-  @override
-  String get noLogsYet => '暂无日志。开启调试后进入编辑器操作，再回来查看。';
 
   @override
   String get noHeadingsFound => '没有找到标题';

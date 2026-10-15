@@ -111,6 +111,7 @@ class _BackgroundSettingsScreenState extends State<BackgroundSettingsScreen>
                 buildSection(l10n.bottomNavBar, Icons.tab_rounded, [
                   buildTabBarStylePreview(
                     Theme.of(context).colorScheme.primary,
+                    opacity: settings.tabBarOpacity,
                   ),
                   const SizedBox(height: 12),
                   buildOpacitySlider(

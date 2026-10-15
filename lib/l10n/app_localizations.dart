@@ -482,24 +482,6 @@ abstract class AppLocalizations {
   /// **'关于'**
   String get about;
 
-  /// 调试模式设置
-  ///
-  /// In zh, this message translates to:
-  /// **'调试模式'**
-  String get debugMode;
-
-  /// 清除日志按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'清除日志'**
-  String get clearLog;
-
-  /// 复制日志按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'复制日志'**
-  String get copyLog;
-
   /// 行号
   ///
   /// In zh, this message translates to:
@@ -823,12 +805,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'字体安装成功'**
   String get fontInstalled;
-
-  /// 按钮预览
-  ///
-  /// In zh, this message translates to:
-  /// **'按钮预览'**
-  String get buttonPreview;
 
   /// 编辑器设置页面标题
   ///
@@ -1651,54 +1627,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'亮度'**
   String get brightness;
-
-  /// 调试设置页面标题
-  ///
-  /// In zh, this message translates to:
-  /// **'调试'**
-  String get debugSettings;
-
-  /// 调试开关部分标题
-  ///
-  /// In zh, this message translates to:
-  /// **'调试开关'**
-  String get debugSwitches;
-
-  /// 启用调试模式开关标题
-  ///
-  /// In zh, this message translates to:
-  /// **'启用调试模式'**
-  String get enableDebugMode;
-
-  /// 调试模式描述
-  ///
-  /// In zh, this message translates to:
-  /// **'记录 Bridge 消息、命令执行和问题诊断数据'**
-  String get debugModeDescription;
-
-  /// 调试日志部分标题
-  ///
-  /// In zh, this message translates to:
-  /// **'日志'**
-  String get debugLogsSection;
-
-  /// 日志条目总数
-  ///
-  /// In zh, this message translates to:
-  /// **'共 {count} 条'**
-  String totalLogsCount(int count);
-
-  /// 日志已复制到剪贴板提示
-  ///
-  /// In zh, this message translates to:
-  /// **'日志已复制到剪贴板'**
-  String get logCopiedToClipboard;
-
-  /// 无日志占位文本
-  ///
-  /// In zh, this message translates to:
-  /// **'暂无日志。开启调试后进入编辑器操作，再回来查看。'**
-  String get noLogsYet;
 
   /// 目录中没有找到标题
   ///

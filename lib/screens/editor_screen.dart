@@ -2117,24 +2117,6 @@ class _EditorScreenState extends State<EditorScreen>
 
   void _handleMilkdownBridgeMessage(Map<String, dynamic> map) {
     final type = map['type']?.toString();
-    final settings = context.read<SettingsProvider>();
-    if (settings.debugEnabled) {
-      settings.appendDebugLog('bridge<$type>: $map');
-    }
-    if (type == 'on_debug_report') {
-      if (!settings.debugEnabled) return;
-      final payload = map['payload'];
-      settings.appendDebugLog('debug_report: $payload');
-      return;
-    }
-    if (type == 'on_debug_log') {
-      if (!settings.debugEnabled) return;
-      final payload = map['payload'];
-      if (payload is Map) {
-        settings.appendDebugLog('js: ${payload['message']}');
-      }
-      return;
-    }
     if (type == 'on_ready') {
       _isMilkdownReady = true;
       return;

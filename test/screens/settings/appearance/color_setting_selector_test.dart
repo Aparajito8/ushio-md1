@@ -75,6 +75,12 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(AlertDialog), findsOneWidget);
+      // 取色弹窗只保留 RGB，HSL 已删除
+      expect(find.text('HSL'), findsNothing);
+      expect(find.text('RGB'), findsNothing);
+      expect(find.textContaining('R:'), findsOneWidget);
+      expect(find.textContaining('G:'), findsOneWidget);
+      expect(find.textContaining('B:'), findsOneWidget);
 
       await tester.tap(find.text('确认'));
       await tester.pumpAndSettle();

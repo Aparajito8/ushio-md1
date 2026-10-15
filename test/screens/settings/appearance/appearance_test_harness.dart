@@ -39,17 +39,19 @@ Future<SettingsProvider> createAppearanceSettings() async {
 Future<void> pumpAppearancePage(
   WidgetTester tester,
   SettingsProvider settings,
-  Widget page,
-) async {
+  Widget page, {
+  Brightness brightness = Brightness.light,
+}) async {
   tester.view.physicalSize = const Size(1200, 9000);
   tester.view.devicePixelRatio = 3.0;
   addTearDown(tester.view.reset);
 
   final scheme = ColorScheme.fromSeed(
     seedColor: SettingsProvider.themeColors.first,
+    brightness: brightness,
   );
   final appStyle = AppStyleTheme.resolve(
-    brightness: Brightness.light,
+    brightness: brightness,
     colorScheme: scheme,
     textSecondary: scheme.onSurfaceVariant,
     buttonStyleMode: AppButtonStyleMode.liquidGlass,
@@ -68,7 +70,11 @@ Future<void> pumpAppearancePage(
         ],
         supportedLocales: const [Locale('zh'), Locale('en')],
         locale: const Locale('zh'),
-        theme: ThemeData(colorScheme: scheme, extensions: [appStyle]),
+        theme: ThemeData(
+          colorScheme: scheme,
+          brightness: brightness,
+          extensions: [appStyle],
+        ),
         home: page,
       ),
     ),
@@ -78,6 +84,7 @@ Future<void> pumpAppearancePage(
   await tester.pumpAndSettle();
 }
 
-List<String> schemeNames({required bool dark}) => (
-  dark ? AppConstants.darkThemeSchemes : AppConstants.lightThemeSchemes
-).map((s) => s.name).toList();
+List<String> schemeNames({required bool dark}) =>
+    (dark ? AppConstants.darkThemeSchemes : AppConstants.lightThemeSchemes)
+        .map((s) => s.name)
+        .toList();

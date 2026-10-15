@@ -145,12 +145,6 @@ class SettingsProvider extends ChangeNotifier {
   /// 上次打开的文件路径
   String? _lastOpenedFilePath;
 
-  /// 调试模式开关
-  bool _debugEnabled = false;
-
-  /// 调试日志（内存环形缓冲）
-  final List<String> _debugLogs = <String>[];
-
   /// 默认目录路径
   String? _defaultDirectory;
 
@@ -325,15 +319,14 @@ class SettingsProvider extends ChangeNotifier {
   bool get autoSave => _autoSave;
   int get autoSaveInterval => _autoSaveInterval;
   bool get saveOnExit => _saveOnExit;
-  bool get debugEnabled => _debugEnabled;
-  List<String> get debugLogs => List.unmodifiable(_debugLogs);
   String? get defaultDirectory => _defaultDirectory;
   String get workspaceName => _workspaceName;
   String? get customWorkspaceBasePath => _customWorkspaceBasePath;
   String get startupBehavior => _startupBehavior;
   String? get lastOpenedFilePath => _lastOpenedFilePath;
   int get primaryColorIndex => _primaryColorIndex;
-  Color get primaryColor => _customThemeColor ?? themeColors[_primaryColorIndex];
+  Color get primaryColor =>
+      _customThemeColor ?? themeColors[_primaryColorIndex];
   Color? get customThemeColor => _customThemeColor;
 
   // 界面字体颜色 Getters
@@ -348,9 +341,7 @@ class SettingsProvider extends ChangeNotifier {
   static Color legibleOnDark(Color color) {
     final hsl = HSLColor.fromColor(color);
     return hsl
-        .withSaturation(
-          hsl.saturation > 0.5 ? 0.5 : hsl.saturation,
-        )
+        .withSaturation(hsl.saturation > 0.5 ? 0.5 : hsl.saturation)
         .withLightness(
           // 0.82 为实测下限：再低，靛蓝预设在最暗的深色方案上会跌破 WCAG AA 4.5:1
           hsl.lightness < 0.82 ? 0.82 : hsl.lightness,
@@ -576,7 +567,14 @@ class SettingsProvider extends ChangeNotifier {
     _paragraphSpacing = prefs.getDouble('paragraph_spacing') ?? 8.0;
     _startupBehavior = prefs.getString('startup_behavior') ?? 'restore';
     _lastOpenedFilePath = prefs.getString('last_opened_file_path');
-    _debugEnabled = prefs.getBool('debug_enabled') ?? false;
+    if (prefs.containsKey('debug_enabled')) {
+      // 调试模式已整体移除，清掉遗留键避免它继续被读回
+      await prefs.remove('debug_enabled');
+    }
+    if (prefs.containsKey('tab_bar_style')) {
+      // 导航栏样式已并入「UI 风格」，这个键不再有读取方
+      await prefs.remove('tab_bar_style');
+    }
     _defaultDirectory = prefs.getString('default_directory');
     _workspaceName = prefs.getString('workspace_name') ?? 'Ushio-md';
 
@@ -1075,43 +1073,6 @@ class SettingsProvider extends ChangeNotifier {
     }
   }
 
-  /// 设置调试开关
-  Future<void> setDebugEnabled(bool value) async {
-    _debugEnabled = value;
-    notifyListeners();
-    _schedulePersist('debug_enabled', value);
-  }
-
-  /// 追加调试日志（内存最多保留 300 条，批量通知避免高频重建）
-  void appendDebugLog(String message) {
-    // 调试关闭时不收集：避免日志列表增长与每 500ms 的 notifyListeners
-    // 触发监听 SettingsProvider 的界面（如编辑器）无谓整屏重建。
-    if (!_debugEnabled) return;
-    final ts = DateTime.now().toIso8601String();
-    _debugLogs.add('[$ts] $message');
-    const maxLogs = 300;
-    if (_debugLogs.length > maxLogs) {
-      _debugLogs.removeRange(0, _debugLogs.length - maxLogs);
-    }
-    _scheduleDebugLogNotify();
-  }
-
-  Timer? _debugLogNotifyTimer;
-
-  /// 每 500ms 最多通知一次，避免每条日志都触发 notifyListeners
-  void _scheduleDebugLogNotify() {
-    _debugLogNotifyTimer?.cancel();
-    _debugLogNotifyTimer = Timer(const Duration(milliseconds: 500), () {
-      notifyListeners();
-    });
-  }
-
-  /// 清空调试日志
-  void clearDebugLogs() {
-    _debugLogs.clear();
-    notifyListeners();
-  }
-
   /// 设置默认目录
   Future<void> setDefaultDirectory(String? path) async {
     _defaultDirectory = path;
@@ -1444,13 +1405,15 @@ class SettingsProvider extends ChangeNotifier {
     }
     try {
       final configs = json.decode(rawConfigs) as List<dynamic>;
-      final active = configs
-          .whereType<Map<String, dynamic>>()
-          .firstWhere((c) => c['id'] == activeId);
+      final active = configs.whereType<Map<String, dynamic>>().firstWhere(
+        (c) => c['id'] == activeId,
+      );
       final scheme = active['scheme'] as Map<String, dynamic>?;
       if (scheme == null) return null;
       // 取用户当时真正看到的那一套：深色用 darkScheme，其余用 lightScheme
-      final bucket = _themeMode == ThemeMode.dark ? 'darkScheme' : 'lightScheme';
+      final bucket = _themeMode == ThemeMode.dark
+          ? 'darkScheme'
+          : 'lightScheme';
       final primary = (scheme[bucket] as Map<String, dynamic>?)?['primary'];
       return primary is int ? Color(primary) : null;
     } catch (_) {

@@ -206,15 +206,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get about => 'About';
 
   @override
-  String get debugMode => 'Debug Mode';
-
-  @override
-  String get clearLog => 'Clear Log';
-
-  @override
-  String get copyLog => 'Copy Log';
-
-  @override
   String get lineNumber => 'Line';
 
   @override
@@ -377,9 +368,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get fontInstalled => 'Font installed successfully';
-
-  @override
-  String get buttonPreview => 'Button Preview';
 
   @override
   String get editorSettings => 'Editor Settings';
@@ -843,34 +831,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get brightness => 'Brightness';
-
-  @override
-  String get debugSettings => 'Debug';
-
-  @override
-  String get debugSwitches => 'Debug Switches';
-
-  @override
-  String get enableDebugMode => 'Enable Debug Mode';
-
-  @override
-  String get debugModeDescription =>
-      'Record Bridge messages, command execution, and diagnostic data';
-
-  @override
-  String get debugLogsSection => 'Logs';
-
-  @override
-  String totalLogsCount(int count) {
-    return 'Total: $count entries';
-  }
-
-  @override
-  String get logCopiedToClipboard => 'Log copied to clipboard';
-
-  @override
-  String get noLogsYet =>
-      'No logs yet. Enable debug mode and use the editor, then check back.';
 
   @override
   String get noHeadingsFound => 'No headings found';

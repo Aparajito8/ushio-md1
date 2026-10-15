@@ -64,17 +64,11 @@ class _HistoryTabState extends State<HistoryTab> {
         height: isDesktop ? null : 56,
         child: Row(
           children: [
-            Icon(
-              Icons.history_rounded,
-              color: context.appIconColor,
-              size: 24,
-            ),
+            Icon(Icons.history_rounded, color: context.appIconColor, size: 24),
             const SizedBox(width: 12),
             Text(
               l10n.historyTab,
-              style: Theme.of(
-                context,
-              ).textTheme.titleLarge?.copyWith(
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
                 fontWeight: FontWeight.bold,
                 height: 1.0,
               ),
@@ -140,11 +134,14 @@ class _HistoryTabState extends State<HistoryTab> {
       return SizedBox(
         width: 140,
         child: GlassSegmentedControl(
-          height: 36,
+          // 包内 icon+label 是竖排的（16 + 2 + 13px 文字 ≈ 33），还要再加默认
+          // EdgeInsets.all(2) 的内边距；36 会挤出 1px 的底部溢出。
+          height: 40,
           selectedIndex: _viewMode == HistoryViewMode.files ? 0 : 1,
           onSegmentSelected: (index) => setState(() {
-            _viewMode =
-                index == 0 ? HistoryViewMode.files : HistoryViewMode.folders;
+            _viewMode = index == 0
+                ? HistoryViewMode.files
+                : HistoryViewMode.folders;
           }),
           segments: [
             GlassSegment(
@@ -174,8 +171,9 @@ class _HistoryTabState extends State<HistoryTab> {
         height: 36,
         selectedIndex: _viewMode == HistoryViewMode.files ? 0 : 1,
         onChanged: (index) => setState(() {
-          _viewMode =
-              index == 0 ? HistoryViewMode.files : HistoryViewMode.folders;
+          _viewMode = index == 0
+              ? HistoryViewMode.files
+              : HistoryViewMode.folders;
         }),
         items: [
           SlidingSegmentItem(icon: Icons.description, label: l10n.file),

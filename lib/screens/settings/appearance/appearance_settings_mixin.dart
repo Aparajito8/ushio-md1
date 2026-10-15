@@ -253,38 +253,42 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     SettingsProvider settings,
     AppLocalizations l10n,
   ) {
+    final options =
+        <({AppButtonStyleMode mode, IconData icon, String title, String desc})>[
+          (
+            mode: AppButtonStyleMode.classic,
+            icon: Icons.crop_square_rounded,
+            title: l10n.uiStyleClassic,
+            desc: l10n.uiStyleClassicDesc,
+          ),
+          (
+            mode: AppButtonStyleMode.softShadow,
+            icon: Icons.auto_awesome_rounded,
+            title: l10n.uiStyleSoftShadow,
+            desc: l10n.uiStyleSoftShadowDesc,
+          ),
+          (
+            mode: AppButtonStyleMode.liquidGlass,
+            icon: Icons.water_drop_outlined,
+            title: l10n.uiStyleLiquidGlass,
+            desc: l10n.uiStyleLiquidGlassDesc,
+          ),
+        ];
+
     return Column(
       children: [
         Row(
           children: [
-            Expanded(
-              child: buildButtonStyleOption(
-                settings,
-                AppButtonStyleMode.classic,
-                Icons.crop_square_rounded,
-                l10n.uiStyleClassic,
-                l10n.uiStyleClassicDesc,
-                l10n,
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: buildButtonStyleOption(
-                settings,
-                AppButtonStyleMode.softShadow,
-                Icons.auto_awesome_rounded,
-                l10n.uiStyleSoftShadow,
-                l10n.uiStyleSoftShadowDesc,
-                l10n,
-              ),
-            ),
+            for (var i = 0; i < options.length; i++) ...[
+              if (i > 0) const SizedBox(width: 8),
+              Expanded(child: _buildStyleTile(settings, options[i])),
+            ],
           ],
         ),
-        const SizedBox(height: 12),
         if (settings.buttonStyleMode == AppButtonStyleMode.liquidGlass &&
             settings.cardOpacity < 0.55)
           Padding(
-            padding: const EdgeInsets.only(bottom: 8),
+            padding: const EdgeInsets.only(top: 8),
             child: Text(
               l10n.uiStyleOpacityHint,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -292,167 +296,96 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
               ),
             ),
           ),
-        buildLiquidGlassStyleOption(settings, l10n),
       ],
     );
   }
 
-  Widget buildLiquidGlassStyleOption(
+  Widget _buildStyleTile(
     SettingsProvider settings,
-    AppLocalizations l10n,
+    ({AppButtonStyleMode mode, IconData icon, String title, String desc})
+    option,
   ) {
-    final isSelected =
-        settings.buttonStyleMode == AppButtonStyleMode.liquidGlass;
-    final previewPrimary = Theme.of(context).colorScheme.primary;
-    final previewSurface = appStyle.cardSurfaceColor(
-      Theme.of(context).colorScheme,
-    );
+    final isSelected = settings.buttonStyleMode == option.mode;
+    final primary = Theme.of(context).colorScheme.primary;
+    final surface = option.mode == AppButtonStyleMode.liquidGlass
+        ? appStyle.cardSurfaceColor(Theme.of(context).colorScheme)
+        : (option.mode == AppButtonStyleMode.softShadow &&
+                  appStyle.useBorderlessButtons
+              ? appStyle.strongSurface
+              : Theme.of(context).colorScheme.surface);
 
-    return GestureDetector(
-      onTap: () => settings.setButtonStyleMode(AppButtonStyleMode.liquidGlass),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: buildOptionDecoration(isSelected: isSelected),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  Icons.water_drop_outlined,
-                  color: isSelected ? previewPrimary : context.appIconColor,
-                ),
-                const Spacer(),
-                if (isSelected)
-                  Icon(Icons.check_circle, color: previewPrimary, size: 20),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              l10n.uiStyleLiquidGlass,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: isSelected ? previewPrimary : null,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              l10n.uiStyleLiquidGlassDesc,
-              style: Theme.of(context).textTheme.bodySmall,
-            ),
-            const SizedBox(height: 14),
-            LiquidGlassCard(
-              borderRadius: BorderRadius.circular(14),
-              child: AppSurface(
-                borderRadius: BorderRadius.circular(14),
-                height: 40,
-                alignment: Alignment.center,
-                color: previewSurface,
-                child: Text(
-                  l10n.buttonPreview,
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onSurface,
-                    fontWeight: FontWeight.w600,
+    return Tooltip(
+      message: option.desc,
+      child: GestureDetector(
+        onTap: () => settings.setButtonStyleMode(option.mode),
+        child: Container(
+          padding: const EdgeInsets.all(10),
+          decoration: buildOptionDecoration(isSelected: isSelected),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    option.icon,
+                    size: 18,
+                    color: isSelected ? primary : context.appIconColor,
                   ),
+                  const Spacer(),
+                  if (isSelected)
+                    Icon(Icons.check_circle, size: 16, color: primary),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                option.title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: isSelected ? primary : null,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(height: 8),
+              SizedBox(
+                height: 22,
+                child: _buildStylePreview(option.mode, surface, primary),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget buildButtonStyleOption(
-    SettingsProvider settings,
+  Widget _buildStylePreview(
     AppButtonStyleMode mode,
-    IconData icon,
-    String title,
-    String subtitle,
-    AppLocalizations l10n,
+    Color surface,
+    Color primary,
   ) {
-    final isSelected = settings.buttonStyleMode == mode;
-    final previewPrimary = Theme.of(context).colorScheme.primary;
-    final isLiquidGlass = mode == AppButtonStyleMode.liquidGlass;
-    final previewSurface = isLiquidGlass
-        ? appStyle.cardSurfaceColor(Theme.of(context).colorScheme)
-        : (appStyle.useBorderlessButtons &&
-                  mode == AppButtonStyleMode.softShadow
-              ? appStyle.strongSurface
-              : Theme.of(context).colorScheme.surface);
-
-    return GestureDetector(
-      onTap: () => settings.setButtonStyleMode(mode),
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: buildOptionDecoration(isSelected: isSelected),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? previewPrimary : context.appIconColor,
-                ),
-                const Spacer(),
-                if (isSelected)
-                  Icon(Icons.check_circle, color: previewPrimary, size: 20),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Text(
-              title,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: isSelected ? previewPrimary : null,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(subtitle, style: Theme.of(context).textTheme.bodySmall),
-            const SizedBox(height: 14),
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    height: 40,
-                    decoration: isLiquidGlass
-                        ? BoxDecoration(
-                            color: previewSurface,
-                            borderRadius: BorderRadius.circular(14),
-                            border: appStyle.surfaceBorder(),
-                            boxShadow: appStyle.prominentShadow,
-                          )
-                        : (mode == AppButtonStyleMode.softShadow
-                              ? BoxDecoration(
-                                  color: previewSurface,
-                                  borderRadius: BorderRadius.circular(14),
-                                  boxShadow: appStyle.prominentShadow,
-                                )
-                              : BoxDecoration(
-                                  color: previewPrimary,
-                                  borderRadius: BorderRadius.circular(14),
-                                  border: Border.all(color: previewPrimary),
-                                )),
-                    alignment: Alignment.center,
-                    child: Text(
-                      l10n.buttonPreview,
-                      style: TextStyle(
-                        color:
-                            (mode == AppButtonStyleMode.softShadow ||
-                                isLiquidGlass)
-                            ? Theme.of(context).colorScheme.onSurface
-                            : Colors.white,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
+    if (mode == AppButtonStyleMode.liquidGlass) {
+      return LiquidGlassCard(
+        borderRadius: BorderRadius.circular(8),
+        child: AppSurface(
+          borderRadius: BorderRadius.circular(8),
+          color: surface,
+          child: const SizedBox.expand(),
         ),
-      ),
+      );
+    }
+    return Container(
+      width: double.infinity,
+      decoration: mode == AppButtonStyleMode.softShadow
+          ? BoxDecoration(
+              color: surface,
+              borderRadius: BorderRadius.circular(8),
+              boxShadow: appStyle.prominentShadow,
+            )
+          : BoxDecoration(
+              color: primary,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: primary),
+            ),
     );
   }
 
@@ -751,21 +684,24 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
           label: l10n.uiFont,
           value: getValidFontFamily(settings.uiFontFamily),
           items: fontItems,
-          onChanged: (value) => handleFontChange(value, settings.setUiFontFamily),
+          onChanged: (value) =>
+              handleFontChange(value, settings.setUiFontFamily),
         ),
         const SizedBox(height: 12),
         _buildFontRow(
           label: l10n.editorFont,
           value: getValidFontFamily(settings.editorFontFamily),
           items: fontItems,
-          onChanged: (value) => handleFontChange(value, settings.setEditorFontFamily),
+          onChanged: (value) =>
+              handleFontChange(value, settings.setEditorFontFamily),
         ),
         const SizedBox(height: 12),
         _buildFontRow(
           label: l10n.customFont,
           value: getValidFontFamily(settings.codeFontFamily),
           items: fontItems,
-          onChanged: (value) => handleFontChange(value, settings.setCodeFontFamily),
+          onChanged: (value) =>
+              handleFontChange(value, settings.setCodeFontFamily),
         ),
         const SizedBox(height: 16),
         // 安装自定义字体按钮
@@ -1774,14 +1710,17 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
-  Widget buildTabBarStylePreview(Color previewPrimary) {
+  Widget buildTabBarStylePreview(
+    Color previewPrimary, {
+    required double opacity,
+  }) {
     if (!appStyle.useLiquidGlass) {
       return Container(
         height: 44,
         decoration: BoxDecoration(
           color: Theme.of(
             context,
-          ).colorScheme.surface.withValues(alpha: 0.7),
+          ).colorScheme.surface.withValues(alpha: opacity),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
           border: appStyle.surfaceBorder(),
         ),
@@ -1813,25 +1752,18 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
 
     return GlassTabBar.inline(
       tabs: [
-        GlassTab(
-          icon: Icon(Icons.home_rounded),
-          semanticLabel: 'Home',
-        ),
+        GlassTab(icon: Icon(Icons.home_rounded), semanticLabel: 'Home'),
         GlassTab(
           icon: Icon(Icons.folder_special_rounded),
           semanticLabel: 'My Files',
         ),
-        GlassTab(
-          icon: Icon(Icons.history_rounded),
-          semanticLabel: 'History',
-        ),
-        GlassTab(
-          icon: Icon(Icons.settings_rounded),
-          semanticLabel: 'Settings',
-        ),
+        GlassTab(icon: Icon(Icons.history_rounded), semanticLabel: 'History'),
+        GlassTab(icon: Icon(Icons.settings_rounded), semanticLabel: 'Settings'),
       ],
       selectedIndex: 0,
       onTabSelected: (_) {},
+      // 与真实导航栏（liquid_glass_capsule_tab_bar）一致，否则拖动滑块时预览毫无变化
+      settings: LiquidGlassSettings(visibility: opacity),
     );
   }
 
@@ -1839,27 +1771,17 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     IconData icon, {
     bool selected = false,
     required Color primary,
-    bool capsule = false,
   }) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     return Center(
       child: Container(
         width: 28,
         height: 28,
-        decoration: capsule && selected
-            ? BoxDecoration(
-                color: primary.withValues(alpha: isDark ? 0.32 : 0.20),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: primary.withValues(alpha: 0.4),
-                ),
-              )
-            : BoxDecoration(
-                color: selected && !capsule
-                    ? primary.withValues(alpha: 0.12)
-                    : Colors.transparent,
-                borderRadius: BorderRadius.circular(8),
-              ),
+        decoration: BoxDecoration(
+          color: selected
+              ? primary.withValues(alpha: 0.12)
+              : Colors.transparent,
+          borderRadius: BorderRadius.circular(8),
+        ),
         child: Icon(
           icon,
           size: 16,
