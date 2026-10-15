@@ -119,19 +119,9 @@ class MyApp extends StatelessWidget {
         // 设置状态（主题、字体、自动保存等）
         ChangeNotifierProvider(create: (_) => SettingsProvider()),
       ],
-      child: Consumer<SettingsProvider>(
-        builder: (context, settings, child) {
-          // 获取用户选择的主题色
-          Color primaryColor = settings.primaryColor;
-
-
-          // 获取字体设置（System 表示使用系统默认）
-          final fontFamily = settings.uiFontFamily == 'System'
-              ? null
-              : settings.uiFontFamily;
-          // 获取主题配色方案索引
-          final darkThemeIndex = settings.darkThemeIndex;
-          final lightThemeIndex = settings.lightThemeIndex;
+      child: Selector<SettingsProvider, ThemeInputs>(
+        selector: (_, settings) => ThemeInputs.from(settings),
+        builder: (context, inputs, child) {
 
           return MaterialApp(
             title: AppConstants.appName,
@@ -147,7 +137,7 @@ class MyApp extends StatelessWidget {
               Locale('zh'), // 简体中文
               Locale('en'), // 英文
             ],
-            locale: settings.locale, // 使用动态语言设置
+            locale: inputs.locale, // 使用动态语言设置
             // Android 系统返回不做预测性退出预览；页面间仍使用普通缩放过渡。
             onNavigationNotification: (notification) {
               SystemNavigator.setFrameworkHandlesBack(
@@ -169,27 +159,9 @@ class MyApp extends StatelessWidget {
               // 默认返回中文
               return const Locale('zh');
             },
-            theme: _buildLightTheme(
-              primaryColor,
-              settings.uiFontColorFor(Brightness.light),
-              fontFamily,
-              lightThemeIndex,
-              settings.buttonStyleMode,
-              settings.cardOpacity,
-              settings.customCardColor,
-              settings.customIconColor,
-            ), // 浅色主题
-            darkTheme: _buildDarkTheme(
-              primaryColor,
-              settings.uiFontColorFor(Brightness.dark),
-              darkThemeIndex,
-              fontFamily,
-              settings.buttonStyleMode,
-              settings.cardOpacity,
-              settings.customCardColor,
-              settings.customIconColor,
-            ), // 深色主题
-            themeMode: settings.themeMode, // 主题模式（跟随系统/浅色/深色）
+            theme: _buildThemeFor(Brightness.light, inputs),
+            darkTheme: _buildThemeFor(Brightness.dark, inputs),
+            themeMode: inputs.themeMode, // 主题模式（跟随系统/浅色/深色）
             builder: (context, child) {
               final pageChild = child ?? const SizedBox.shrink();
 
@@ -216,42 +188,42 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  /// 构建浅色主题
+  /// 构建指定明暗的主题
   ///
-  /// [primaryColor] 用户选择的主题色
-  /// [uiFontColor] 用户选择的界面字体颜色
-  /// [fontFamily] 用户选择的字体（null 表示系统默认）
-  ThemeData _buildLightTheme(
-    Color primaryColor,
-    Color uiFontColor,
-    String? fontFamily,
-    int lightThemeIndex,
-    AppButtonStyleMode buttonStyleMode,
-    double cardOpacity,
-    Color? customCardColor,
-    Color? customIconColor,
-  ) {
-    final scheme = AppConstants.lightThemeSchemes[lightThemeIndex];
+  /// 浅色与深色此前各有 8 个位置参数、且第 3/4 位顺序不同（配色方案索引与
+  /// fontFamily 互换），是最容易传错的地方，故合并为单一入口 + 值对象。
+  ThemeData _buildThemeFor(Brightness brightness, ThemeInputs inputs) {
+    final isDark = brightness == Brightness.dark;
+    final scheme = isDark
+        ? AppConstants.darkThemeSchemes[inputs.darkThemeIndex]
+        : AppConstants.lightThemeSchemes[inputs.lightThemeIndex];
 
-    final colorScheme = ColorScheme.light(
-          primary: primaryColor,
-          secondary: AppConstants.accentColor,
-          surface: scheme.surface,
-          error: AppConstants.errorColor,
-        );
+    final colorScheme = isDark
+        ? ColorScheme.dark(
+            primary: inputs.primaryColor,
+            secondary: AppConstants.accentColor,
+            surface: scheme.surface,
+            error: AppConstants.errorColor,
+          )
+        : ColorScheme.light(
+            primary: inputs.primaryColor,
+            secondary: AppConstants.accentColor,
+            surface: scheme.surface,
+            error: AppConstants.errorColor,
+          );
 
     return _buildTheme(
-      brightness: Brightness.light,
+      brightness: brightness,
       colorScheme: colorScheme,
       backgroundColor: scheme.background,
-      textColor: uiFontColor,
+      textColor: inputs.uiFontColorFor(brightness),
       contentTextColor: scheme.text,
       textSecondaryColor: scheme.textSecondary,
-      fontFamily: fontFamily,
-      buttonStyleMode: buttonStyleMode,
-      cardOpacity: cardOpacity,
-      customCardColor: customCardColor,
-      customIconColor: customIconColor,
+      fontFamily: inputs.fontFamily,
+      buttonStyleMode: inputs.buttonStyleMode,
+      cardOpacity: inputs.cardOpacity,
+      customCardColor: inputs.customCardColor,
+      customIconColor: inputs.customIconColor,
     );
   }
 
@@ -261,46 +233,6 @@ class MyApp extends StatelessWidget {
     if (context == null) return false;
     final appStyle = Theme.of(context).extension<AppStyleTheme>();
     return appStyle?.useLiquidGlass ?? false;
-  }
-
-  /// 构建深色主题
-  ///
-  /// [primaryColor] 用户选择的主题色
-  /// [uiFontColor] 已按深色表面解析出的界面字体颜色
-  /// [darkThemeIndex] 夜间主题配色方案索引
-  /// [fontFamily] 用户选择的字体（null 表示系统默认）
-  ThemeData _buildDarkTheme(
-    Color primaryColor,
-    Color uiFontColor,
-    int darkThemeIndex,
-    String? fontFamily,
-    AppButtonStyleMode buttonStyleMode,
-    double cardOpacity,
-    Color? customCardColor,
-    Color? customIconColor,
-  ) {
-    final scheme = AppConstants.darkThemeSchemes[darkThemeIndex];
-
-    final colorScheme = ColorScheme.dark(
-          primary: primaryColor,
-          secondary: AppConstants.accentColor,
-          surface: scheme.surface,
-          error: AppConstants.errorColor,
-        );
-
-    return _buildTheme(
-      brightness: Brightness.dark,
-      colorScheme: colorScheme,
-      backgroundColor: scheme.background,
-      textColor: uiFontColor,
-      contentTextColor: scheme.text,
-      textSecondaryColor: scheme.textSecondary,
-      fontFamily: fontFamily,
-      buttonStyleMode: buttonStyleMode,
-      cardOpacity: cardOpacity,
-      customCardColor: customCardColor,
-      customIconColor: customIconColor,
-    );
   }
 
   ThemeData _buildTheme({
@@ -905,4 +837,93 @@ class _SplashScreenState extends State<SplashScreen>
       ),
     );
   }
+}
+
+/// 构建主题所需的全部设置；值对象以便 Selector 精确收敛重建粒度。
+///
+/// MaterialApp 此前被 Consumer 整体包住，任意 notifyListeners（含调试日志追加）
+/// 都会重建两套 ThemeData。改用 `Selector<SettingsProvider, ThemeInputs>` 后只有
+/// 这里列出的字段变化才会重绘主题——因此新增主题相关设置时必须同步加字段，
+/// 否则该设置会静默失效；test/main/theme_inputs_contract_test.dart 负责钉住这点。
+@immutable
+class ThemeInputs {
+  const ThemeInputs({
+    required this.primaryColor,
+    required this.uiFontColorLight,
+    required this.uiFontColorDark,
+    required this.fontFamily,
+    required this.lightThemeIndex,
+    required this.darkThemeIndex,
+    required this.buttonStyleMode,
+    required this.cardOpacity,
+    required this.customCardColor,
+    required this.customIconColor,
+    required this.themeMode,
+    required this.locale,
+  });
+
+  factory ThemeInputs.from(SettingsProvider settings) => ThemeInputs(
+    primaryColor: settings.primaryColor,
+    uiFontColorLight: settings.uiFontColorFor(Brightness.light),
+    uiFontColorDark: settings.uiFontColorFor(Brightness.dark),
+    fontFamily: settings.uiFontFamily == 'System'
+        ? null
+        : settings.uiFontFamily,
+    lightThemeIndex: settings.lightThemeIndex,
+    darkThemeIndex: settings.darkThemeIndex,
+    buttonStyleMode: settings.buttonStyleMode,
+    cardOpacity: settings.cardOpacity,
+    customCardColor: settings.customCardColor,
+    customIconColor: settings.customIconColor,
+    themeMode: settings.themeMode,
+    locale: settings.locale,
+  );
+
+  final Color primaryColor;
+  final Color uiFontColorLight;
+  final Color uiFontColorDark;
+  final String? fontFamily;
+  final int lightThemeIndex;
+  final int darkThemeIndex;
+  final AppButtonStyleMode buttonStyleMode;
+  final double cardOpacity;
+  final Color? customCardColor;
+  final Color? customIconColor;
+  final ThemeMode themeMode;
+  final Locale locale;
+
+  Color uiFontColorFor(Brightness brightness) =>
+      brightness == Brightness.dark ? uiFontColorDark : uiFontColorLight;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ThemeInputs &&
+      other.primaryColor == primaryColor &&
+      other.uiFontColorLight == uiFontColorLight &&
+      other.uiFontColorDark == uiFontColorDark &&
+      other.fontFamily == fontFamily &&
+      other.lightThemeIndex == lightThemeIndex &&
+      other.darkThemeIndex == darkThemeIndex &&
+      other.buttonStyleMode == buttonStyleMode &&
+      other.cardOpacity == cardOpacity &&
+      other.customCardColor == customCardColor &&
+      other.customIconColor == customIconColor &&
+      other.themeMode == themeMode &&
+      other.locale == locale;
+
+  @override
+  int get hashCode => Object.hash(
+    primaryColor,
+    uiFontColorLight,
+    uiFontColorDark,
+    fontFamily,
+    lightThemeIndex,
+    darkThemeIndex,
+    buttonStyleMode,
+    cardOpacity,
+    customCardColor,
+    customIconColor,
+    themeMode,
+    locale,
+  );
 }
