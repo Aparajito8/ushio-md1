@@ -2042,12 +2042,6 @@ abstract class AppLocalizations {
   /// **'自定义全局图标颜色'**
   String get customGlobalIconColor;
 
-  /// 图标颜色标签
-  ///
-  /// In zh, this message translates to:
-  /// **'图标颜色'**
-  String get globalIconColorLabel;
-
   /// 全局图标颜色描述
   ///
   /// In zh, this message translates to:
@@ -2078,53 +2072,41 @@ abstract class AppLocalizations {
   /// **'预览文字'**
   String get previewText;
 
-  /// 主题设置标题
+  /// 配色与主题设置标题
   ///
   /// In zh, this message translates to:
-  /// **'主题设置'**
-  String get themeSettings;
+  /// **'配色与主题'**
+  String get colorThemeSettings;
 
-  /// 主题设置描述
+  /// 配色与主题描述
   ///
   /// In zh, this message translates to:
-  /// **'主题模式、语言、主题色、字体颜色、按钮样式'**
-  String get themeSettingsDesc;
+  /// **'主题模式、强调色、浅色与深色配色方案'**
+  String get colorThemeSettingsDesc;
 
-  /// 字体设置标题
+  /// 文字与字体设置标题
   ///
   /// In zh, this message translates to:
-  /// **'字体设置'**
-  String get fontSettings;
+  /// **'文字与字体'**
+  String get textAndFontSettings;
 
-  /// 字体设置描述
+  /// 文字与字体描述
   ///
   /// In zh, this message translates to:
-  /// **'界面字体、编辑器字体、代码字体、代码块主题'**
-  String get fontSettingsDesc;
+  /// **'语言、字体、界面与编辑器文字颜色、代码块主题'**
+  String get textAndFontSettingsDesc;
 
-  /// 背景设置标题
+  /// 表面与背景设置标题
   ///
   /// In zh, this message translates to:
-  /// **'背景设置'**
-  String get backgroundSettings;
+  /// **'表面与背景'**
+  String get surfaceAndBackgroundSettings;
 
-  /// 背景设置描述
+  /// 表面与背景描述
   ///
   /// In zh, this message translates to:
-  /// **'背景图片、编辑器背景'**
-  String get backgroundSettingsDesc;
-
-  /// 其他外观设置标题
-  ///
-  /// In zh, this message translates to:
-  /// **'其他外观'**
-  String get otherAppearanceSettings;
-
-  /// 其他外观设置描述
-  ///
-  /// In zh, this message translates to:
-  /// **'应用图标、首页头像、首页标题、底部导航栏'**
-  String get otherAppearanceSettingsDesc;
+  /// **'UI 风格、卡片、图标、导航栏、背景与首页外观'**
+  String get surfaceAndBackgroundSettingsDesc;
 
   /// 下载字体对话框标题
   ///

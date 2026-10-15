@@ -545,6 +545,32 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     );
   }
 
+  /// 字体选择行：下拉框占满剩余宽度并省略号截断，
+  /// 否则长字体名在窄屏上会撑破 Row。
+  Widget _buildFontRow({
+    required String label,
+    required String value,
+    required List<DropdownMenuItem<String>> items,
+    required ValueChanged<String?> onChanged,
+  }) {
+    return Row(
+      children: [
+        Text(label),
+        const SizedBox(width: 12),
+        Expanded(
+          child: DropdownButton<String>(
+            value: value,
+            isExpanded: true,
+            underline: const SizedBox(),
+            borderRadius: BorderRadius.circular(12),
+            items: items,
+            onChanged: onChanged,
+          ),
+        ),
+      ],
+    );
+  }
+
   /// 构建字体选择器
   Widget buildFontSelector(SettingsProvider settings, AppLocalizations l10n) {
     // 构建字体选项列表
@@ -560,7 +586,11 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(font.name),
+                // 长字体名（如思源黑体 + 下载图标）在窄屏上会撑破下拉框，
+                // 这里必须可收缩并截断，否则 RenderFlex overflow。
+                Flexible(
+                  child: Text(font.name, overflow: TextOverflow.ellipsis),
+                ),
                 if (font.needDownload) ...[
                   const SizedBox(width: 4),
                   Icon(
@@ -717,52 +747,25 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // 界面字体
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.uiFont),
-            DropdownButton<String>(
-              value: getValidFontFamily(settings.uiFontFamily),
-              underline: const SizedBox(),
-              borderRadius: BorderRadius.circular(12),
-              items: fontItems,
-              onChanged: (value) =>
-                  handleFontChange(value, settings.setUiFontFamily),
-            ),
-          ],
+        _buildFontRow(
+          label: l10n.uiFont,
+          value: getValidFontFamily(settings.uiFontFamily),
+          items: fontItems,
+          onChanged: (value) => handleFontChange(value, settings.setUiFontFamily),
         ),
         const SizedBox(height: 12),
-        // 编辑器字体
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.editorFont),
-            DropdownButton<String>(
-              value: getValidFontFamily(settings.editorFontFamily),
-              underline: const SizedBox(),
-              borderRadius: BorderRadius.circular(12),
-              items: fontItems,
-              onChanged: (value) =>
-                  handleFontChange(value, settings.setEditorFontFamily),
-            ),
-          ],
+        _buildFontRow(
+          label: l10n.editorFont,
+          value: getValidFontFamily(settings.editorFontFamily),
+          items: fontItems,
+          onChanged: (value) => handleFontChange(value, settings.setEditorFontFamily),
         ),
         const SizedBox(height: 12),
-        // 代码字体
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.customFont),
-            DropdownButton<String>(
-              value: getValidFontFamily(settings.codeFontFamily),
-              underline: const SizedBox(),
-              borderRadius: BorderRadius.circular(12),
-              items: fontItems,
-              onChanged: (value) =>
-                  handleFontChange(value, settings.setCodeFontFamily),
-            ),
-          ],
+        _buildFontRow(
+          label: l10n.customFont,
+          value: getValidFontFamily(settings.codeFontFamily),
+          items: fontItems,
+          onChanged: (value) => handleFontChange(value, settings.setCodeFontFamily),
         ),
         const SizedBox(height: 16),
         // 安装自定义字体按钮

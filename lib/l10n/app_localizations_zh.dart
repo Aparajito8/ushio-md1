@@ -1024,9 +1024,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customGlobalIconColor => '自定义全局图标颜色';
 
   @override
-  String get globalIconColorLabel => '图标颜色';
-
-  @override
   String get globalIconColorDesc => '开启后，应用内所有图标统一使用所选颜色';
 
   @override
@@ -1042,28 +1039,22 @@ class AppLocalizationsZh extends AppLocalizations {
   String get previewText => '预览文字';
 
   @override
-  String get themeSettings => '主题设置';
+  String get colorThemeSettings => '配色与主题';
 
   @override
-  String get themeSettingsDesc => '主题模式、语言、主题色、字体颜色、按钮样式';
+  String get colorThemeSettingsDesc => '主题模式、强调色、浅色与深色配色方案';
 
   @override
-  String get fontSettings => '字体设置';
+  String get textAndFontSettings => '文字与字体';
 
   @override
-  String get fontSettingsDesc => '界面字体、编辑器字体、代码字体、代码块主题';
+  String get textAndFontSettingsDesc => '语言、字体、界面与编辑器文字颜色、代码块主题';
 
   @override
-  String get backgroundSettings => '背景设置';
+  String get surfaceAndBackgroundSettings => '表面与背景';
 
   @override
-  String get backgroundSettingsDesc => '背景图片、编辑器背景';
-
-  @override
-  String get otherAppearanceSettings => '其他外观';
-
-  @override
-  String get otherAppearanceSettingsDesc => '应用图标、首页头像、首页标题、底部导航栏';
+  String get surfaceAndBackgroundSettingsDesc => 'UI 风格、卡片、图标、导航栏、背景与首页外观';
 
   @override
   String get downloadFont => '下载字体';

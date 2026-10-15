@@ -1053,9 +1053,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customGlobalIconColor => 'Custom Global Icon Color';
 
   @override
-  String get globalIconColorLabel => 'Icon Color';
-
-  @override
   String get globalIconColorDesc =>
       'Use the selected color for all app icons when enabled';
 
@@ -1073,31 +1070,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get previewText => 'Preview Text';
 
   @override
-  String get themeSettings => 'Theme Settings';
+  String get colorThemeSettings => 'Colors & Theme';
 
   @override
-  String get themeSettingsDesc =>
-      'Theme mode, language, theme color, font colors, button style';
+  String get colorThemeSettingsDesc =>
+      'Theme mode, accent color, light and dark palettes';
 
   @override
-  String get fontSettings => 'Font Settings';
+  String get textAndFontSettings => 'Text & Fonts';
 
   @override
-  String get fontSettingsDesc =>
-      'UI font, editor font, code font, code block theme';
+  String get textAndFontSettingsDesc =>
+      'Language, fonts, UI and editor text colors, code theme';
 
   @override
-  String get backgroundSettings => 'Background Settings';
+  String get surfaceAndBackgroundSettings => 'Surfaces & Background';
 
   @override
-  String get backgroundSettingsDesc => 'Background image and editor background';
-
-  @override
-  String get otherAppearanceSettings => 'Other Appearance';
-
-  @override
-  String get otherAppearanceSettingsDesc =>
-      'App icon, home avatar, home title, bottom navigation bar';
+  String get surfaceAndBackgroundSettingsDesc =>
+      'UI style, cards, icons, nav bar, backgrounds and home appearance';
 
   @override
   String get downloadFont => 'Download Font';
