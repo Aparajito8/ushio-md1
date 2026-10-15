@@ -80,14 +80,14 @@ void main() {
     expect(find.text('从图片取色'), findsOneWidget);
   });
 
-  testWidgets('三个颜色区块各自只渲染一个自定义取色入口', (tester) async {
+  testWidgets('五个颜色区块各自只渲染一个自定义取色入口，且无遗留开关', (tester) async {
     final settings = await _createSettings();
     await pumpThemeSettings(tester, settings);
 
-    // 主题色 / 界面字体颜色 / 编辑器文字颜色，各一个 tune 入口
-    expect(find.byIcon(Icons.tune), findsNWidgets(3));
-    // 仅剩图标色与卡片色两处旧开关，S4 收敛后应归零
-    expect(find.byType(Switch), findsNWidgets(2));
+    // 主题色 / 界面字体 / 编辑器文字 / 图标色 / 卡片色
+    expect(find.byIcon(Icons.tune), findsNWidgets(5));
+    // 图标色与卡片色的旧式 useCustom 开关已随状态模型收敛一并移除
+    expect(find.byType(Switch), findsNothing);
   });
 
   testWidgets('浅色 5 套与深色 6 套主题方案均参与渲染', (tester) async {

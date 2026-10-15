@@ -16,7 +16,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
   final List<BoxShadow> prominentShadow;
   final double cardOpacity;
   final Color? customCardColor;
-  final bool useCustomCardColor;
   final Color iconColor;
   final Color mutedIconColor;
 
@@ -32,7 +31,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     required this.iconColor,
     required this.mutedIconColor,
     this.customCardColor,
-    this.useCustomCardColor = false,
   });
 
   bool get useBorderlessButtons =>
@@ -47,9 +45,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     required AppButtonStyleMode buttonStyleMode,
     required double cardOpacity,
     Color? customCardColor,
-    bool useCustomCardColor = false,
     Color? customIconColor,
-    bool useCustomIconColor = false,
   }) {
     final isDark = brightness == Brightness.dark;
     final isLiquidGlass = buttonStyleMode == AppButtonStyleMode.liquidGlass;
@@ -76,24 +72,14 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       alpha: isLiquidGlass ? (isDark ? 0.18 : 0.14) : (isDark ? 0.24 : 0.18),
     );
 
-    // 计算卡片表面颜色：如果启用自定义颜色则使用自定义颜色，否则使用主题默认
-    final effectiveCardSurface = useCustomCardColor && customCardColor != null
-        ? customCardColor.withValues(alpha: effectiveOpacity)
-        : colorScheme.surface.withValues(alpha: effectiveOpacity);
-
-    // 计算muted和strong表面颜色：如果启用自定义颜色则基于自定义颜色
-    final baseSurface = useCustomCardColor && customCardColor != null
-        ? customCardColor
-        : colorScheme.surface;
-    final defaultIconColor = colorScheme.onSurface;
-    final defaultMutedIconColor = colorScheme.onSurfaceVariant;
-    final effectiveIconColor = useCustomIconColor && customIconColor != null
-        ? customIconColor
-        : defaultIconColor;
-    final effectiveMutedIconColor =
-        useCustomIconColor && customIconColor != null
+    // 自定义色非空即覆盖主题默认，无需额外开关
+    final effectiveCardSurface = (customCardColor ?? colorScheme.surface)
+        .withValues(alpha: effectiveOpacity);
+    final baseSurface = customCardColor ?? colorScheme.surface;
+    final effectiveIconColor = customIconColor ?? colorScheme.onSurface;
+    final effectiveMutedIconColor = customIconColor != null
         ? customIconColor.withValues(alpha: 0.72)
-        : defaultMutedIconColor;
+        : colorScheme.onSurfaceVariant;
 
     return AppStyleTheme(
       buttonStyleMode: buttonStyleMode,
@@ -133,7 +119,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
         ),
       ],
       customCardColor: customCardColor,
-      useCustomCardColor: useCustomCardColor,
       iconColor: effectiveIconColor,
       mutedIconColor: effectiveMutedIconColor,
     );
@@ -162,12 +147,9 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
   /// 如果启用自定义卡片颜色，则使用自定义颜色作为基础色。
   Color scaledSurfaceColor(ColorScheme colorScheme, {double alpha = 1}) {
     final effectiveAlpha = (cardOpacity * alpha).clamp(0.0, 1.0);
-    // 如果启用自定义卡片颜色且颜色不为空，使用自定义颜色
-    final customColor = customCardColor;
-    if (useCustomCardColor && customColor != null) {
-      return customColor.withValues(alpha: effectiveAlpha);
-    }
-    return colorScheme.surface.withValues(alpha: effectiveAlpha);
+    return (customCardColor ?? colorScheme.surface).withValues(
+      alpha: effectiveAlpha,
+    );
   }
 
   BoxDecoration surfaceDecoration({
@@ -195,7 +177,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     List<BoxShadow>? prominentShadow,
     double? cardOpacity,
     Color? customCardColor,
-    bool? useCustomCardColor,
     Color? iconColor,
     Color? mutedIconColor,
   }) {
@@ -209,7 +190,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       prominentShadow: prominentShadow ?? this.prominentShadow,
       cardOpacity: cardOpacity ?? this.cardOpacity,
       customCardColor: customCardColor ?? this.customCardColor,
-      useCustomCardColor: useCustomCardColor ?? this.useCustomCardColor,
       iconColor: iconColor ?? this.iconColor,
       mutedIconColor: mutedIconColor ?? this.mutedIconColor,
     );
@@ -231,9 +211,6 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       prominentShadow: t < 0.5 ? prominentShadow : other.prominentShadow,
       cardOpacity: lerpDouble(cardOpacity, other.cardOpacity, t) ?? cardOpacity,
       customCardColor: Color.lerp(customCardColor, other.customCardColor, t),
-      useCustomCardColor: t < 0.5
-          ? useCustomCardColor
-          : other.useCustomCardColor,
       iconColor: Color.lerp(iconColor, other.iconColor, t) ?? iconColor,
       mutedIconColor:
           Color.lerp(mutedIconColor, other.mutedIconColor, t) ?? mutedIconColor,
@@ -243,7 +220,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
 
 /// 全局图标颜色快捷访问。
 ///
-/// 未启用自定义图标颜色时返回主题默认前景色；启用后返回用户选择的颜色。
+/// 未设置自定义图标颜色时返回主题默认前景色，否则返回用户选择的颜色。
 extension AppIconColorX on BuildContext {
   Color get appIconColor =>
       Theme.of(this).extension<AppStyleTheme>()?.iconColor ??

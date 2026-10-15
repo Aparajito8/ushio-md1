@@ -52,8 +52,8 @@ void main() {
       expect(provider.webdavUrl, isEmpty);
       expect(provider.syncFolderName, 'Ushio-MD');
       expect(provider.buttonStyleMode, AppButtonStyleMode.liquidGlass);
-      expect(provider.useCustomIconColor, isFalse);
       expect(provider.customIconColor, isNull);
+      expect(provider.customCardColor, isNull);
     });
 
     test('UI文字颜色与全局图标颜色预设应和主题色调色板一致', () {
@@ -64,25 +64,34 @@ void main() {
       );
     });
 
-    test('setCustomIconColor 应更新内存并启用自定义颜色', () async {
+    test('setCustomIconColor 应立即生效，且不再写旧的开关键', () async {
       const color = Color(0xFF00BCD4);
       await provider.setCustomIconColor(color);
 
       expect(provider.customIconColor, color);
-      expect(provider.useCustomIconColor, isTrue);
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getInt('custom_icon_color'), color.toARGB32());
-      expect(prefs.getBool('use_custom_icon_color'), isTrue);
+      expect(prefs.containsKey('use_custom_icon_color'), isFalse);
     });
 
-    test('setUseCustomIconColor 应持久化开关', () async {
-      await provider.setUseCustomIconColor(true);
-      expect(provider.useCustomIconColor, isTrue);
-      await flushPersist();
+    test('setCustomIconColor(null) 应清除覆盖并落盘', () async {
+      await provider.setCustomIconColor(const Color(0xFF00BCD4));
+      await provider.setCustomIconColor(null);
 
+      expect(provider.customIconColor, isNull);
       final prefs = await SharedPreferences.getInstance();
-      expect(prefs.getBool('use_custom_icon_color'), isTrue);
+      expect(prefs.containsKey('custom_icon_color'), isFalse);
+    });
+
+    test('setCustomCardColor(null) 与图标色清除语义一致', () async {
+      await provider.setCustomCardColor(const Color(0xFF1E1E1E));
+      expect(provider.customCardColor, const Color(0xFF1E1E1E));
+
+      await provider.setCustomCardColor(null);
+      expect(provider.customCardColor, isNull);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('custom_card_color'), isFalse);
     });
 
     test('颜色未自定义时应取预设', () {
@@ -151,7 +160,6 @@ void main() {
     test('initialize 应加载自定义图标颜色', () async {
       const color = Color(0xFF10B981);
       SharedPreferences.setMockInitialValues({
-        'use_custom_icon_color': true,
         'custom_icon_color': color.toARGB32(),
       });
       FlutterSecureStorage.setMockInitialValues({});
@@ -159,8 +167,36 @@ void main() {
       final restored = SettingsProvider();
       await restored.initialize();
 
-      expect(restored.useCustomIconColor, isTrue);
       expect(restored.customIconColor, color);
+    });
+
+    test('图标色旧的 use_custom 开关应被一次性迁移掉', () async {
+      const color = Color(0xFF10B981);
+      SharedPreferences.setMockInitialValues({
+        'use_custom_icon_color': true,
+        'custom_icon_color': color.toARGB32(),
+        'use_custom_card_color': false,
+        'custom_card_color': const Color(0xFF1E1E1E).toARGB32(),
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final first = SettingsProvider();
+      await first.initialize();
+
+      // 开关为 true 的图标色迁移成自定义覆盖；开关为 false 的卡片色残留值应丢弃
+      expect(first.customIconColor, color);
+      expect(first.customCardColor, isNull);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('use_custom_icon_color'), isFalse);
+      expect(prefs.containsKey('use_custom_card_color'), isFalse);
+      expect(prefs.containsKey('custom_card_color'), isFalse);
+
+      // 二次启动不得让被丢弃的卡片色复活
+      final second = SettingsProvider();
+      await second.initialize();
+      expect(second.customIconColor, color);
+      expect(second.customCardColor, isNull);
     });
 
     test('旧版残留的 overlay 背景效果应归一为 blur 并落盘', () async {

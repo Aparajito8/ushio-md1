@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../utils/app_style.dart';
 import '../../../widgets/app_background.dart';
 import '../../../utils/constants.dart';
 import 'appearance_settings_mixin.dart';
@@ -136,7 +137,20 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
 
                 // 全局图标颜色
                 buildSection(l10n.globalIconColor, Icons.format_paint, [
-                  buildGlobalIconColorSelector(settings),
+                  ColorSettingSelector(
+                    presets: SettingsProvider.globalIconColors,
+                    customColor: settings.customIconColor,
+                    customLabel: l10n.customGlobalIconColor,
+                    pickerInitialColor: context.appIconColor,
+                    description: l10n.globalIconColorDesc,
+                    clearLabel: l10n.useThemeDefault,
+                    onClearCustom: () => settings.setCustomIconColor(null),
+                    onPresetSelected: (index) => settings.setCustomIconColor(
+                      SettingsProvider.globalIconColors[index],
+                    ),
+                    onCustomColorPicked: (color) =>
+                        settings.setCustomIconColor(color),
+                  ),
                 ]),
 
                 const SizedBox(height: 16),
@@ -158,7 +172,19 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                     onChanged: settings.setCardOpacity,
                   ),
                   const SizedBox(height: 12),
-                  buildCardColorSelector(settings, l10n),
+                  ColorSettingSelector(
+                    presets: AppConstants.cardColorPresets,
+                    customColor: settings.customCardColor,
+                    customLabel: l10n.cardColor,
+                    pickerInitialColor: Theme.of(context).colorScheme.surface,
+                    clearLabel: l10n.useThemeDefault,
+                    onClearCustom: () => settings.setCustomCardColor(null),
+                    onPresetSelected: (index) => settings.setCustomCardColor(
+                      AppConstants.cardColorPresets[index],
+                    ),
+                    onCustomColorPicked: (color) =>
+                        settings.setCustomCardColor(color),
+                  ),
                 ]),
 
                 // 浅色主题方案（仅在浅色模式下显示）

@@ -180,9 +180,7 @@ class MyApp extends StatelessWidget {
               settings.buttonStyleMode,
               settings.cardOpacity,
               settings.customCardColor,
-              settings.useCustomCardColor,
               settings.customIconColor,
-              settings.useCustomIconColor,
             ), // 浅色主题
             darkTheme: _buildDarkTheme(
               primaryColor,
@@ -192,9 +190,7 @@ class MyApp extends StatelessWidget {
               settings.buttonStyleMode,
               settings.cardOpacity,
               settings.customCardColor,
-              settings.useCustomCardColor,
               settings.customIconColor,
-              settings.useCustomIconColor,
             ), // 深色主题
             themeMode: settings.themeMode, // 主题模式（跟随系统/浅色/深色）
             builder: (context, child) {
@@ -236,9 +232,7 @@ class MyApp extends StatelessWidget {
     AppButtonStyleMode buttonStyleMode,
     double cardOpacity,
     Color? customCardColor,
-    bool useCustomCardColor,
     Color? customIconColor,
-    bool useCustomIconColor,
   ) {
     final scheme = AppConstants.lightThemeSchemes[lightThemeIndex];
 
@@ -260,9 +254,7 @@ class MyApp extends StatelessWidget {
       buttonStyleMode: buttonStyleMode,
       cardOpacity: cardOpacity,
       customCardColor: customCardColor,
-      useCustomCardColor: useCustomCardColor,
       customIconColor: customIconColor,
-      useCustomIconColor: useCustomIconColor,
     );
   }
 
@@ -288,9 +280,7 @@ class MyApp extends StatelessWidget {
     AppButtonStyleMode buttonStyleMode,
     double cardOpacity,
     Color? customCardColor,
-    bool useCustomCardColor,
     Color? customIconColor,
-    bool useCustomIconColor,
   ) {
     final scheme = AppConstants.darkThemeSchemes[darkThemeIndex];
 
@@ -314,9 +304,7 @@ class MyApp extends StatelessWidget {
       buttonStyleMode: buttonStyleMode,
       cardOpacity: cardOpacity,
       customCardColor: customCardColor,
-      useCustomCardColor: useCustomCardColor,
       customIconColor: customIconColor,
-      useCustomIconColor: useCustomIconColor,
     );
   }
 
@@ -331,9 +319,7 @@ class MyApp extends StatelessWidget {
     required AppButtonStyleMode buttonStyleMode,
     required double cardOpacity,
     Color? customCardColor,
-    bool useCustomCardColor = false,
     Color? customIconColor,
-    bool useCustomIconColor = false,
   }) {
     final isDark = brightness == Brightness.dark;
     final resolvedOutline = colorScheme.outline != const Color(0xFF000000)
@@ -365,7 +351,6 @@ class MyApp extends StatelessWidget {
       ),
       cardOpacity,
       customCardColor: customCardColor,
-      useCustomCardColor: useCustomCardColor,
     );
     final appStyle = AppStyleTheme.resolve(
       brightness: brightness,
@@ -374,9 +359,7 @@ class MyApp extends StatelessWidget {
       buttonStyleMode: buttonStyleMode,
       cardOpacity: cardOpacity,
       customCardColor: customCardColor,
-      useCustomCardColor: useCustomCardColor,
       customIconColor: customIconColor,
-      useCustomIconColor: useCustomIconColor,
     );
 
     final buttonForeground = appStyle.useBorderlessButtons
@@ -671,13 +654,10 @@ class MyApp extends StatelessWidget {
     ColorScheme colorScheme,
     double cardOpacity, {
     Color? customCardColor,
-    bool useCustomCardColor = false,
   }) {
-    // 应用透明度，如果启用自定义颜色则使用自定义颜色作为基础
+    // 自定义卡片色非空即覆盖主题表面色
     Color applyStyle(Color originalColor) {
-      final baseColor = useCustomCardColor && customCardColor != null
-          ? customCardColor
-          : originalColor;
+      final baseColor = customCardColor ?? originalColor;
       return baseColor.withValues(alpha: cardOpacity);
     }
 

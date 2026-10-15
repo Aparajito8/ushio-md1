@@ -267,6 +267,26 @@ class AppConstants {
     ),
   ];
 
+  // ==================== 卡片颜色 ====================
+
+  /// 卡片颜色预设，成对给出浅色与深色变体
+  static const List<Color> cardColorPresets = [
+    Colors.white,
+    Colors.black,
+    Color(0xFFF5F5F5),
+    Color(0xFF1E1E1E),
+    Color(0xFFE3F2FD),
+    Color(0xFF0D47A1),
+    Color(0xFFFFF3E0),
+    Color(0xFFE65100),
+    Color(0xFFE8F5E9),
+    Color(0xFF1B5E20),
+    Color(0xFFFCE4EC),
+    Color(0xFF880E4F),
+    Color(0xFFF3E5F5),
+    Color(0xFF4A148C),
+  ];
+
   // ==================== 代码块主题 ====================
 
   /// 代码块语法高亮主题列表

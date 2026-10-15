@@ -205,18 +205,12 @@ class SettingsProvider extends ChangeNotifier {
   /// 底部导航栏透明度（0.1–1.0）
   double _tabBarOpacity = 0.95;
 
-  /// 自定义卡片颜色（null 表示使用主题默认颜色）
+  /// 自定义卡片颜色；非空即表示用户覆盖了主题默认色
   Color? _customCardColor;
-
-  /// 是否启用自定义卡片颜色
-  bool _useCustomCardColor = false;
 
   // ==================== 图标设置 ====================
 
-  /// 是否启用自定义全局图标颜色
-  bool _useCustomIconColor = false;
-
-  /// 自定义全局图标颜色（null 表示使用主题默认颜色）
+  /// 自定义全局图标颜色；非空即表示用户覆盖了主题默认色
   Color? _customIconColor;
 
   /// 桌面图标索引（0=默认 app.png, 1=icon2.png）
@@ -371,10 +365,8 @@ class SettingsProvider extends ChangeNotifier {
   double get cardOpacity => _cardOpacity;
   double get tabBarOpacity => _tabBarOpacity;
   Color? get customCardColor => _customCardColor;
-  bool get useCustomCardColor => _useCustomCardColor;
 
   // 图标设置 Getters
-  bool get useCustomIconColor => _useCustomIconColor;
   Color? get customIconColor => _customIconColor;
   int get appIconIndex => _appIconIndex;
   String get homeIconMode => _homeIconMode;
@@ -621,18 +613,18 @@ class SettingsProvider extends ChangeNotifier {
     _tabBarOpacity = prefs.getDouble('tab_bar_opacity') ?? 0.95;
 
     // 自定义卡片颜色
-    _useCustomCardColor = prefs.getBool('use_custom_card_color') ?? false;
-    final customCardColorValue = prefs.getInt('custom_card_color');
-    if (customCardColorValue != null) {
-      _customCardColor = Color(customCardColorValue);
-    }
+    _customCardColor = await _migrateCustomColor(
+      prefs,
+      colorKey: 'custom_card_color',
+      legacyFlagKey: 'use_custom_card_color',
+    );
 
     // 自定义全局图标颜色
-    _useCustomIconColor = prefs.getBool('use_custom_icon_color') ?? false;
-    final customIconColorValue = prefs.getInt('custom_icon_color');
-    if (customIconColorValue != null) {
-      _customIconColor = Color(customIconColorValue);
-    }
+    _customIconColor = await _migrateCustomColor(
+      prefs,
+      colorKey: 'custom_icon_color',
+      legacyFlagKey: 'use_custom_icon_color',
+    );
 
     // 图标设置
     _appIconIndex = prefs.getInt('app_icon_index') ?? 0;
@@ -1158,48 +1150,20 @@ class SettingsProvider extends ChangeNotifier {
     _schedulePersist('tab_bar_opacity', opacity);
   }
 
-  /// 设置自定义卡片颜色
+  /// 设置自定义卡片颜色；传 null 恢复主题默认
   Future<void> setCustomCardColor(Color? color) async {
     _customCardColor = color;
     notifyListeners();
-    final prefs = await _getPrefs();
-    if (color != null) {
-      await prefs.setInt('custom_card_color', color.toARGB32());
-    } else {
-      await prefs.remove('custom_card_color');
-    }
-  }
-
-  /// 设置是否启用自定义卡片颜色
-  Future<void> setUseCustomCardColor(bool use) async {
-    _useCustomCardColor = use;
-    notifyListeners();
-    _schedulePersist('use_custom_card_color', use);
+    await _writeCustomColor('custom_card_color', color);
   }
 
   // ==================== 图标设置方法 ====================
 
-  /// 设置是否启用自定义全局图标颜色
-  Future<void> setUseCustomIconColor(bool use) async {
-    _useCustomIconColor = use;
-    notifyListeners();
-    _schedulePersist('use_custom_icon_color', use);
-  }
-
-  /// 设置自定义全局图标颜色
+  /// 设置自定义全局图标颜色；传 null 恢复主题默认
   Future<void> setCustomIconColor(Color? color) async {
     _customIconColor = color;
-    if (color != null) {
-      _useCustomIconColor = true;
-    }
     notifyListeners();
-    final prefs = await _getPrefs();
-    if (color != null) {
-      await prefs.setInt('custom_icon_color', color.toARGB32());
-      await prefs.setBool('use_custom_icon_color', true);
-    } else {
-      await prefs.remove('custom_icon_color');
-    }
+    await _writeCustomColor('custom_icon_color', color);
   }
 
   /// 设置桌面图标索引（0=默认, 1=icon2）

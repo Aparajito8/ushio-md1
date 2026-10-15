@@ -21,6 +21,8 @@ class ColorSettingSelector extends StatelessWidget {
     this.selectedPresetIndex,
     this.description,
     this.showTextPreview = false,
+    this.clearLabel,
+    this.onClearCustom,
   });
 
   final List<Color> presets;
@@ -39,6 +41,10 @@ class ColorSettingSelector extends StatelessWidget {
   final int? selectedPresetIndex;
 
   final String? description;
+
+  /// 无预设可退回时（如卡片色、图标色的「跟随主题默认」）提供的清除入口
+  final String? clearLabel;
+  final VoidCallback? onClearCustom;
 
   /// 颜色用于文字时，在取色弹窗内用白底展示选中色的文字效果
   final bool showTextPreview;
@@ -75,11 +81,23 @@ class ColorSettingSelector extends StatelessWidget {
         ),
         if (hasCustom) ...[
           const SizedBox(height: 12),
-          Text(
-            customLabel,
-            style: theme.textTheme.bodySmall?.copyWith(
-              color: theme.colorScheme.onSurfaceVariant,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  customLabel,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              if (onClearCustom != null && clearLabel != null)
+                TextButton.icon(
+                  onPressed: onClearCustom,
+                  icon: const Icon(Icons.refresh, size: 18),
+                  label: Text(clearLabel!),
+                ),
+            ],
           ),
         ],
       ],
