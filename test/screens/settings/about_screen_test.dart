@@ -38,12 +38,6 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   double _backgroundBlur = 10.0;
   double _backgroundOverlayOpacity = 0.5;
   
-  // Particle
-  bool _particleEnabled = false;
-  String _particleType = 'sakura';
-  double _particleSpeed = 1.0;
-  bool _particleGlobal = true;
-  
   // Cloud
   String _webdavUrl = '';
   String _webdavUsername = '';
@@ -72,11 +66,6 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   @override String get backgroundEffect => _backgroundEffect;
   @override double get backgroundBlur => _backgroundBlur;
   @override double get backgroundOverlayOpacity => _backgroundOverlayOpacity;
-  
-  @override bool get particleEnabled => _particleEnabled;
-  @override String get particleType => _particleType;
-  @override double get particleSpeed => _particleSpeed;
-  @override bool get particleGlobal => _particleGlobal;
   
   @override Locale get locale => const Locale('zh');
   

@@ -193,32 +193,6 @@ class SettingsProvider extends ChangeNotifier {
   /// 遮罩透明度（0-1，保留但当前 UI 未使用）
   double _backgroundOverlayOpacity = 0.5;
 
-  // ==================== 粒子效果设置 ====================
-
-  /// 粒子效果开关
-  bool _particleEnabled = false;
-
-  /// 粒子效果类型：sakura/rain/firefly/snow
-  String _particleType = 'sakura';
-
-  /// 粒子速率（0.01-0.5，界面显示为0.1-1.0）
-  double _particleSpeed = 0.5;
-
-  /// 是否全局显示（false 则仅在非编辑器区域显示）
-  bool _particleGlobal = true;
-
-  /// 粒子数量倍数（0.25-2.0，1.0 为默认）
-  double _particleCount = 1.0;
-
-  /// 粒子大小倍数（0.5-2.0，1.0 为默认）
-  double _particleSize = 1.0;
-
-  /// 粒子透明度（0.1-1.0）
-  double _particleOpacity = 1.0;
-
-  /// 风向（-1.0 到 1.0，负数向左，正数向右）
-  double _particleWind = 0.0;
-
   // ==================== 更新设置 ====================
 
   /// 是否在启动时自动检查更新（默认开启）
@@ -422,16 +396,6 @@ class SettingsProvider extends ChangeNotifier {
   String get homeIconMode => _homeIconMode;
   String? get homeIconCustomPath => _homeIconCustomPath;
   String get homeTitleText => _homeTitleText;
-
-  // 粒子效果 Getters
-  bool get particleEnabled => _particleEnabled;
-  String get particleType => _particleType;
-  double get particleSpeed => _particleSpeed;
-  bool get particleGlobal => _particleGlobal;
-  double get particleCount => _particleCount;
-  double get particleSize => _particleSize;
-  double get particleOpacity => _particleOpacity;
-  double get particleWind => _particleWind;
 
   Locale get locale => _locale;
   int get darkThemeIndex => _darkThemeIndex;
@@ -675,16 +639,6 @@ class SettingsProvider extends ChangeNotifier {
         prefs.getDouble('editor_background_brightness') ?? 1.0;
     _backgroundOverlayOpacity =
         prefs.getDouble('background_overlay_opacity') ?? 0.5;
-
-    // 粒子效果设置
-    _particleEnabled = prefs.getBool('particle_enabled') ?? false;
-    _particleType = prefs.getString('particle_type') ?? 'sakura';
-    _particleSpeed = prefs.getDouble('particle_speed') ?? 0.5;
-    _particleGlobal = prefs.getBool('particle_global') ?? true;
-    _particleCount = prefs.getDouble('particle_count') ?? 1.0;
-    _particleSize = prefs.getDouble('particle_size') ?? 1.0;
-    _particleOpacity = prefs.getDouble('particle_opacity') ?? 1.0;
-    _particleWind = prefs.getDouble('particle_wind') ?? 0.0;
 
     // 语言设置
     // 如果用户没有设置过语言，则使用系统语言
@@ -1088,64 +1042,6 @@ class SettingsProvider extends ChangeNotifier {
     _backgroundOverlayOpacity = opacity;
     notifyListeners();
     _schedulePersist('background_overlay_opacity', opacity);
-  }
-
-  // ==================== 粒子效果设置方法 ====================
-
-  /// 设置粒子效果开关
-  Future<void> setParticleEnabled(bool enabled) async {
-    _particleEnabled = enabled;
-    notifyListeners();
-    _schedulePersist('particle_enabled', enabled);
-  }
-
-  /// 设置粒子效果类型
-  Future<void> setParticleType(String type) async {
-    _particleType = type;
-    notifyListeners();
-    _schedulePersist('particle_type', type);
-  }
-
-  /// 设置粒子速率
-  Future<void> setParticleSpeed(double speed) async {
-    _particleSpeed = speed;
-    notifyListeners();
-    _schedulePersist('particle_speed', speed);
-  }
-
-  /// 设置粒子全局显示
-  Future<void> setParticleGlobal(bool global) async {
-    _particleGlobal = global;
-    notifyListeners();
-    _schedulePersist('particle_global', global);
-  }
-
-  /// 设置粒子数量倍数
-  Future<void> setParticleCount(double count) async {
-    _particleCount = count;
-    notifyListeners();
-    _schedulePersist('particle_count', count);
-  }
-
-  /// 设置粒子大小倍数
-  Future<void> setParticleSize(double size) async {
-    _particleSize = size;
-    notifyListeners();
-    _schedulePersist('particle_size', size);
-  }
-
-  /// 设置粒子透明度
-  Future<void> setParticleOpacity(double opacity) async {
-    _particleOpacity = opacity;
-    notifyListeners();
-    _schedulePersist('particle_opacity', opacity);
-  }
-
-  /// 设置风向
-  Future<void> setParticleWind(double wind) async {
-    _particleWind = wind;
-    notifyListeners();
-    _schedulePersist('particle_wind', wind);
   }
 
   // ==================== 编辑器设置方法 ====================

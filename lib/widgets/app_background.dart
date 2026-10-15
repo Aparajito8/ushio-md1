@@ -3,13 +3,9 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
-import 'particle_effect_widget.dart';
 
 class AppBackground extends StatefulWidget {
   final Widget child;
-  
-  /// 是否在编辑器区域（用于判断是否显示粒子效果）
-  final bool isEditor;
 
   /// 是否用 SafeArea 包裹子控件。当子控件是 Scaffold 时应设为 false，
   /// 避免与 Scaffold 的内建安全区域处理产生双重内边距。
@@ -18,7 +14,6 @@ class AppBackground extends StatefulWidget {
   const AppBackground({
     super.key,
     required this.child,
-    this.isEditor = false,
     this.wrapWithSafeArea = true,
   });
 
@@ -71,32 +66,7 @@ class _AppBackgroundState extends State<AppBackground> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsProvider>();
-    
-    // 判断是否显示粒子效果
-    final showParticles =
-        settings.particleEnabled && !settings.particleGlobal && !widget.isEditor;
-    
-    // 粒子效果 Widget
-    Widget? particleLayer;
-    if (showParticles) {
-      particleLayer = Positioned.fill(
-        child: IgnorePointer(
-          // TickerMode(enabled:true) overrides the route system's ticker-pause
-          // so particles keep animating smoothly during route push/pop transitions.
-          child: TickerMode(
-            enabled: true,
-            child: RepaintBoundary(
-              child: ParticleEffectWidget(
-                particleType: settings.particleType,
-                speed: settings.particleSpeed,
-                enabled: true,
-              ),
-            ),
-          ),
-        ),
-      );
-    }
-    
+
     Widget content = Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -119,7 +89,6 @@ class _AppBackgroundState extends State<AppBackground> {
         fit: StackFit.expand,
         children: [
           widget.wrapWithSafeArea ? SafeArea(child: widget.child) : widget.child,
-          if (particleLayer != null) particleLayer,
         ],
       ),
     );
@@ -171,8 +140,6 @@ class _AppBackgroundState extends State<AppBackground> {
                   : Colors.white.withValues(alpha: settings.backgroundOverlayOpacity),
             ),
           widget.wrapWithSafeArea ? SafeArea(child: widget.child) : widget.child,
-          // 粒子效果层
-          if (particleLayer != null) particleLayer,
         ],
       );
     }

@@ -52,7 +52,6 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
         body: Consumer<SettingsProvider>(
           builder: (context, settings, child) {
             initBrightnessValues(settings);
-            initParticleSpeedValue(settings);
 
             return ListView(
               padding: const EdgeInsets.all(20),

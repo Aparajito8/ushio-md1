@@ -436,9 +436,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get background => '背景';
 
   @override
-  String get particleEffect => '粒子效果';
-
-  @override
   String get appIcon => '桌面图标';
 
   @override
@@ -466,31 +463,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get blurStrength => '模糊强度';
 
   @override
-  String get particleType => '粒子类型';
-
-  @override
-  String get particleSpeed => '粒子速度';
-
-  @override
-  String get globalParticles => '全局粒子';
-
-  @override
   String get defaultIcon => '默认';
 
   @override
   String get customImage => '自定义图片';
-
-  @override
-  String get particleTypeSakura => '樱花';
-
-  @override
-  String get particleTypeSnow => '雪花';
-
-  @override
-  String get particleTypeLeaves => '落叶';
-
-  @override
-  String get particleTypeStars => '星星';
 
   @override
   String get uiFont => '界面字体';
@@ -952,9 +928,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get selectFromGallery => '从相册选择';
 
   @override
-  String get advancedParticleSettings => '高级设置';
-
-  @override
   String get homeTitleHint => '自定义主页图标旁显示的文字';
 
   @override
@@ -965,21 +938,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get restoreDefault => '恢复默认';
-
-  @override
-  String get globalParticlesEnabled => '全局粒子';
-
-  @override
-  String get globalParticlesDesc => '在应用全局显示粒子效果';
-
-  @override
-  String get editorParticlesDesc => '仅在编辑器中显示粒子效果';
-
-  @override
-  String get particleTypeRain => '雨滴';
-
-  @override
-  String get particleTypeFirefly => '萤火虫';
 
   @override
   String get appIconSelectorHint => '选择在主屏幕显示的应用图标';
@@ -1174,39 +1132,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get onOpen => '启动时';
 
   @override
-  String get particleCount => '粒子数量';
-
-  @override
-  String get particleSize => '粒子大小';
-
-  @override
-  String get particleOpacity => '粒子透明度';
-
-  @override
-  String get particleWind => '风向';
-
-  @override
-  String get particleWindLeft => '向左';
-
-  @override
-  String get particleWindRight => '向右';
-
-  @override
-  String get particleWindNone => '无风';
-
-  @override
-  String get particleCountDesc => '调整屏幕上粒子的数量';
-
-  @override
-  String get particleSizeDesc => '调整粒子的显示大小';
-
-  @override
-  String get particleOpacityDesc => '调整粒子的透明度';
-
-  @override
-  String get particleWindDesc => '调整粒子飘动的水平方向';
-
-  @override
   String get uiFontColor => '界面字体颜色';
 
   @override
@@ -1258,7 +1183,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get backgroundSettings => '背景设置';
 
   @override
-  String get backgroundSettingsDesc => '背景图片、编辑器背景、粒子特效';
+  String get backgroundSettingsDesc => '背景图片、编辑器背景';
 
   @override
   String get otherAppearanceSettings => '其他外观';

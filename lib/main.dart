@@ -38,7 +38,6 @@ import 'services/font_service.dart';
 import 'services/my_files_service.dart';
 import 'utils/app_style.dart';
 import 'utils/constants.dart';
-import 'widgets/global_particle_overlay.dart';
 
 /// ============================================================================
 /// 应用入口
@@ -207,9 +206,7 @@ class MyApp extends StatelessWidget {
             ), // 深色主题
             themeMode: settings.themeMode, // 主题模式（跟随系统/浅色/深色）
             builder: (context, child) {
-              final pageChild = GlobalParticleOverlay(
-                child: child ?? const SizedBox.shrink(),
-              );
+              final pageChild = child ?? const SizedBox.shrink();
 
               if (!_isLiquidGlassMode()) {
                 return pageChild;

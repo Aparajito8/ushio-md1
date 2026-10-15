@@ -440,9 +440,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get background => 'Background';
 
   @override
-  String get particleEffect => 'Particle Effect';
-
-  @override
   String get appIcon => 'App Icon';
 
   @override
@@ -470,31 +467,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get blurStrength => 'Blur Strength';
 
   @override
-  String get particleType => 'Particle Type';
-
-  @override
-  String get particleSpeed => 'Particle Speed';
-
-  @override
-  String get globalParticles => 'Global Particles';
-
-  @override
   String get defaultIcon => 'Default';
 
   @override
   String get customImage => 'Custom Image';
-
-  @override
-  String get particleTypeSakura => 'Sakura';
-
-  @override
-  String get particleTypeSnow => 'Snow';
-
-  @override
-  String get particleTypeLeaves => 'Leaves';
-
-  @override
-  String get particleTypeStars => 'Stars';
 
   @override
   String get uiFont => 'UI Font';
@@ -974,9 +950,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get selectFromGallery => 'Select from Gallery';
 
   @override
-  String get advancedParticleSettings => 'Advanced Settings';
-
-  @override
   String get homeTitleHint => 'Custom text displayed next to the home icon';
 
   @override
@@ -987,21 +960,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get restoreDefault => 'Restore Default';
-
-  @override
-  String get globalParticlesEnabled => 'Global Particles';
-
-  @override
-  String get globalParticlesDesc => 'Show particles throughout the app';
-
-  @override
-  String get editorParticlesDesc => 'Show particles only in editor';
-
-  @override
-  String get particleTypeRain => 'Rain';
-
-  @override
-  String get particleTypeFirefly => 'Firefly';
 
   @override
   String get appIconSelectorHint =>
@@ -1205,40 +1163,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onOpen => 'On Open';
 
   @override
-  String get particleCount => 'Particle Count';
-
-  @override
-  String get particleSize => 'Particle Size';
-
-  @override
-  String get particleOpacity => 'Particle Opacity';
-
-  @override
-  String get particleWind => 'Wind Direction';
-
-  @override
-  String get particleWindLeft => 'Left';
-
-  @override
-  String get particleWindRight => 'Right';
-
-  @override
-  String get particleWindNone => 'None';
-
-  @override
-  String get particleCountDesc => 'Adjust the number of particles on screen';
-
-  @override
-  String get particleSizeDesc => 'Adjust the display size of particles';
-
-  @override
-  String get particleOpacityDesc => 'Adjust the transparency of particles';
-
-  @override
-  String get particleWindDesc =>
-      'Adjust the horizontal direction of particle movement';
-
-  @override
   String get uiFontColor => 'UI Font Color';
 
   @override
@@ -1294,8 +1218,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backgroundSettings => 'Background Settings';
 
   @override
-  String get backgroundSettingsDesc =>
-      'Background image, editor background, particle effects';
+  String get backgroundSettingsDesc => 'Background image and editor background';
 
   @override
   String get otherAppearanceSettings => 'Other Appearance';

@@ -944,12 +944,6 @@ abstract class AppLocalizations {
   /// **'背景'**
   String get background;
 
-  /// 粒子效果设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子效果'**
-  String get particleEffect;
-
   /// 桌面图标设置
   ///
   /// In zh, this message translates to:
@@ -1004,24 +998,6 @@ abstract class AppLocalizations {
   /// **'模糊强度'**
   String get blurStrength;
 
-  /// 粒子类型设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子类型'**
-  String get particleType;
-
-  /// 粒子速度设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子速度'**
-  String get particleSpeed;
-
-  /// 全局粒子效果开关
-  ///
-  /// In zh, this message translates to:
-  /// **'全局粒子'**
-  String get globalParticles;
-
   /// 默认图标选项
   ///
   /// In zh, this message translates to:
@@ -1033,30 +1009,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'自定义图片'**
   String get customImage;
-
-  /// 樱花粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'樱花'**
-  String get particleTypeSakura;
-
-  /// 雪花粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'雪花'**
-  String get particleTypeSnow;
-
-  /// 落叶粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'落叶'**
-  String get particleTypeLeaves;
-
-  /// 星星粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'星星'**
-  String get particleTypeStars;
 
   /// 界面字体设置
   ///
@@ -1910,12 +1862,6 @@ abstract class AppLocalizations {
   /// **'从相册选择'**
   String get selectFromGallery;
 
-  /// 高级粒子设置标题
-  ///
-  /// In zh, this message translates to:
-  /// **'高级设置'**
-  String get advancedParticleSettings;
-
   /// 主页标题输入提示
   ///
   /// In zh, this message translates to:
@@ -1939,36 +1885,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'恢复默认'**
   String get restoreDefault;
-
-  /// 全局粒子开关
-  ///
-  /// In zh, this message translates to:
-  /// **'全局粒子'**
-  String get globalParticlesEnabled;
-
-  /// 全局粒子描述
-  ///
-  /// In zh, this message translates to:
-  /// **'在应用全局显示粒子效果'**
-  String get globalParticlesDesc;
-
-  /// 编辑器粒子描述
-  ///
-  /// In zh, this message translates to:
-  /// **'仅在编辑器中显示粒子效果'**
-  String get editorParticlesDesc;
-
-  /// 雨滴粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'雨滴'**
-  String get particleTypeRain;
-
-  /// 萤火虫粒子类型
-  ///
-  /// In zh, this message translates to:
-  /// **'萤火虫'**
-  String get particleTypeFirefly;
 
   /// 应用图标选择器提示
   ///
@@ -2342,72 +2258,6 @@ abstract class AppLocalizations {
   /// **'启动时'**
   String get onOpen;
 
-  /// 粒子数量设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子数量'**
-  String get particleCount;
-
-  /// 粒子大小设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子大小'**
-  String get particleSize;
-
-  /// 粒子透明度设置
-  ///
-  /// In zh, this message translates to:
-  /// **'粒子透明度'**
-  String get particleOpacity;
-
-  /// 风向设置
-  ///
-  /// In zh, this message translates to:
-  /// **'风向'**
-  String get particleWind;
-
-  /// 风向向左
-  ///
-  /// In zh, this message translates to:
-  /// **'向左'**
-  String get particleWindLeft;
-
-  /// 风向向右
-  ///
-  /// In zh, this message translates to:
-  /// **'向右'**
-  String get particleWindRight;
-
-  /// 无风
-  ///
-  /// In zh, this message translates to:
-  /// **'无风'**
-  String get particleWindNone;
-
-  /// 粒子数量设置描述
-  ///
-  /// In zh, this message translates to:
-  /// **'调整屏幕上粒子的数量'**
-  String get particleCountDesc;
-
-  /// 粒子大小设置描述
-  ///
-  /// In zh, this message translates to:
-  /// **'调整粒子的显示大小'**
-  String get particleSizeDesc;
-
-  /// 粒子透明度设置描述
-  ///
-  /// In zh, this message translates to:
-  /// **'调整粒子的透明度'**
-  String get particleOpacityDesc;
-
-  /// 风向设置描述
-  ///
-  /// In zh, this message translates to:
-  /// **'调整粒子飘动的水平方向'**
-  String get particleWindDesc;
-
   /// 界面字体颜色设置
   ///
   /// In zh, this message translates to:
@@ -2513,7 +2363,7 @@ abstract class AppLocalizations {
   /// 背景设置描述
   ///
   /// In zh, this message translates to:
-  /// **'背景图片、编辑器背景、粒子特效'**
+  /// **'背景图片、编辑器背景'**
   String get backgroundSettingsDesc;
 
   /// 其他外观设置标题

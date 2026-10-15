@@ -22,12 +22,10 @@ import 'appearance_utils.dart';
 /// 外观设置共用方法 Mixin
 mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
   // 防抖定时器
-  Timer? _particleSpeedDebounce;
   Timer? _backgroundBrightnessDebounce;
   Timer? _editorBackgroundBrightnessDebounce;
 
   // 待定值
-  double _pendingParticleSpeed = 0.5;
   double _pendingBackgroundBrightness = 100;
   double _pendingEditorBackgroundBrightness = 100;
 
@@ -40,7 +38,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
   List<CustomFontInfo> get customFonts => _customFonts;
   bool get loadingFonts => _loadingFonts;
   TextEditingController get homeTitleController => _homeTitleController;
-  double get pendingParticleSpeed => _pendingParticleSpeed;
   double get pendingBackgroundBrightness => _pendingBackgroundBrightness;
   double get pendingEditorBackgroundBrightness =>
       _pendingEditorBackgroundBrightness;
@@ -54,7 +51,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
 
   void disposeAppearanceMixin() {
     _homeTitleController.dispose();
-    _particleSpeedDebounce?.cancel();
     _backgroundBrightnessDebounce?.cancel();
     _editorBackgroundBrightnessDebounce?.cancel();
   }
@@ -82,14 +78,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     }
   }
 
-  /// 初始化粒子速率值
-  void initParticleSpeedValue(SettingsProvider settings) {
-    if (_pendingParticleSpeed == 0.5 && settings.particleSpeed != 0.5) {
-      // 将实际值 0.01-0.5 转换为显示值 0.1-1.0
-      _pendingParticleSpeed = settings.particleSpeed * 2;
-    }
-  }
-
   /// 更新待定亮度值
   void updatePendingBackgroundBrightness(double value) {
     _pendingBackgroundBrightness = value;
@@ -97,10 +85,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
 
   void updatePendingEditorBackgroundBrightness(double value) {
     _pendingEditorBackgroundBrightness = value;
-  }
-
-  void updatePendingParticleSpeed(double value) {
-    _pendingParticleSpeed = value;
   }
 
   /// 构建设置区块
@@ -1597,261 +1581,6 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
               l10n.clearBackground,
               style: const TextStyle(color: Colors.red),
             ),
-          ),
-        ],
-      ],
-    );
-  }
-
-  /// 构建粒子效果设置
-  Widget buildParticleSettings(
-    SettingsProvider settings,
-    AppLocalizations l10n,
-  ) {
-    const particleTypeIds = ['sakura', 'rain', 'firefly', 'snow'];
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // 启用开关
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(l10n.globalParticlesEnabled),
-            Switch(
-              value: settings.particleEnabled,
-              onChanged: (v) => settings.setParticleEnabled(v),
-            ),
-          ],
-        ),
-        // 以下选项仅在启用时显示
-        if (settings.particleEnabled) ...[
-          const SizedBox(height: 16),
-          // 效果类型选择器
-          Text(
-            l10n.particleType,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 8),
-          GridView.count(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisCount: 2,
-            mainAxisSpacing: 8,
-            crossAxisSpacing: 8,
-            childAspectRatio: 2.5,
-            children: particleTypeIds.map((typeId) {
-              final isSelected = settings.particleType == typeId;
-              String typeName;
-              String icon;
-              switch (typeId) {
-                case 'sakura':
-                  typeName = l10n.particleTypeSakura;
-                  icon = '🌸';
-                  break;
-                case 'rain':
-                  typeName = l10n.particleTypeRain;
-                  icon = '🌧️';
-                  break;
-                case 'firefly':
-                  typeName = l10n.particleTypeFirefly;
-                  icon = '✨';
-                  break;
-                case 'snow':
-                  typeName = l10n.particleTypeSnow;
-                  icon = '❄️';
-                  break;
-                default:
-                  typeName = typeId;
-                  icon = '🌟';
-              }
-              return GestureDetector(
-                onTap: () => settings.setParticleType(typeId),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: isSelected
-                        ? Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.1)
-                        : Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: isSelected
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).dividerColor,
-                      width: isSelected ? 2 : 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(icon, style: const TextStyle(fontSize: 16)),
-                      const SizedBox(width: 8),
-                      Flexible(
-                        child: Text(
-                          typeName,
-                          style: TextStyle(
-                            fontWeight: isSelected
-                                ? FontWeight.bold
-                                : FontWeight.normal,
-                            color: isSelected
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.onSurface,
-                          ),
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            }).toList(),
-          ),
-          const SizedBox(height: 16),
-          // 粒子速率
-          // 实际范围: 0.01-0.5，界面显示: 0.1-1.0 (显示值 = 实际值 × 2)
-          Builder(
-            builder: (context) {
-              // 将实际值转换为显示值
-              final displayValue = settings.particleSpeed * 2;
-              return Row(
-                children: [
-                  Text(l10n.particleSpeed),
-                  Expanded(
-                    child: Slider(
-                      value: displayValue,
-                      min: 0.1,
-                      max: 1.0,
-                      divisions: 9,
-                      label: '${displayValue.toStringAsFixed(1)}x',
-                      onChanged: (value) {
-                        // 取消之前的防抖定时器
-                        _particleSpeedDebounce?.cancel();
-                        // 保存待处理的值
-                        _pendingParticleSpeed = value / 2; // 转换为实际值
-                        // 设置防抖定时器 (300ms)
-                        _particleSpeedDebounce = Timer(
-                          const Duration(milliseconds: 300),
-                          () {
-                            settings.setParticleSpeed(_pendingParticleSpeed);
-                          },
-                        );
-                        // 立即更新 UI
-                        setState(() {});
-                      },
-                    ),
-                  ),
-                  SizedBox(
-                    width: 40,
-                    child: Text(
-                      '${displayValue.toStringAsFixed(1)}x',
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              );
-            },
-          ),
-          const SizedBox(height: 16),
-          // 高级粒子设置
-          Text(
-            l10n.advancedParticleSettings,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.outline,
-            ),
-          ),
-          const SizedBox(height: 8),
-          // 粒子数量
-          Row(
-            children: [
-              Text(l10n.particleCount),
-              Expanded(
-                child: Slider(
-                  value: settings.particleCount,
-                  min: 0.25,
-                  max: 2.0,
-                  divisions: 7,
-                  label: '${settings.particleCount.toStringAsFixed(2)}x',
-                  onChanged: (value) => settings.setParticleCount(value),
-                ),
-              ),
-              SizedBox(
-                width: 40,
-                child: Text(
-                  '${settings.particleCount.toStringAsFixed(2)}x',
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 粒子大小
-          Row(
-            children: [
-              Text(l10n.particleSize),
-              Expanded(
-                child: Slider(
-                  value: settings.particleSize,
-                  min: 0.5,
-                  max: 3.0,
-                  divisions: 25,
-                  label: settings.particleSize.toStringAsFixed(1),
-                  onChanged: (value) => settings.setParticleSize(value),
-                ),
-              ),
-              SizedBox(
-                width: 40,
-                child: Text(settings.particleSize.toStringAsFixed(1)),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 粒子透明度
-          Row(
-            children: [
-              Text(l10n.particleOpacity),
-              Expanded(
-                child: Slider(
-                  value: settings.particleOpacity,
-                  min: 0.1,
-                  max: 1.0,
-                  divisions: 9,
-                  label: (settings.particleOpacity * 100).round().toString(),
-                  onChanged: (value) => settings.setParticleOpacity(value),
-                ),
-              ),
-              SizedBox(
-                width: 40,
-                child: Text('${(settings.particleOpacity * 100).round()}%'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          // 风向
-          Row(
-            children: [
-              Text(l10n.particleWind),
-              Expanded(
-                child: Slider(
-                  value: settings.particleWind,
-                  min: -1.0,
-                  max: 1.0,
-                  divisions: 20,
-                  label: settings.particleWind > 0
-                      ? l10n.particleWindRight
-                      : settings.particleWind < 0
-                      ? l10n.particleWindLeft
-                      : l10n.particleWindNone,
-                  onChanged: (value) => settings.setParticleWind(value),
-                ),
-              ),
-            ],
           ),
         ],
       ],

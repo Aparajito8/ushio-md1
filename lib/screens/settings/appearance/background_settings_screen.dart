@@ -1,7 +1,7 @@
 // ============================================================================
 // 背景设置页面（第三层）
 //
-// 包含：背景图片、编辑器背景、粒子特效
+// 包含：背景图片、编辑器背景
 // ============================================================================
 
 import 'package:flutter/material.dart';
@@ -48,7 +48,6 @@ class _BackgroundSettingsScreenState extends State<BackgroundSettingsScreen>
         body: Consumer<SettingsProvider>(
           builder: (context, settings, child) {
             initBrightnessValues(settings);
-            initParticleSpeedValue(settings);
 
             return ListView(
               padding: const EdgeInsets.all(20),
@@ -63,13 +62,6 @@ class _BackgroundSettingsScreenState extends State<BackgroundSettingsScreen>
                 // 编辑器背景
                 buildSection(l10n.editorBackground, Icons.wallpaper, [
                   buildEditorBackgroundSettings(settings, l10n),
-                ]),
-
-                const SizedBox(height: 16),
-
-                // 粒子特效
-                buildSection(l10n.particleEffect, Icons.auto_awesome, [
-                  buildParticleSettings(settings, l10n),
                 ]),
               ],
             );

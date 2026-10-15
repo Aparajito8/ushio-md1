@@ -14,7 +14,6 @@ import '../utils/editor_navigation_helper.dart';
 import '../widgets/custom_title_bar.dart';
 import '../widgets/markdown_toolbar.dart';
 import '../widgets/milkdown_webview_editor.dart';
-import '../widgets/particle_effect_widget.dart';
 import '../models/toc_item.dart';
 import '../models/milkdown_bridge.dart';
 import '../services/search_history_service.dart';
@@ -2632,27 +2631,6 @@ class _EditorScreenState extends State<EditorScreen>
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.onPrimaryContainer,
                         fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            if (settings.particleEnabled &&
-                settings.particleGlobal &&
-                !settings.focusMode)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: RepaintBoundary(
-                    child: TickerMode(
-                      enabled: true,
-                      child: ParticleEffectWidget(
-                        particleType: settings.particleType,
-                        speed: settings.particleSpeed,
-                        count: settings.particleCount,
-                        size: settings.particleSize,
-                        opacity: settings.particleOpacity,
-                        wind: settings.particleWind,
-                        enabled: true,
                       ),
                     ),
                   ),

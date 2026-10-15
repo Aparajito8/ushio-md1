@@ -570,10 +570,6 @@
   "@background": {
     "description": "背景设置"
   },
-  "particleEffect": "粒子效果",
-  "@particleEffect": {
-    "description": "粒子效果设置"
-  },
   "appIcon": "桌面图标",
   "@appIcon": {
     "description": "桌面图标设置"
@@ -610,18 +606,6 @@
   "@blurStrength": {
     "description": "模糊强度设置"
   },
-  "particleType": "粒子类型",
-  "@particleType": {
-    "description": "粒子类型设置"
-  },
-  "particleSpeed": "粒子速度",
-  "@particleSpeed": {
-    "description": "粒子速度设置"
-  },
-  "globalParticles": "全局粒子",
-  "@globalParticles": {
-    "description": "全局粒子效果开关"
-  },
   "defaultIcon": "默认",
   "@defaultIcon": {
     "description": "默认图标选项"
@@ -629,22 +613,6 @@
   "customImage": "自定义图片",
   "@customImage": {
     "description": "自定义图片选项"
-  },
-  "particleTypeSakura": "樱花",
-  "@particleTypeSakura": {
-    "description": "樱花粒子类型"
-  },
-  "particleTypeSnow": "雪花",
-  "@particleTypeSnow": {
-    "description": "雪花粒子类型"
-  },
-  "particleTypeLeaves": "落叶",
-  "@particleTypeLeaves": {
-    "description": "落叶粒子类型"
-  },
-  "particleTypeStars": "星星",
-  "@particleTypeStars": {
-    "description": "星星粒子类型"
   },
   "uiFont": "界面字体",
   "@uiFont": {
@@ -1242,8 +1210,6 @@
   "@selectFromGallery": { "description": "从相册选择按钮" },
   "customImage": "自定义图片",
   "@customImage": { "description": "自定义图片选项" },
-  "advancedParticleSettings": "高级设置",
-  "@advancedParticleSettings": { "description": "高级粒子设置标题" },
   "homeTitleHint": "自定义主页图标旁显示的文字",
   "@homeTitleHint": { "description": "主页标题输入提示" },
   "homeTitleLabel": "主页标题",
@@ -1252,16 +1218,6 @@
   "@homeTitleDefault": { "description": "主页标题默认值" },
   "restoreDefault": "恢复默认",
   "@restoreDefault": { "description": "恢复默认按钮" },
-  "globalParticlesEnabled": "全局粒子",
-  "@globalParticlesEnabled": { "description": "全局粒子开关" },
-  "globalParticlesDesc": "在应用全局显示粒子效果",
-  "@globalParticlesDesc": { "description": "全局粒子描述" },
-  "editorParticlesDesc": "仅在编辑器中显示粒子效果",
-  "@editorParticlesDesc": { "description": "编辑器粒子描述" },
-  "particleTypeRain": "雨滴",
-  "@particleTypeRain": { "description": "雨滴粒子类型" },
-  "particleTypeFirefly": "萤火虫",
-  "@particleTypeFirefly": { "description": "萤火虫粒子类型" },
   "appIconSelectorHint": "选择在主屏幕显示的应用图标",
   "@appIconSelectorHint": { "description": "应用图标选择器提示" },
   "brightness": "亮度",
@@ -1409,28 +1365,6 @@
   "@saveOnExitDesc": { "description": "退出时自动保存描述" },
   "onOpen": "启动时",
   "@onOpen": { "description": "启动时选项标签" },
-  "particleCount": "粒子数量",
-  "@particleCount": { "description": "粒子数量设置" },
-  "particleSize": "粒子大小",
-  "@particleSize": { "description": "粒子大小设置" },
-  "particleOpacity": "粒子透明度",
-  "@particleOpacity": { "description": "粒子透明度设置" },
-  "particleWind": "风向",
-  "@particleWind": { "description": "风向设置" },
-  "particleWindLeft": "向左",
-  "@particleWindLeft": { "description": "风向向左" },
-  "particleWindRight": "向右",
-  "@particleWindRight": { "description": "风向向右" },
-  "particleWindNone": "无风",
-  "@particleWindNone": { "description": "无风" },
-  "particleCountDesc": "调整屏幕上粒子的数量",
-  "@particleCountDesc": { "description": "粒子数量设置描述" },
-  "particleSizeDesc": "调整粒子的显示大小",
-  "@particleSizeDesc": { "description": "粒子大小设置描述" },
-  "particleOpacityDesc": "调整粒子的透明度",
-  "@particleOpacityDesc": { "description": "粒子透明度设置描述" },
-  "particleWindDesc": "调整粒子飘动的水平方向",
-  "@particleWindDesc": { "description": "风向设置描述" },
   "uiFontColor": "界面字体颜色",
   "@uiFontColor": { "description": "界面字体颜色设置" },
   "customUiFontColor": "自定义字体颜色",
@@ -1465,7 +1399,7 @@
   "@fontSettingsDesc": { "description": "字体设置描述" },
   "backgroundSettings": "背景设置",
   "@backgroundSettings": { "description": "背景设置标题" },
-  "backgroundSettingsDesc": "背景图片、编辑器背景、粒子特效",
+  "backgroundSettingsDesc": "背景图片、编辑器背景",
   "@backgroundSettingsDesc": { "description": "背景设置描述" },
   "otherAppearanceSettings": "其他外观",
   "@otherAppearanceSettings": { "description": "其他外观设置标题" },
