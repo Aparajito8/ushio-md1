@@ -36,7 +36,6 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   String? _backgroundImagePath;
   String _backgroundEffect = 'none';
   double _backgroundBlur = 10.0;
-  double _backgroundOverlayOpacity = 0.5;
   
   // Cloud
   String _webdavUrl = '';
@@ -65,7 +64,6 @@ class MockSettingsProvider extends ChangeNotifier implements SettingsProvider {
   @override String? get backgroundImagePath => _backgroundImagePath;
   @override String get backgroundEffect => _backgroundEffect;
   @override double get backgroundBlur => _backgroundBlur;
-  @override double get backgroundOverlayOpacity => _backgroundOverlayOpacity;
   
   @override Locale get locale => const Locale('zh');
   

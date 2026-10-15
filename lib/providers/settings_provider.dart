@@ -190,9 +190,6 @@ class SettingsProvider extends ChangeNotifier {
   /// 编辑器背景亮度（0.2-1.8，1.0 为原始亮度）
   double _editorBackgroundBrightness = 1.0;
 
-  /// 遮罩透明度（0-1，保留但当前 UI 未使用）
-  double _backgroundOverlayOpacity = 0.5;
-
   // ==================== 更新设置 ====================
 
   /// 是否在启动时自动检查更新（默认开启）
@@ -378,7 +375,6 @@ class SettingsProvider extends ChangeNotifier {
   bool get editorBackgroundBlurEnabled => _editorBackgroundBlurEnabled;
   double get editorBackgroundBlur => _editorBackgroundBlur;
   double get editorBackgroundBrightness => _editorBackgroundBrightness;
-  double get backgroundOverlayOpacity => _backgroundOverlayOpacity;
 
   bool get autoCheckUpdate => _autoCheckUpdate;
 
@@ -629,7 +625,13 @@ class SettingsProvider extends ChangeNotifier {
         _editorBackgroundImagePath!,
       ).exists();
     }
-    _backgroundEffect = prefs.getString('background_effect') ?? 'none';
+    // 旧版本的 'overlay' 态在 UI 上已不可达（模糊开关只会写 'blur'/'none'），
+    // 残留该值的用户无法自行关闭，统一归一为 'blur'。
+    final savedEffect = prefs.getString('background_effect') ?? 'none';
+    _backgroundEffect = savedEffect == 'overlay' ? 'blur' : savedEffect;
+    if (savedEffect == 'overlay') {
+      await prefs.setString('background_effect', 'blur');
+    }
     _backgroundBlur = prefs.getDouble('background_blur') ?? 10.0;
     _backgroundBrightness = prefs.getDouble('background_brightness') ?? 1.0;
     _editorBackgroundBlurEnabled =
@@ -637,8 +639,7 @@ class SettingsProvider extends ChangeNotifier {
     _editorBackgroundBlur = prefs.getDouble('editor_background_blur') ?? 10.0;
     _editorBackgroundBrightness =
         prefs.getDouble('editor_background_brightness') ?? 1.0;
-    _backgroundOverlayOpacity =
-        prefs.getDouble('background_overlay_opacity') ?? 0.5;
+    await prefs.remove('background_overlay_opacity');
 
     // 语言设置
     // 如果用户没有设置过语言，则使用系统语言
@@ -1035,13 +1036,6 @@ class SettingsProvider extends ChangeNotifier {
     _editorBackgroundBrightness = brightness;
     notifyListeners();
     _schedulePersist('editor_background_brightness', brightness);
-  }
-
-  /// 设置遮罩透明度
-  Future<void> setBackgroundOverlayOpacity(double opacity) async {
-    _backgroundOverlayOpacity = opacity;
-    notifyListeners();
-    _schedulePersist('background_overlay_opacity', opacity);
   }
 
   // ==================== 编辑器设置方法 ====================

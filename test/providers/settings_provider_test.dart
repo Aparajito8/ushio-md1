@@ -161,6 +161,23 @@ void main() {
       expect(restored.customIconColor, color);
     });
 
+    test('旧版残留的 overlay 背景效果应归一为 blur 并落盘', () async {
+      SharedPreferences.setMockInitialValues({
+        'background_effect': 'overlay',
+        'background_overlay_opacity': 0.8,
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final first = SettingsProvider();
+      await first.initialize();
+
+      expect(first.backgroundEffect, 'blur');
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getString('background_effect'), 'blur');
+      expect(prefs.containsKey('background_overlay_opacity'), isFalse);
+    });
+
     test('setThemeMode 应更新内存和持久化存储', () async {
       await provider.setThemeMode(ThemeMode.dark);
       expect(provider.themeMode, ThemeMode.dark);

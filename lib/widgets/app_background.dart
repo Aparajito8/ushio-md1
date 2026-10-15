@@ -132,13 +132,6 @@ class _AppBackgroundState extends State<AppBackground> {
         fit: StackFit.expand,
         children: [
           bgImage,
-          // Apply overlay effect
-          if (settings.backgroundEffect == 'overlay')
-            Container(
-              color: isDark 
-                  ? Colors.black.withValues(alpha: settings.backgroundOverlayOpacity)
-                  : Colors.white.withValues(alpha: settings.backgroundOverlayOpacity),
-            ),
           widget.wrapWithSafeArea ? SafeArea(child: widget.child) : widget.child,
         ],
       );
