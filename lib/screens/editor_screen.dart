@@ -118,9 +118,6 @@ class _EditorScreenState extends State<EditorScreen>
   DateTime? _lastTapDownTime;
   Timer? _blurFallbackTimer;
   bool _isMilkdownEditorFocused = false;
-  // 预览进入瞬间先隐藏工具栏，避免切换按钮的点击动效残留干扰。
-  bool _hidePreviewToolbar = false;
-  Timer? _previewToolbarRevealTimer;
   bool _showToc = false;
   bool _showSearchBar = false;
   bool _showSearchCandidates = false;
@@ -210,7 +207,6 @@ class _EditorScreenState extends State<EditorScreen>
     setState(() {
       _mode = EditorMode.preview;
       _isMilkdownEditorFocused = false;
-      _hidePreviewToolbar = true;
       _previewCanUndo = false;
       _previewCanRedo = false;
     });
@@ -1213,7 +1209,6 @@ class _EditorScreenState extends State<EditorScreen>
     _searchDebounceTimer?.cancel();
     _actionFeedbackTimer?.cancel();
     _wordCountDebounce?.cancel();
-    _previewToolbarRevealTimer?.cancel();
     _hideFloatingButtonsTimer?.cancel();
     _blurFallbackTimer?.cancel();
 
@@ -2358,13 +2353,11 @@ class _EditorScreenState extends State<EditorScreen>
     final isPreviewUndoRedo =
         _mode == EditorMode.preview && _editingBlockIndex == null;
 
-    if (_hidePreviewToolbar) {
-      _previewToolbarRevealTimer?.cancel();
-      _previewToolbarRevealTimer = Timer(const Duration(milliseconds: 220), () {
-        if (!mounted) return;
-        setState(() => _hidePreviewToolbar = false);
-      });
-    }
+    // 底部工具栏只在真正编辑时出现：预览态且无光标（无输入焦点）时隐藏。
+    final showToolbar =
+        _editingBlockIndex != null ||
+        _isMilkdownEditorFocused ||
+        _mode == EditorMode.edit;
 
     if (_error != null && !_isLoading) {
       return Container(
@@ -2460,33 +2453,15 @@ class _EditorScreenState extends State<EditorScreen>
                       right: 0,
                       child: _buildDesktopEditorFrame(
                         child: AnimatedSlide(
-                          offset: Offset(
-                            0,
-                            (_editingBlockIndex != null ||
-                                    _isMilkdownEditorFocused ||
-                                    _mode == EditorMode.edit ||
-                                    !_hidePreviewToolbar)
-                                ? 0
-                                : 1,
-                          ),
+                          offset: Offset(0, showToolbar ? 0 : 1),
                           duration: const Duration(milliseconds: 150),
                           curve: Curves.easeOutCubic,
                           child: AnimatedOpacity(
-                            opacity:
-                                (_editingBlockIndex != null ||
-                                    _isMilkdownEditorFocused ||
-                                    _mode == EditorMode.edit ||
-                                    !_hidePreviewToolbar)
-                                ? 1.0
-                                : 0.0,
+                            opacity: showToolbar ? 1.0 : 0.0,
                             duration: const Duration(milliseconds: 100),
                             curve: Curves.easeOut,
                             child: IgnorePointer(
-                              ignoring:
-                                  !(_editingBlockIndex != null ||
-                                      _isMilkdownEditorFocused ||
-                                      _mode == EditorMode.edit ||
-                                      !_hidePreviewToolbar),
+                              ignoring: !showToolbar,
                               child: MarkdownToolbar(
                                 controller: _editingBlockIndex != null
                                     ? _inlineEditController
