@@ -434,6 +434,7 @@ class MilkdownWebViewEditor extends StatefulWidget {
   final double? paragraphSpacing;
   final String? baseDirectory;
   final String? codeBlockTheme;
+  final Color? textColor;
 
   const MilkdownWebViewEditor({
     super.key,
@@ -463,6 +464,7 @@ class MilkdownWebViewEditor extends StatefulWidget {
     this.paragraphSpacing,
     this.baseDirectory,
     this.codeBlockTheme,
+    this.textColor,
   });
 
   @override
@@ -769,7 +771,7 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
     // Get border radius from theme or use default
     const borderRadius = 12.0;
 
-    // Calculate shadow opacity based on theme
+    final textColor = widget.textColor ?? colorScheme.onSurface;
     final shadowOpacity = brightness == Brightness.dark ? 0.12 : 0.08;
 
     return ThemePalettePayload(
@@ -784,13 +786,13 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
               ? colorScheme.surface.withValues(alpha: 0)
               : colorScheme.surface,
         ),
-        'onSurface': _toCssHex(colorScheme.onSurface),
+        'onSurface': _toCssHex(textColor),
         'background': _toCssHex(
           theme.extension<AppStyleTheme>()!.useLiquidGlass
               ? colorScheme.surface.withValues(alpha: 0)
               : colorScheme.surface,
         ),
-        'onBackground': _toCssHex(colorScheme.onSurface),
+        'onBackground': _toCssHex(textColor),
         'error': _toCssHex(colorScheme.error),
         'onError': _toCssHex(colorScheme.onError),
         'outline': _toCssHex(colorScheme.outline),

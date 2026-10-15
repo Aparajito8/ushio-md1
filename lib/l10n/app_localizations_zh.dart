@@ -1228,15 +1228,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get globalIconColorDesc => '开启后，应用内所有图标统一使用所选颜色';
 
   @override
-  String get adaptiveGradient => '自适应渐变色';
-
-  @override
-  String get adaptiveGradientDesc => '根据自定义颜色自动计算渐变色';
-
-  @override
-  String get uiFontAdaptiveGradientDesc => '根据字体颜色自动计算渐变效果';
-
-  @override
   String get editorFontColor => '编辑器文字颜色';
 
   @override
@@ -1246,7 +1237,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get editorFontColorLabel => '文字颜色';
 
   @override
-  String get editorFontAdaptiveGradientDesc => '根据文字颜色自动计算渐变效果';
+  String get editorFontColorDesc => '作用于文档正文与编辑区，不影响界面文字';
 
   @override
   String get previewText => '预览文字';

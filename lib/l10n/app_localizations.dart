@@ -2450,24 +2450,6 @@ abstract class AppLocalizations {
   /// **'开启后，应用内所有图标统一使用所选颜色'**
   String get globalIconColorDesc;
 
-  /// 自适应渐变色开关
-  ///
-  /// In zh, this message translates to:
-  /// **'自适应渐变色'**
-  String get adaptiveGradient;
-
-  /// 自适应渐变色开关描述
-  ///
-  /// In zh, this message translates to:
-  /// **'根据自定义颜色自动计算渐变色'**
-  String get adaptiveGradientDesc;
-
-  /// 界面字体自适应渐变色描述
-  ///
-  /// In zh, this message translates to:
-  /// **'根据字体颜色自动计算渐变效果'**
-  String get uiFontAdaptiveGradientDesc;
-
   /// 编辑器文字颜色设置
   ///
   /// In zh, this message translates to:
@@ -2486,11 +2468,11 @@ abstract class AppLocalizations {
   /// **'文字颜色'**
   String get editorFontColorLabel;
 
-  /// 编辑器文字自适应渐变色描述
+  /// 编辑器文字颜色描述
   ///
   /// In zh, this message translates to:
-  /// **'根据文字颜色自动计算渐变效果'**
-  String get editorFontAdaptiveGradientDesc;
+  /// **'作用于文档正文与编辑区，不影响界面文字'**
+  String get editorFontColorDesc;
 
   /// 颜色预览文字
   ///

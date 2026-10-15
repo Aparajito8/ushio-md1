@@ -6,6 +6,8 @@
 
 import 'package:flutter/material.dart';
 
+import '../../../l10n/app_localizations.dart';
+
 /// 外观设置工具类，包含共用的 UI 组件
 class AppearanceUtils {
   AppearanceUtils._();
@@ -147,7 +149,9 @@ class AppearanceUtils {
     List<Color>? presetColors,
     bool showPreview = false,
     String? previewText,
+    Color? previewBackgroundColor,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     showDialog(
       context: context,
       builder: (context) {
@@ -175,7 +179,7 @@ class AppearanceUtils {
                       Container(
                         height: 80,
                         decoration: BoxDecoration(
-                          color: selectedColor,
+                          color: previewBackgroundColor ?? selectedColor,
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
                             color: Theme.of(context).colorScheme.outline,
@@ -183,9 +187,12 @@ class AppearanceUtils {
                         ),
                         child: Center(
                           child: Text(
-                            previewText ?? '预览文字',
+                            previewText ?? l10n.previewText,
                             style: TextStyle(
-                              color: selectedColor.computeLuminance() > 0.5
+                              // 预览背景固定时（如白底预览文字色），直接用选中色作为文字色
+                              color: previewBackgroundColor != null
+                                  ? selectedColor
+                                  : selectedColor.computeLuminance() > 0.5
                                   ? Colors.black
                                   : Colors.white,
                               fontSize: 18,
@@ -346,14 +353,14 @@ class AppearanceUtils {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('取消'),
+                  child: Text(l10n.cancel),
                 ),
                 TextButton(
                   onPressed: () {
                     onColorSelected(selectedColor);
                     Navigator.of(context).pop();
                   },
-                  child: const Text('确认'),
+                  child: Text(l10n.confirm),
                 ),
               ],
             );

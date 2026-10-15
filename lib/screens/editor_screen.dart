@@ -2062,6 +2062,17 @@ class _EditorScreenState extends State<EditorScreen>
     _applyMilkdownContentChange(pending, seq);
   }
 
+  /// 深色表面上亮度不足的墨色预设几乎不可读，此时回退主题前景色。
+  Color _documentTextColor(SettingsProvider settings) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final chosen = settings.editorFontColor;
+    final onDarkSurface = colorScheme.surface.computeLuminance() < 0.5;
+    if (onDarkSurface && chosen.computeLuminance() < 0.35) {
+      return colorScheme.onSurface;
+    }
+    return chosen;
+  }
+
   Widget _buildInlineEditablePreview(SettingsProvider settings) {
     if (_hidePlatformViews) return const SizedBox.expand();
     return MilkdownWebViewEditor(
@@ -2080,6 +2091,7 @@ class _EditorScreenState extends State<EditorScreen>
           ? null
           : settings.codeFontFamily,
       baseDirectory: File(widget.filePath).parent.path,
+      textColor: _documentTextColor(settings),
       onContentChange: _handleMilkdownContentChange,
       onOutlineUpdate: _handleOutlineUpdate,
       onLinkClick: (payload) =>
@@ -2906,6 +2918,7 @@ class _EditorScreenState extends State<EditorScreen>
           textAlignVertical: TextAlignVertical.top,
           scrollPhysics: const ClampingScrollPhysics(),
           style: TextStyle(
+            color: _documentTextColor(settings),
             fontSize: settings.fontSize,
             fontFamily: settings.editorFontFamily == 'System'
                 ? null

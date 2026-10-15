@@ -12,6 +12,7 @@ import '../../../widgets/app_background.dart';
 import '../../../widgets/app_surface.dart';
 import '../../../utils/app_style.dart';
 import 'appearance_settings_mixin.dart';
+import 'color_setting_selector.dart';
 import 'monet_settings_screen.dart';
 
 class ThemeSettingsScreen extends StatefulWidget {
@@ -77,21 +78,60 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
 
                 // 主题色
                 buildSection(l10n.themeColor, Icons.color_lens, [
-                  buildThemeColorSelector(settings),
+                  ColorSettingSelector(
+                    presets: SettingsProvider.themeColors,
+                    selectedPresetIndex: settings.customThemeColor == null
+                        ? settings.primaryColorIndex
+                        : null,
+                    customColor: settings.customThemeColor,
+                    customLabel: l10n.customThemeColor,
+                    pickerInitialColor: settings.primaryColor,
+                    onPresetSelected: (index) =>
+                        settings.setPrimaryColorIndex(index),
+                    onCustomColorPicked: (color) =>
+                        settings.setCustomThemeColor(color),
+                  ),
                 ]),
 
                 const SizedBox(height: 16),
 
                 // 界面字体颜色
                 buildSection(l10n.uiFontColor, Icons.text_fields, [
-                  buildUiFontColorSelector(settings),
+                  ColorSettingSelector(
+                    presets: SettingsProvider.uiFontColors,
+                    selectedPresetIndex: settings.customUiFontColor == null
+                        ? settings.uiFontColorIndex
+                        : null,
+                    customColor: settings.customUiFontColor,
+                    customLabel: l10n.customUiFontColor,
+                    pickerInitialColor: settings.uiFontColor,
+                    showTextPreview: true,
+                    onPresetSelected: (index) =>
+                        settings.setUiFontColorIndex(index),
+                    onCustomColorPicked: (color) =>
+                        settings.setCustomUiFontColor(color),
+                  ),
                 ]),
 
                 const SizedBox(height: 16),
 
                 // 编辑器文字颜色
                 buildSection(l10n.editorFontColor, Icons.edit_note, [
-                  buildEditorFontColorSelector(settings),
+                  ColorSettingSelector(
+                    presets: SettingsProvider.editorFontColors,
+                    selectedPresetIndex: settings.customEditorFontColor == null
+                        ? settings.editorFontColorIndex
+                        : null,
+                    customColor: settings.customEditorFontColor,
+                    customLabel: l10n.customEditorFontColor,
+                    pickerInitialColor: settings.editorFontColor,
+                    description: l10n.editorFontColorDesc,
+                    showTextPreview: true,
+                    onPresetSelected: (index) =>
+                        settings.setEditorFontColorIndex(index),
+                    onCustomColorPicked: (color) =>
+                        settings.setCustomEditorFontColor(color),
+                  ),
                 ]),
 
                 const SizedBox(height: 16),

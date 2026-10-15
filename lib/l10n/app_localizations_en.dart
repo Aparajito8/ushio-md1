@@ -1261,17 +1261,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Use the selected color for all app icons when enabled';
 
   @override
-  String get adaptiveGradient => 'Adaptive Gradient';
-
-  @override
-  String get adaptiveGradientDesc =>
-      'Automatically calculate gradient from custom color';
-
-  @override
-  String get uiFontAdaptiveGradientDesc =>
-      'Automatically calculate gradient effect from font color';
-
-  @override
   String get editorFontColor => 'Editor Font Color';
 
   @override
@@ -1281,8 +1270,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editorFontColorLabel => 'Font Color';
 
   @override
-  String get editorFontAdaptiveGradientDesc =>
-      'Automatically calculate gradient effect from font color';
+  String get editorFontColorDesc =>
+      'Applies to document text and the editing area, not the app UI';
 
   @override
   String get previewText => 'Preview Text';

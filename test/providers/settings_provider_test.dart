@@ -83,6 +83,69 @@ void main() {
       expect(prefs.getBool('use_custom_icon_color'), isTrue);
     });
 
+    test('颜色未自定义时应取预设', () {
+      expect(provider.customThemeColor, isNull);
+      expect(provider.primaryColor, SettingsProvider.themeColors[0]);
+      expect(provider.uiFontColor, SettingsProvider.uiFontColors[0]);
+      expect(provider.editorFontColor, SettingsProvider.editorFontColors[0]);
+    });
+
+    test('setCustomEditorFontColor 应立即生效并持久化', () async {
+      const color = Color(0xFF123456);
+      await provider.setCustomEditorFontColor(color);
+
+      expect(provider.editorFontColor, color);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getInt('custom_editor_font_color'), color.toARGB32());
+    });
+
+    test('选择预设颜色应清除自定义覆盖', () async {
+      await provider.setCustomUiFontColor(const Color(0xFFABCDEF));
+      await provider.setUiFontColorIndex(2);
+
+      expect(provider.customUiFontColor, isNull);
+      expect(provider.uiFontColor, SettingsProvider.uiFontColors[2]);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('custom_ui_font_color'), isFalse);
+    });
+
+    test('旧版开关为 true 时应迁移成自定义颜色并删除开关键', () async {
+      const color = Color(0xFF654321);
+      SharedPreferences.setMockInitialValues({
+        'use_custom_ui_font_color': true,
+        'custom_ui_font_color': color.toARGB32(),
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final restored = SettingsProvider();
+      await restored.initialize();
+
+      expect(restored.uiFontColor, color);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('use_custom_ui_font_color'), isFalse);
+    });
+
+    test('旧版开关为 false 时残留颜色不应在重启后复活', () async {
+      const color = Color(0xFF654321);
+      SharedPreferences.setMockInitialValues({
+        'use_custom_ui_font_color': false,
+        'custom_ui_font_color': color.toARGB32(),
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final first = SettingsProvider();
+      await first.initialize();
+      expect(first.customUiFontColor, isNull);
+
+      // 迁移已删除开关键，二次启动只看颜色键；颜色键必须一并清掉，否则会复活
+      final second = SettingsProvider();
+      await second.initialize();
+      expect(second.customUiFontColor, isNull);
+      expect(second.uiFontColor, SettingsProvider.uiFontColors[0]);
+    });
+
     test('initialize 应加载自定义图标颜色', () async {
       const color = Color(0xFF10B981);
       SharedPreferences.setMockInitialValues({

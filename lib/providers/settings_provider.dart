@@ -81,38 +81,20 @@ class SettingsProvider extends ChangeNotifier {
   /// 主题色索引（对应 themeColors 列表）
   int _primaryColorIndex = 0;
 
-  /// 是否使用自定义主题色
-  bool _useCustomThemeColor = false;
-
-  /// 自定义主题色
+  /// 自定义主题色；非空即表示用户覆盖了预设
   Color? _customThemeColor;
-
-  /// 是否启用自适应渐变色（当使用自定义主题色时生效）
-  bool _adaptiveGradientEnabled = true;
 
   /// 界面字体颜色索引（对应 uiFontColors 列表）
   int _uiFontColorIndex = 0;
 
-  /// 是否使用自定义界面字体颜色
-  bool _useCustomUiFontColor = false;
-
-  /// 自定义界面字体颜色
+  /// 自定义界面字体颜色；非空即表示用户覆盖了预设
   Color? _customUiFontColor;
-
-  /// 界面字体颜色是否启用自适应渐变色
-  bool _uiFontAdaptiveGradientEnabled = true;
 
   /// 编辑器文字颜色索引（对应 editorFontColors 列表）
   int _editorFontColorIndex = 0;
 
-  /// 是否使用自定义编辑器文字颜色
-  bool _useCustomEditorFontColor = false;
-
-  /// 自定义编辑器文字颜色
+  /// 自定义编辑器文字颜色；非空即表示用户覆盖了预设
   Color? _customEditorFontColor;
-
-  /// 编辑器文字颜色是否启用自适应渐变色
-  bool _editorFontAdaptiveGradientEnabled = true;
 
   /// 夜间主题索引（对应 AppConstants.darkThemeSchemes 列表）
   int _darkThemeIndex = 0;
@@ -398,32 +380,20 @@ class SettingsProvider extends ChangeNotifier {
   String get startupBehavior => _startupBehavior;
   String? get lastOpenedFilePath => _lastOpenedFilePath;
   int get primaryColorIndex => _primaryColorIndex;
-  Color get primaryColor => _useCustomThemeColor && _customThemeColor != null
-      ? _customThemeColor!
-      : themeColors[_primaryColorIndex];
-  bool get useCustomThemeColor => _useCustomThemeColor;
+  Color get primaryColor => _customThemeColor ?? themeColors[_primaryColorIndex];
   Color? get customThemeColor => _customThemeColor;
-  bool get adaptiveGradientEnabled => _adaptiveGradientEnabled;
 
   // 界面字体颜色 Getters
   int get uiFontColorIndex => _uiFontColorIndex;
-  Color get uiFontColor => _useCustomUiFontColor && _customUiFontColor != null
-      ? _customUiFontColor!
-      : uiFontColors[_uiFontColorIndex];
-  bool get useCustomUiFontColor => _useCustomUiFontColor;
+  Color get uiFontColor =>
+      _customUiFontColor ?? uiFontColors[_uiFontColorIndex];
   Color? get customUiFontColor => _customUiFontColor;
-  bool get uiFontAdaptiveGradientEnabled => _uiFontAdaptiveGradientEnabled;
 
   // 编辑器文字颜色 Getters
   int get editorFontColorIndex => _editorFontColorIndex;
   Color get editorFontColor =>
-      _useCustomEditorFontColor && _customEditorFontColor != null
-      ? _customEditorFontColor!
-      : editorFontColors[_editorFontColorIndex];
-  bool get useCustomEditorFontColor => _useCustomEditorFontColor;
+      _customEditorFontColor ?? editorFontColors[_editorFontColorIndex];
   Color? get customEditorFontColor => _customEditorFontColor;
-  bool get editorFontAdaptiveGradientEnabled =>
-      _editorFontAdaptiveGradientEnabled;
 
   String? get backgroundImagePath => _backgroundImagePath;
   String? get editorBackgroundImagePath => _editorBackgroundImagePath;
@@ -606,7 +576,27 @@ class SettingsProvider extends ChangeNotifier {
 
   // ==================== 初始化 ====================
 
-  /// 从本地存储加载所有设置
+  /// 一次性迁移旧的「自定义颜色」格式：旧模型靠 `use_custom_*` 开关判定是否覆盖预设，
+  /// 新模型只看颜色键。开关为 false 时残留的颜色值要一并删除，否则下次启动因开关键已
+  /// 消失而把它当成自定义色复活。
+  Future<Color?> _migrateCustomColor(
+    SharedPreferences prefs, {
+    required String colorKey,
+    required String legacyFlagKey,
+  }) async {
+    final value = prefs.getInt(colorKey);
+    if (!prefs.containsKey(legacyFlagKey)) {
+      return value != null ? Color(value) : null;
+    }
+    final useCustom = prefs.getBool(legacyFlagKey) ?? false;
+    await prefs.remove(legacyFlagKey);
+    if (!useCustom) {
+      await prefs.remove(colorKey);
+      return null;
+    }
+    return value != null ? Color(value) : null;
+  }
+
   Future<void> initialize() async {
     final prefs = await _getPrefs();
 
@@ -614,34 +604,31 @@ class SettingsProvider extends ChangeNotifier {
     final themeModeIndex = prefs.getInt('theme_mode') ?? 0;
     _themeMode = ThemeMode.values[themeModeIndex];
     _primaryColorIndex = prefs.getInt('primary_color_index') ?? 0;
-    _useCustomThemeColor = prefs.getBool('use_custom_theme_color') ?? false;
-    final customThemeColorValue = prefs.getInt('custom_theme_color');
-    if (customThemeColorValue != null) {
-      _customThemeColor = Color(customThemeColorValue);
-    }
-    _adaptiveGradientEnabled =
-        prefs.getBool('adaptive_gradient_enabled') ?? true;
+    _customThemeColor = await _migrateCustomColor(
+      prefs,
+      colorKey: 'custom_theme_color',
+      legacyFlagKey: 'use_custom_theme_color',
+    );
 
     // 界面字体颜色设置
     _uiFontColorIndex = prefs.getInt('ui_font_color_index') ?? 0;
-    _useCustomUiFontColor = prefs.getBool('use_custom_ui_font_color') ?? false;
-    final customUiFontColorValue = prefs.getInt('custom_ui_font_color');
-    if (customUiFontColorValue != null) {
-      _customUiFontColor = Color(customUiFontColorValue);
-    }
-    _uiFontAdaptiveGradientEnabled =
-        prefs.getBool('ui_font_adaptive_gradient_enabled') ?? true;
+    _customUiFontColor = await _migrateCustomColor(
+      prefs,
+      colorKey: 'custom_ui_font_color',
+      legacyFlagKey: 'use_custom_ui_font_color',
+    );
 
     // 编辑器文字颜色设置
     _editorFontColorIndex = prefs.getInt('editor_font_color_index') ?? 0;
-    _useCustomEditorFontColor =
-        prefs.getBool('use_custom_editor_font_color') ?? false;
-    final customEditorFontColorValue = prefs.getInt('custom_editor_font_color');
-    if (customEditorFontColorValue != null) {
-      _customEditorFontColor = Color(customEditorFontColorValue);
-    }
-    _editorFontAdaptiveGradientEnabled =
-        prefs.getBool('editor_font_adaptive_gradient_enabled') ?? true;
+    _customEditorFontColor = await _migrateCustomColor(
+      prefs,
+      colorKey: 'custom_editor_font_color',
+      legacyFlagKey: 'use_custom_editor_font_color',
+    );
+    // 「自适应渐变」开关从未被任何渲染路径读取，连同旧键一并移除
+    await prefs.remove('adaptive_gradient_enabled');
+    await prefs.remove('ui_font_adaptive_gradient_enabled');
+    await prefs.remove('editor_font_adaptive_gradient_enabled');
 
     // 编辑器设置
     _fontSize = prefs.getDouble('font_size') ?? 16.0;
@@ -848,127 +835,66 @@ class SettingsProvider extends ChangeNotifier {
     _schedulePersist('theme_mode', mode.index);
   }
 
-  /// 设置主题色
-  ///
-  /// [index] 颜色在 themeColors 中的索引（0-7）
+  /// 写入自定义颜色；传 null 表示清除覆盖、回落预设
+  Future<void> _writeCustomColor(String key, Color? color) async {
+    final prefs = await _getPrefs();
+    if (color == null) {
+      await prefs.remove(key);
+    } else {
+      await prefs.setInt(key, color.toARGB32());
+    }
+  }
+
+  /// 选择预设主题色（同时清除自定义覆盖）
   Future<void> setPrimaryColorIndex(int index) async {
     _primaryColorIndex = index;
-    _useCustomThemeColor = false; // 切换到预设颜色时禁用自定义
+    _customThemeColor = null;
     notifyListeners();
     _schedulePersist('primary_color_index', index);
-    _schedulePersist('use_custom_theme_color', false);
+    await _writeCustomColor('custom_theme_color', null);
   }
 
-  /// 设置是否使用自定义主题色
-  Future<void> setUseCustomThemeColor(bool use) async {
-    _useCustomThemeColor = use;
-    notifyListeners();
-    _schedulePersist('use_custom_theme_color', use);
-  }
-
-  /// 设置自定义主题色
+  /// 设置自定义主题色；传 null 恢复预设
   Future<void> setCustomThemeColor(Color? color) async {
     _customThemeColor = color;
-    if (color != null) {
-      _useCustomThemeColor = true;
-    }
     notifyListeners();
-    final prefs = await _getPrefs();
-    if (color != null) {
-      await prefs.setInt('custom_theme_color', color.toARGB32());
-      await prefs.setBool('use_custom_theme_color', true);
-    } else {
-      await prefs.remove('custom_theme_color');
-    }
-  }
-
-  /// 设置自适应渐变色开关（主题色）
-  Future<void> setAdaptiveGradientEnabled(bool enabled) async {
-    _adaptiveGradientEnabled = enabled;
-    notifyListeners();
-    _schedulePersist('adaptive_gradient_enabled', enabled);
+    await _writeCustomColor('custom_theme_color', color);
   }
 
   // ==================== 界面字体颜色设置方法 ====================
 
-  /// 设置界面字体颜色索引
+  /// 选择预设界面字体颜色（同时清除自定义覆盖）
   Future<void> setUiFontColorIndex(int index) async {
     _uiFontColorIndex = index;
-    _useCustomUiFontColor = false; // 切换到预设颜色时禁用自定义
+    _customUiFontColor = null;
     notifyListeners();
     _schedulePersist('ui_font_color_index', index);
-    _schedulePersist('use_custom_ui_font_color', false);
+    await _writeCustomColor('custom_ui_font_color', null);
   }
 
-  /// 设置是否使用自定义界面字体颜色
-  Future<void> setUseCustomUiFontColor(bool use) async {
-    _useCustomUiFontColor = use;
-    notifyListeners();
-    _schedulePersist('use_custom_ui_font_color', use);
-  }
-
-  /// 设置自定义界面字体颜色
+  /// 设置自定义界面字体颜色；传 null 恢复预设
   Future<void> setCustomUiFontColor(Color? color) async {
     _customUiFontColor = color;
-    if (color != null) {
-      _useCustomUiFontColor = true;
-    }
     notifyListeners();
-    final prefs = await _getPrefs();
-    if (color != null) {
-      await prefs.setInt('custom_ui_font_color', color.toARGB32());
-      await prefs.setBool('use_custom_ui_font_color', true);
-    } else {
-      await prefs.remove('custom_ui_font_color');
-    }
-  }
-
-  /// 设置界面字体颜色的自适应渐变色开关
-  Future<void> setUiFontAdaptiveGradientEnabled(bool enabled) async {
-    _uiFontAdaptiveGradientEnabled = enabled;
-    notifyListeners();
-    _schedulePersist('ui_font_adaptive_gradient_enabled', enabled);
+    await _writeCustomColor('custom_ui_font_color', color);
   }
 
   // ==================== 编辑器文字颜色设置方法 ====================
 
-  /// 设置编辑器文字颜色索引
+  /// 选择预设编辑器文字颜色（同时清除自定义覆盖）
   Future<void> setEditorFontColorIndex(int index) async {
     _editorFontColorIndex = index;
-    _useCustomEditorFontColor = false; // 切换到预设颜色时禁用自定义
+    _customEditorFontColor = null;
     notifyListeners();
     _schedulePersist('editor_font_color_index', index);
-    _schedulePersist('use_custom_editor_font_color', false);
+    await _writeCustomColor('custom_editor_font_color', null);
   }
 
-  /// 设置是否使用自定义编辑器文字颜色
-  Future<void> setUseCustomEditorFontColor(bool use) async {
-    _useCustomEditorFontColor = use;
-    notifyListeners();
-    _schedulePersist('use_custom_editor_font_color', use);
-  }
-
-  /// 设置自定义编辑器文字颜色
+  /// 设置自定义编辑器文字颜色；传 null 恢复预设
   Future<void> setCustomEditorFontColor(Color? color) async {
     _customEditorFontColor = color;
-    if (color != null) {
-      _useCustomEditorFontColor = true;
-    }
     notifyListeners();
-    final prefs = await _getPrefs();
-    if (color != null) {
-      await prefs.setInt('custom_editor_font_color', color.toARGB32());
-      await prefs.setBool('use_custom_editor_font_color', true);
-    } else {
-      await prefs.remove('custom_editor_font_color');
-    }
-  }
-
-  /// 设置编辑器文字颜色的自适应渐变色开关
-  Future<void> setEditorFontAdaptiveGradientEnabled(bool enabled) async {
-    _editorFontAdaptiveGradientEnabled = enabled;
-    notifyListeners();
-    _schedulePersist('editor_font_adaptive_gradient_enabled', enabled);
+    await _writeCustomColor('custom_editor_font_color', color);
   }
 
   // ==================== 背景设置方法 ====================
