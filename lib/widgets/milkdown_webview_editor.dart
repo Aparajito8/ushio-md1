@@ -1311,7 +1311,13 @@ class _MilkdownWebViewEditorState extends State<MilkdownWebViewEditor> {
           );
           final isExpectedHistoryNoop =
               (cmd == 'undo' || cmd == 'redo') && reason == 'not_applicable';
+          final isIgnorable = reason == 'editor_not_ready' ||
+              reason == 'readonly' ||
+              cmd == 'focus_editor' ||
+              cmd == 'blur_editor' ||
+              cmd == 'scroll_caret_into_view';
           if (!isExpectedHistoryNoop &&
+              !isIgnorable &&
               mounted &&
               reason != null &&
               reason.isNotEmpty) {

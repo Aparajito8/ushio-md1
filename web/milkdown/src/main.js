@@ -18,7 +18,7 @@ import { listener, listenerCtx } from '@milkdown/plugin-listener';
 import { history, redoCommand, undoCommand } from '@milkdown/plugin-history';
 import { redoDepth, undoDepth } from '@milkdown/prose/history';
 import { indent } from '@milkdown/plugin-indent';
-import { math } from '@milkdown/plugin-math';
+import { math, katexOptionsCtx } from '@milkdown/plugin-math';
 import { trailing } from '@milkdown/plugin-trailing';
 import { upload, uploadConfig } from '@milkdown/plugin-upload';
 import {
@@ -82,6 +82,7 @@ import { nord as nordTheme } from '@uiw/codemirror-theme-nord';
 import { material } from '@uiw/codemirror-theme-material';
 import '@milkdown/crepe/theme/nord.css';
 import 'katex/dist/katex.min.css';
+import katex from 'katex';
 import 'prismjs/themes/prism.css';
 import './style.css';
 
@@ -2924,12 +2925,33 @@ const createEditor = async () => {
       [Crepe.Feature.LinkTooltip]: false,
     },
     featureConfigs: {
-      [Crepe.Feature.CodeMirror]: codeBlockTheme ? { theme: codeBlockTheme } : {},
+      [Crepe.Feature.CodeMirror]: {
+        ...(codeBlockTheme ? { theme: codeBlockTheme } : {}),
+        previewOnlyByDefault: true,
+        renderPreview: (language, content) => {
+          const lang = (language || '').toLowerCase().trim();
+          if (['latex', 'tex', 'math', 'katex'].includes(lang) && content.length > 0) {
+            try {
+              return katex.renderToString(content, {
+                throwOnError: false,
+                displayMode: true,
+              });
+            } catch (e) {
+              return `<span class="katex-error">${e.message}</span>`;
+            }
+          }
+          return null;
+        },
+      },
     },
   });
   crepe.editor
     .config(nord)
     .config((ctx) => {
+      ctx.set(katexOptionsCtx.key, {
+        throwOnError: false,
+        displayMode: true,
+      });
       ctx.get(listenerCtx).markdownUpdated((_ctx, markdown, prev) => {
         if (initializingEditor) markEditorInitializing();
         if (markdown === prev) return;
@@ -3593,6 +3615,10 @@ const collectCodeBlockLanguageDebugReport = () => {
 const executeCommand = (cmd, args = {}) => {
   const startedAt = Date.now();
   if (!editorInstance) {
+    if (cmd === 'focus_editor' || cmd === 'blur_editor' || cmd === 'scroll_caret_into_view') {
+      emitCmdResult(cmd, true, null, startedAt);
+      return;
+    }
     emitCmdResult(cmd, false, 'editor_not_ready', startedAt);
     return;
   }

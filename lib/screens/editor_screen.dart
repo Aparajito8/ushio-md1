@@ -2065,7 +2065,7 @@ class _EditorScreenState extends State<EditorScreen>
       initialMarkdown: _mode == EditorMode.edit
           ? _webViewMarkdownInEdit
           : _textController.text,
-      readOnly: false,
+      readOnly: _mode == EditorMode.preview,
       fontSize: settings.fontSize,
       lineHeight: settings.lineHeight,
       letterSpacing: settings.letterSpacing,

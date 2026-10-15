@@ -141,9 +141,7 @@ body {
 }
 
 .milkdown pre,
-.milkdown code,
-.katex,
-.katex * {
+.milkdown code {
   font-family: var(--milkdown-font-mono) !important;
 }
 
@@ -1037,3 +1035,123 @@ body {
   background: color-mix(in srgb, var(--milkdown-color-surface) 95%, #000000 5%);
   border-color: color-mix(in srgb, var(--milkdown-color-outline) 50%, transparent);
 }
+
+/* ==========================================================================
+   Math Formula (KaTeX) Display & Typography Redesign
+   ========================================================================== */
+
+/* Block Math ($$...$$) Container */
+.milkdown div[data-type="math_block"] {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  margin: 1.2em 0 !important;
+  padding: 6px 0 !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  -webkit-overflow-scrolling: touch !important;
+  text-align: center !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.milkdown div[data-type="math_block"] .katex-display {
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* Inline Math ($...$) */
+.milkdown span[data-type="math_inline"] {
+  display: inline-block !important;
+  vertical-align: -0.12em !important;
+  padding: 0 2px !important;
+  line-height: normal !important;
+}
+
+.milkdown span[data-type="math_inline"] .katex {
+  font-size: 1.05em !important;
+  line-height: normal !important;
+}
+
+/* Code Block with Math/LaTeX Language: Redesign into Pure Math View */
+.milkdown .milkdown-code-block:has(pre[data-language="latex"]),
+.milkdown .milkdown-code-block:has(pre[data-language="math"]),
+.milkdown .milkdown-code-block:has(pre[data-language="katex"]),
+.milkdown .milkdown-code-block:has(pre[data-language="tex"]),
+.milkdown .milkdown-code-block:has(code[data-language="latex"]),
+.milkdown .milkdown-code-block:has(code[data-language="math"]),
+.milkdown .milkdown-code-block:has(code[data-language="katex"]),
+.milkdown .milkdown-code-block:has(code[data-language="tex"]),
+.milkdown .milkdown-code-block[data-language="latex"],
+.milkdown .milkdown-code-block[data-language="math"],
+.milkdown .milkdown-code-block[data-language="katex"],
+.milkdown .milkdown-code-block[data-language="tex"] {
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  margin: 1.2em 0 !important;
+  padding: 0 !important;
+}
+
+/* Hide ugly Preview divider and PREVIEW label */
+.milkdown .milkdown-code-block .preview-panel .preview-divider,
+.milkdown .milkdown-code-block .preview-panel .preview-label {
+  display: none !important;
+}
+
+/* Hide code tools and editor for math blocks when in read/preview mode or not focused */
+.milkdown .milkdown-code-block:has(pre[data-language="latex"]):not(:focus-within) .tools,
+.milkdown .milkdown-code-block:has(pre[data-language="math"]):not(:focus-within) .tools,
+.milkdown .milkdown-code-block:has(pre[data-language="katex"]):not(:focus-within) .tools,
+.milkdown .milkdown-code-block:has(pre[data-language="tex"]):not(:focus-within) .tools,
+.milkdown .milkdown-code-block[data-language="latex"]:not(:focus-within) .tools,
+.milkdown .milkdown-code-block[data-language="math"]:not(:focus-within) .tools {
+  display: none !important;
+}
+
+.milkdown .milkdown-code-block:has(pre[data-language="latex"]):not(:focus-within) .codemirror-host,
+.milkdown .milkdown-code-block:has(pre[data-language="math"]):not(:focus-within) .codemirror-host,
+.milkdown .milkdown-code-block:has(pre[data-language="katex"]):not(:focus-within) .codemirror-host,
+.milkdown .milkdown-code-block:has(pre[data-language="tex"]):not(:focus-within) .codemirror-host,
+.milkdown .milkdown-code-block[data-language="latex"]:not(:focus-within) .codemirror-host,
+.milkdown .milkdown-code-block[data-language="math"]:not(:focus-within) .codemirror-host {
+  display: none !important;
+}
+
+/* Also hide when inside read-only container */
+#app[data-ushio-read-only="true"] .milkdown-code-block .tools,
+#app[data-ushio-read-only="true"] .milkdown-code-block .codemirror-host:has(+ .preview-panel .preview:not(:empty)) {
+  display: none !important;
+}
+
+/* Textbook-grade formula preview container */
+.milkdown .milkdown-code-block .preview-panel {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.milkdown .milkdown-code-block .preview-panel .preview {
+  display: flex !important;
+  justify-content: center !important;
+  align-items: center !important;
+  text-align: center !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  max-width: 100% !important;
+  -webkit-overflow-scrolling: touch !important;
+  padding: 6px 0 !important;
+}
+
+.milkdown .milkdown-code-block .preview-panel .preview .katex-display {
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* Ensure KaTeX uses its proper theme color */
+.katex {
+  color: var(--milkdown-color-on-surface) !important;
+  text-rendering: geometricPrecision;
+}
+
