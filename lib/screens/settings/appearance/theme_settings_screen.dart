@@ -150,7 +150,7 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                 const SizedBox(height: 16),
 
                 // 卡片外观（独立于 UI 风格）
-                buildSection('卡片外观', Icons.style, [
+                buildSection(l10n.cardAppearance, Icons.style, [
                   buildCardOpacitySlider(settings, l10n),
                   const SizedBox(height: 12),
                   buildCardColorSelector(settings, l10n),

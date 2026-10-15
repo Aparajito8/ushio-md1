@@ -145,10 +145,9 @@ class AppearanceUtils {
     required BuildContext context,
     required Color initialColor,
     required void Function(Color) onColorSelected,
-    String? title,
+    required String title,
     List<Color>? presetColors,
     bool showPreview = false,
-    String? previewText,
     Color? previewBackgroundColor,
   }) {
     final l10n = AppLocalizations.of(context)!;
@@ -169,7 +168,7 @@ class AppearanceUtils {
             }
             
             return AlertDialog(
-              title: Text(title ?? '选择颜色'),
+              title: Text(title),
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -187,7 +186,7 @@ class AppearanceUtils {
                         ),
                         child: Center(
                           child: Text(
-                            previewText ?? l10n.previewText,
+                            l10n.previewText,
                             style: TextStyle(
                               // 预览背景固定时（如白底预览文字色），直接用选中色作为文字色
                               color: previewBackgroundColor != null

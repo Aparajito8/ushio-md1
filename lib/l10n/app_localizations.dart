@@ -266,12 +266,6 @@ abstract class AppLocalizations {
   /// **'外观'**
   String get appearance;
 
-  /// 主题设置
-  ///
-  /// In zh, this message translates to:
-  /// **'主题'**
-  String get theme;
-
   /// 浅色主题
   ///
   /// In zh, this message translates to:
@@ -301,12 +295,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'编辑器字体'**
   String get editorFont;
-
-  /// 代码字体设置
-  ///
-  /// In zh, this message translates to:
-  /// **'代码字体'**
-  String get codeFont;
 
   /// 行高设置
   ///
@@ -392,24 +380,6 @@ abstract class AppLocalizations {
   /// **'同步中...'**
   String get syncing;
 
-  /// 同步成功提示
-  ///
-  /// In zh, this message translates to:
-  /// **'同步成功'**
-  String get syncSuccess;
-
-  /// 同步失败提示
-  ///
-  /// In zh, this message translates to:
-  /// **'同步失败'**
-  String get syncFailed;
-
-  /// 新建文件
-  ///
-  /// In zh, this message translates to:
-  /// **'新建文件'**
-  String get newFile;
-
   /// 新建文件夹
   ///
   /// In zh, this message translates to:
@@ -421,12 +391,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'重命名'**
   String get rename;
-
-  /// 移动
-  ///
-  /// In zh, this message translates to:
-  /// **'移动'**
-  String get move;
 
   /// 复制
   ///
@@ -446,12 +410,6 @@ abstract class AppLocalizations {
   /// **'分享'**
   String get share;
 
-  /// 导出
-  ///
-  /// In zh, this message translates to:
-  /// **'导出'**
-  String get export;
-
   /// 导出为 PDF
   ///
   /// In zh, this message translates to:
@@ -464,65 +422,11 @@ abstract class AppLocalizations {
   /// **'正在生成 PDF...'**
   String get generatingPdf;
 
-  /// 插入图片
-  ///
-  /// In zh, this message translates to:
-  /// **'插入图片'**
-  String get insertImage;
-
-  /// 从链接插入图片
-  ///
-  /// In zh, this message translates to:
-  /// **'输入图片链接'**
-  String get insertImageFromUrl;
-
-  /// 从设备选择图片
-  ///
-  /// In zh, this message translates to:
-  /// **'从设备选择'**
-  String get insertImageFromDevice;
-
-  /// 图片 URL 输入框标签
-  ///
-  /// In zh, this message translates to:
-  /// **'图片 URL'**
-  String get imageUrl;
-
-  /// 图片 URL 输入提示
-  ///
-  /// In zh, this message translates to:
-  /// **'https://example.com/image.png'**
-  String get imageUrlHint;
-
-  /// 图片替代文本
-  ///
-  /// In zh, this message translates to:
-  /// **'替代文本（可选）'**
-  String get imageAlt;
-
-  /// 替代文本提示
-  ///
-  /// In zh, this message translates to:
-  /// **'用于无障碍与图片说明'**
-  String get imageAltHint;
-
   /// 插入按钮
   ///
   /// In zh, this message translates to:
   /// **'插入'**
   String get insert;
-
-  /// 图片上传失败提示
-  ///
-  /// In zh, this message translates to:
-  /// **'图片上传失败'**
-  String get imageUploadFailed;
-
-  /// 重试按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'重试'**
-  String get retry;
 
   /// 未命名文件
   ///
@@ -536,53 +440,11 @@ abstract class AppLocalizations {
   /// **'有未保存的更改'**
   String get unsavedChanges;
 
-  /// 放弃更改按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'放弃更改'**
-  String get discardChanges;
-
-  /// 继续编辑按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'继续编辑'**
-  String get keepEditing;
-
-  /// 文件未找到错误
-  ///
-  /// In zh, this message translates to:
-  /// **'文件未找到'**
-  String get fileNotFound;
-
   /// 文件夹不存在错误
   ///
   /// In zh, this message translates to:
   /// **'文件夹不存在'**
   String get folderNotFound;
-
-  /// 加载文件错误
-  ///
-  /// In zh, this message translates to:
-  /// **'加载文件失败'**
-  String get errorLoadingFile;
-
-  /// 保存文件错误
-  ///
-  /// In zh, this message translates to:
-  /// **'保存文件失败'**
-  String get errorSavingFile;
-
-  /// 权限请求标题
-  ///
-  /// In zh, this message translates to:
-  /// **'需要权限'**
-  String get permissionRequired;
-
-  /// 存储权限说明
-  ///
-  /// In zh, this message translates to:
-  /// **'需要存储权限才能访问文件'**
-  String get storagePermissionRequired;
 
   /// 受保护目录访问失败提示
   ///
@@ -595,24 +457,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'该目录受 Android 系统保护，请选择其他目录（如 Documents 或应用工作区）'**
   String get protectedDirectoryHint;
-
-  /// 授予权限按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'授予权限'**
-  String get grantPermission;
-
-  /// 初始化提示
-  ///
-  /// In zh, this message translates to:
-  /// **'初始化中...'**
-  String get initializing;
-
-  /// 更新可用提示
-  ///
-  /// In zh, this message translates to:
-  /// **'有新版本可用'**
-  String get updateAvailable;
 
   /// 立即更新按钮
   ///
@@ -643,12 +487,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'调试模式'**
   String get debugMode;
-
-  /// 调试日志
-  ///
-  /// In zh, this message translates to:
-  /// **'调试日志'**
-  String get debugLog;
 
   /// 清除日志按钮
   ///
@@ -685,12 +523,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'删除线'**
   String get strikethrough;
-
-  /// 标题
-  ///
-  /// In zh, this message translates to:
-  /// **'标题'**
-  String get heading;
 
   /// 一级标题
   ///
@@ -788,12 +620,6 @@ abstract class AppLocalizations {
   /// **'重做'**
   String get redo;
 
-  /// 更多
-  ///
-  /// In zh, this message translates to:
-  /// **'更多'**
-  String get more;
-
   /// 编辑器背景设置
   ///
   /// In zh, this message translates to:
@@ -884,36 +710,6 @@ abstract class AppLocalizations {
   /// **'波动折射的玻璃质感，自动适配卡片透明度'**
   String get uiStyleLiquidGlassDesc;
 
-  /// 按钮风格设置
-  ///
-  /// In zh, this message translates to:
-  /// **'按钮风格'**
-  String get buttonStyle;
-
-  /// 经典描边按钮风格
-  ///
-  /// In zh, this message translates to:
-  /// **'经典描边'**
-  String get buttonStyleClassic;
-
-  /// 经典描边按钮风格描述
-  ///
-  /// In zh, this message translates to:
-  /// **'保留当前的实线边框按钮样式'**
-  String get buttonStyleClassicDesc;
-
-  /// 简洁立体按钮风格
-  ///
-  /// In zh, this message translates to:
-  /// **'简洁立体'**
-  String get buttonStyleModern;
-
-  /// 简洁立体按钮风格描述
-  ///
-  /// In zh, this message translates to:
-  /// **'柔和阴影的立体按钮效果'**
-  String get buttonStyleModernDesc;
-
   /// 卡片透明度设置
   ///
   /// In zh, this message translates to:
@@ -962,12 +758,6 @@ abstract class AppLocalizations {
   /// **'透明度'**
   String get opacity;
 
-  /// 编辑器背景图片设置
-  ///
-  /// In zh, this message translates to:
-  /// **'编辑器背景图片'**
-  String get editorBackgroundImage;
-
   /// 主页标题设置
   ///
   /// In zh, this message translates to:
@@ -1015,12 +805,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'界面字体'**
   String get uiFont;
-
-  /// 系统字体选项
-  ///
-  /// In zh, this message translates to:
-  /// **'系统字体'**
-  String get systemFont;
 
   /// 代码块字体选项
   ///
@@ -1568,12 +1352,6 @@ abstract class AppLocalizations {
   /// **'开始同步'**
   String get startSync;
 
-  /// 后台继续同步提示
-  ///
-  /// In zh, this message translates to:
-  /// **'同步将在后台继续'**
-  String get syncWillContinueInBackground;
-
   /// 存储设置页面标题
   ///
   /// In zh, this message translates to:
@@ -1802,12 +1580,6 @@ abstract class AppLocalizations {
   /// **'未找到匹配内容'**
   String get noMatchContent;
 
-  /// 加载失败消息
-  ///
-  /// In zh, this message translates to:
-  /// **'加载失败'**
-  String get loadingFailed;
-
   /// 字数统计显示
   ///
   /// In zh, this message translates to:
@@ -1868,24 +1640,6 @@ abstract class AppLocalizations {
   /// **'自定义主页图标旁显示的文字'**
   String get homeTitleHint;
 
-  /// 主页标题标签
-  ///
-  /// In zh, this message translates to:
-  /// **'主页标题'**
-  String get homeTitleLabel;
-
-  /// 主页标题默认值
-  ///
-  /// In zh, this message translates to:
-  /// **'汐'**
-  String get homeTitleDefault;
-
-  /// 恢复默认按钮
-  ///
-  /// In zh, this message translates to:
-  /// **'恢复默认'**
-  String get restoreDefault;
-
   /// 应用图标选择器提示
   ///
   /// In zh, this message translates to:
@@ -1945,18 +1699,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'暂无日志。开启调试后进入编辑器操作，再回来查看。'**
   String get noLogsYet;
-
-  /// 采集请求已发送消息
-  ///
-  /// In zh, this message translates to:
-  /// **'已请求采集，请返回日志区查看 on_debug_report'**
-  String get collectRequestSent;
-
-  /// 无活跃编辑器错误消息
-  ///
-  /// In zh, this message translates to:
-  /// **'当前没有活跃编辑器，请先打开一个 Markdown 文件'**
-  String get noActiveEditor;
 
   /// 目录中没有找到标题
   ///
@@ -2138,6 +1880,12 @@ abstract class AppLocalizations {
   /// **'使用主题默认'**
   String get useThemeDefault;
 
+  /// 卡片外观区块标题
+  ///
+  /// In zh, this message translates to:
+  /// **'卡片外观'**
+  String get cardAppearance;
+
   /// 代码块主题设置
   ///
   /// In zh, this message translates to:
@@ -2270,12 +2018,6 @@ abstract class AppLocalizations {
   /// **'自定义字体颜色'**
   String get customUiFontColor;
 
-  /// 字体颜色标签
-  ///
-  /// In zh, this message translates to:
-  /// **'字体颜色'**
-  String get uiFontColorLabel;
-
   /// 全局图标颜色设置
   ///
   /// In zh, this message translates to:
@@ -2311,12 +2053,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'自定义文字颜色'**
   String get customEditorFontColor;
-
-  /// 编辑器文字颜色标签
-  ///
-  /// In zh, this message translates to:
-  /// **'文字颜色'**
-  String get editorFontColorLabel;
 
   /// 编辑器文字颜色描述
   ///
@@ -2539,12 +2275,6 @@ abstract class AppLocalizations {
   /// In zh, this message translates to:
   /// **'「{fontName}」下载失败，请检查网络'**
   String fontDownloadFailed(String fontName);
-
-  /// No description provided for @liquidGlassEffect.
-  ///
-  /// In zh, this message translates to:
-  /// **'液态玻璃效果'**
-  String get liquidGlassEffect;
 }
 
 class _AppLocalizationsDelegate

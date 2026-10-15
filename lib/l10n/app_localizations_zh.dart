@@ -96,9 +96,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appearance => '外观';
 
   @override
-  String get theme => '主题';
-
-  @override
   String get themeLight => '浅色';
 
   @override
@@ -112,9 +109,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get editorFont => '编辑器字体';
-
-  @override
-  String get codeFont => '代码字体';
 
   @override
   String get lineHeight => '行高';
@@ -159,22 +153,10 @@ class AppLocalizationsZh extends AppLocalizations {
   String get syncing => '同步中...';
 
   @override
-  String get syncSuccess => '同步成功';
-
-  @override
-  String get syncFailed => '同步失败';
-
-  @override
-  String get newFile => '新建文件';
-
-  @override
   String get newFolder => '新建文件夹';
 
   @override
   String get rename => '重命名';
-
-  @override
-  String get move => '移动';
 
   @override
   String get copy => '复制';
@@ -186,43 +168,13 @@ class AppLocalizationsZh extends AppLocalizations {
   String get share => '分享';
 
   @override
-  String get export => '导出';
-
-  @override
   String get exportAsPdf => '导出为 PDF';
 
   @override
   String get generatingPdf => '正在生成 PDF...';
 
   @override
-  String get insertImage => '插入图片';
-
-  @override
-  String get insertImageFromUrl => '输入图片链接';
-
-  @override
-  String get insertImageFromDevice => '从设备选择';
-
-  @override
-  String get imageUrl => '图片 URL';
-
-  @override
-  String get imageUrlHint => 'https://example.com/image.png';
-
-  @override
-  String get imageAlt => '替代文本（可选）';
-
-  @override
-  String get imageAltHint => '用于无障碍与图片说明';
-
-  @override
   String get insert => '插入';
-
-  @override
-  String get imageUploadFailed => '图片上传失败';
-
-  @override
-  String get retry => '重试';
 
   @override
   String get untitled => '未命名';
@@ -231,28 +183,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get unsavedChanges => '有未保存的更改';
 
   @override
-  String get discardChanges => '放弃更改';
-
-  @override
-  String get keepEditing => '继续编辑';
-
-  @override
-  String get fileNotFound => '文件未找到';
-
-  @override
   String get folderNotFound => '文件夹不存在';
-
-  @override
-  String get errorLoadingFile => '加载文件失败';
-
-  @override
-  String get errorSavingFile => '保存文件失败';
-
-  @override
-  String get permissionRequired => '需要权限';
-
-  @override
-  String get storagePermissionRequired => '需要存储权限才能访问文件';
 
   @override
   String get protectedDirectory => '无法访问该目录';
@@ -260,15 +191,6 @@ class AppLocalizationsZh extends AppLocalizations {
   @override
   String get protectedDirectoryHint =>
       '该目录受 Android 系统保护，请选择其他目录（如 Documents 或应用工作区）';
-
-  @override
-  String get grantPermission => '授予权限';
-
-  @override
-  String get initializing => '初始化中...';
-
-  @override
-  String get updateAvailable => '有新版本可用';
 
   @override
   String get updateNow => '立即更新';
@@ -284,9 +206,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get debugMode => '调试模式';
-
-  @override
-  String get debugLog => '调试日志';
 
   @override
   String get clearLog => '清除日志';
@@ -305,9 +224,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get strikethrough => '删除线';
-
-  @override
-  String get heading => '标题';
 
   @override
   String get heading1 => '一级标题';
@@ -358,9 +274,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get redo => '重做';
 
   @override
-  String get more => '更多';
-
-  @override
   String get editorBackground => '编辑器背景';
 
   @override
@@ -406,21 +319,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get uiStyleLiquidGlassDesc => '波动折射的玻璃质感，自动适配卡片透明度';
 
   @override
-  String get buttonStyle => '按钮风格';
-
-  @override
-  String get buttonStyleClassic => '经典描边';
-
-  @override
-  String get buttonStyleClassicDesc => '保留当前的实线边框按钮样式';
-
-  @override
-  String get buttonStyleModern => '简洁立体';
-
-  @override
-  String get buttonStyleModernDesc => '柔和阴影的立体按钮效果';
-
-  @override
   String get cardOpacity => '卡片透明度';
 
   @override
@@ -445,9 +343,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get opacity => '透明度';
 
   @override
-  String get editorBackgroundImage => '编辑器背景图片';
-
-  @override
   String get homeTitle => '主页标题';
 
   @override
@@ -470,9 +365,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get uiFont => '界面字体';
-
-  @override
-  String get systemFont => '系统字体';
 
   @override
   String get customFont => '代码块字体';
@@ -768,9 +660,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get startSync => '开始同步';
 
   @override
-  String get syncWillContinueInBackground => '同步将在后台继续';
-
-  @override
   String get storageSettings => '存储设置';
 
   @override
@@ -896,9 +785,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get noMatchContent => '未找到匹配内容';
 
   @override
-  String get loadingFailed => '加载失败';
-
-  @override
   String wordCount(int chars, int glyphs, int words) {
     return '$chars 字符 · $glyphs 文字 · $words 单词';
   }
@@ -931,15 +817,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get homeTitleHint => '自定义主页图标旁显示的文字';
 
   @override
-  String get homeTitleLabel => '主页标题';
-
-  @override
-  String get homeTitleDefault => '汐';
-
-  @override
-  String get restoreDefault => '恢复默认';
-
-  @override
   String get appIconSelectorHint => '选择在主屏幕显示的应用图标';
 
   @override
@@ -970,12 +847,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get noLogsYet => '暂无日志。开启调试后进入编辑器操作，再回来查看。';
-
-  @override
-  String get collectRequestSent => '已请求采集，请返回日志区查看 on_debug_report';
-
-  @override
-  String get noActiveEditor => '当前没有活跃编辑器，请先打开一个 Markdown 文件';
 
   @override
   String get noHeadingsFound => '没有找到标题';
@@ -1072,6 +943,9 @@ class AppLocalizationsZh extends AppLocalizations {
   String get useThemeDefault => '使用主题默认';
 
   @override
+  String get cardAppearance => '卡片外观';
+
+  @override
   String get codeBlockTheme => '代码块主题';
 
   @override
@@ -1138,9 +1012,6 @@ class AppLocalizationsZh extends AppLocalizations {
   String get customUiFontColor => '自定义字体颜色';
 
   @override
-  String get uiFontColorLabel => '字体颜色';
-
-  @override
   String get globalIconColor => '全局图标颜色';
 
   @override
@@ -1157,9 +1028,6 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get customEditorFontColor => '自定义文字颜色';
-
-  @override
-  String get editorFontColorLabel => '文字颜色';
 
   @override
   String get editorFontColorDesc => '作用于文档正文与编辑区，不影响界面文字';
@@ -1279,7 +1147,4 @@ class AppLocalizationsZh extends AppLocalizations {
   String fontDownloadFailed(String fontName) {
     return '「$fontName」下载失败，请检查网络';
   }
-
-  @override
-  String get liquidGlassEffect => '液态玻璃效果';
 }

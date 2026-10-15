@@ -97,9 +97,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appearance => 'Appearance';
 
   @override
-  String get theme => 'Theme';
-
-  @override
   String get themeLight => 'Light';
 
   @override
@@ -113,9 +110,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editorFont => 'Editor Font';
-
-  @override
-  String get codeFont => 'Code Font';
 
   @override
   String get lineHeight => 'Line Height';
@@ -160,22 +154,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get syncing => 'Syncing...';
 
   @override
-  String get syncSuccess => 'Sync successful';
-
-  @override
-  String get syncFailed => 'Sync failed';
-
-  @override
-  String get newFile => 'New File';
-
-  @override
   String get newFolder => 'New Folder';
 
   @override
   String get rename => 'Rename';
-
-  @override
-  String get move => 'Move';
 
   @override
   String get copy => 'Copy';
@@ -187,43 +169,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get share => 'Share';
 
   @override
-  String get export => 'Export';
-
-  @override
   String get exportAsPdf => 'Export as PDF';
 
   @override
   String get generatingPdf => 'Generating PDF...';
 
   @override
-  String get insertImage => 'Insert Image';
-
-  @override
-  String get insertImageFromUrl => 'Enter image URL';
-
-  @override
-  String get insertImageFromDevice => 'Select from device';
-
-  @override
-  String get imageUrl => 'Image URL';
-
-  @override
-  String get imageUrlHint => 'https://example.com/image.png';
-
-  @override
-  String get imageAlt => 'Alt text (optional)';
-
-  @override
-  String get imageAltHint => 'For accessibility and image description';
-
-  @override
   String get insert => 'Insert';
-
-  @override
-  String get imageUploadFailed => 'Image upload failed';
-
-  @override
-  String get retry => 'Retry';
 
   @override
   String get untitled => 'Untitled';
@@ -232,29 +184,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unsavedChanges => 'You have unsaved changes';
 
   @override
-  String get discardChanges => 'Discard changes';
-
-  @override
-  String get keepEditing => 'Keep editing';
-
-  @override
-  String get fileNotFound => 'File not found';
-
-  @override
   String get folderNotFound => 'Folder not found';
-
-  @override
-  String get errorLoadingFile => 'Failed to load file';
-
-  @override
-  String get errorSavingFile => 'Failed to save file';
-
-  @override
-  String get permissionRequired => 'Permission Required';
-
-  @override
-  String get storagePermissionRequired =>
-      'Storage permission is required to access files';
 
   @override
   String get protectedDirectory => 'Cannot access this directory';
@@ -262,15 +192,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get protectedDirectoryHint =>
       'This directory is protected by Android. Please select another directory (e.g., Documents or app workspace)';
-
-  @override
-  String get grantPermission => 'Grant Permission';
-
-  @override
-  String get initializing => 'Initializing...';
-
-  @override
-  String get updateAvailable => 'Update available';
 
   @override
   String get updateNow => 'Update Now';
@@ -286,9 +207,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get debugMode => 'Debug Mode';
-
-  @override
-  String get debugLog => 'Debug Log';
 
   @override
   String get clearLog => 'Clear Log';
@@ -307,9 +225,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get strikethrough => 'Strikethrough';
-
-  @override
-  String get heading => 'Heading';
 
   @override
   String get heading1 => 'Heading 1';
@@ -360,9 +275,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get redo => 'Redo';
 
   @override
-  String get more => 'More';
-
-  @override
   String get editorBackground => 'Editor Background';
 
   @override
@@ -410,21 +322,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Wavy glass refraction, synced with card opacity';
 
   @override
-  String get buttonStyle => 'Button Style';
-
-  @override
-  String get buttonStyleClassic => 'Classic';
-
-  @override
-  String get buttonStyleClassicDesc => 'Keep current solid border button style';
-
-  @override
-  String get buttonStyleModern => 'Modern';
-
-  @override
-  String get buttonStyleModernDesc => 'Elevated buttons with soft shadows';
-
-  @override
   String get cardOpacity => 'Card Opacity';
 
   @override
@@ -449,9 +346,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get opacity => 'Opacity';
 
   @override
-  String get editorBackgroundImage => 'Editor Background Image';
-
-  @override
   String get homeTitle => 'Home Title';
 
   @override
@@ -474,9 +368,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get uiFont => 'UI Font';
-
-  @override
-  String get systemFont => 'System Font';
 
   @override
   String get customFont => 'Code Block Font';
@@ -783,9 +674,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startSync => 'Start Sync';
 
   @override
-  String get syncWillContinueInBackground => 'Sync will continue in background';
-
-  @override
   String get storageSettings => 'Storage Settings';
 
   @override
@@ -917,9 +805,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noMatchContent => 'No matching content found';
 
   @override
-  String get loadingFailed => 'Loading failed';
-
-  @override
   String wordCount(int chars, int glyphs, int words) {
     return '$chars chars · $glyphs glyphs · $words words';
   }
@@ -951,15 +836,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get homeTitleHint => 'Custom text displayed next to the home icon';
-
-  @override
-  String get homeTitleLabel => 'Home Title';
-
-  @override
-  String get homeTitleDefault => 'Ushio';
-
-  @override
-  String get restoreDefault => 'Restore Default';
 
   @override
   String get appIconSelectorHint =>
@@ -995,14 +871,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get noLogsYet =>
       'No logs yet. Enable debug mode and use the editor, then check back.';
-
-  @override
-  String get collectRequestSent =>
-      'Collection requested. Check on_debug_report in the log area.';
-
-  @override
-  String get noActiveEditor =>
-      'No active editor. Please open a Markdown file first.';
 
   @override
   String get noHeadingsFound => 'No headings found';
@@ -1099,6 +967,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useThemeDefault => 'Use Theme Default';
 
   @override
+  String get cardAppearance => 'Card Appearance';
+
+  @override
   String get codeBlockTheme => 'Code Block Theme';
 
   @override
@@ -1169,9 +1040,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customUiFontColor => 'Custom Font Color';
 
   @override
-  String get uiFontColorLabel => 'Font Color';
-
-  @override
   String get globalIconColor => 'Global Icon Color';
 
   @override
@@ -1189,9 +1057,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get customEditorFontColor => 'Custom Font Color';
-
-  @override
-  String get editorFontColorLabel => 'Font Color';
 
   @override
   String get editorFontColorDesc =>
@@ -1316,7 +1181,4 @@ class AppLocalizationsEn extends AppLocalizations {
   String fontDownloadFailed(String fontName) {
     return 'Failed to download \"$fontName\". Please check your network.';
   }
-
-  @override
-  String get liquidGlassEffect => 'Liquid Glass Effect';
 }

@@ -118,10 +118,6 @@
   "@appearance": {
     "description": "外观设置"
   },
-  "theme": "主题",
-  "@theme": {
-    "description": "主题设置"
-  },
   "themeLight": "浅色",
   "@themeLight": {
     "description": "浅色主题"
@@ -141,10 +137,6 @@
   "editorFont": "编辑器字体",
   "@editorFont": {
     "description": "编辑器字体设置"
-  },
-  "codeFont": "代码字体",
-  "@codeFont": {
-    "description": "代码字体设置"
   },
   "lineHeight": "行高",
   "@lineHeight": {
@@ -202,18 +194,6 @@
   "@syncing": {
     "description": "同步中状态"
   },
-  "syncSuccess": "同步成功",
-  "@syncSuccess": {
-    "description": "同步成功提示"
-  },
-  "syncFailed": "同步失败",
-  "@syncFailed": {
-    "description": "同步失败提示"
-  },
-  "newFile": "新建文件",
-  "@newFile": {
-    "description": "新建文件"
-  },
   "newFolder": "新建文件夹",
   "@newFolder": {
     "description": "新建文件夹"
@@ -221,10 +201,6 @@
   "rename": "重命名",
   "@rename": {
     "description": "重命名"
-  },
-  "move": "移动",
-  "@move": {
-    "description": "移动"
   },
   "copy": "复制",
   "@copy": {
@@ -238,10 +214,6 @@
   "@share": {
     "description": "分享"
   },
-  "export": "导出",
-  "@export": {
-    "description": "导出"
-  },
   "exportAsPdf": "导出为 PDF",
   "@exportAsPdf": {
     "description": "导出为 PDF"
@@ -250,45 +222,9 @@
   "@generatingPdf": {
     "description": "生成 PDF 中"
   },
-  "insertImage": "插入图片",
-  "@insertImage": {
-    "description": "插入图片"
-  },
-  "insertImageFromUrl": "输入图片链接",
-  "@insertImageFromUrl": {
-    "description": "从链接插入图片"
-  },
-  "insertImageFromDevice": "从设备选择",
-  "@insertImageFromDevice": {
-    "description": "从设备选择图片"
-  },
-  "imageUrl": "图片 URL",
-  "@imageUrl": {
-    "description": "图片 URL 输入框标签"
-  },
-  "imageUrlHint": "https://example.com/image.png",
-  "@imageUrlHint": {
-    "description": "图片 URL 输入提示"
-  },
-  "imageAlt": "替代文本（可选）",
-  "@imageAlt": {
-    "description": "图片替代文本"
-  },
-  "imageAltHint": "用于无障碍与图片说明",
-  "@imageAltHint": {
-    "description": "替代文本提示"
-  },
   "insert": "插入",
   "@insert": {
     "description": "插入按钮"
-  },
-  "imageUploadFailed": "图片上传失败",
-  "@imageUploadFailed": {
-    "description": "图片上传失败提示"
-  },
-  "retry": "重试",
-  "@retry": {
-    "description": "重试按钮"
   },
   "untitled": "未命名",
   "@untitled": {
@@ -298,37 +234,9 @@
   "@unsavedChanges": {
     "description": "未保存更改提示"
   },
-  "discardChanges": "放弃更改",
-  "@discardChanges": {
-    "description": "放弃更改按钮"
-  },
-  "keepEditing": "继续编辑",
-  "@keepEditing": {
-    "description": "继续编辑按钮"
-  },
-  "fileNotFound": "文件未找到",
-  "@fileNotFound": {
-    "description": "文件未找到错误"
-  },
   "folderNotFound": "文件夹未找到",
   "@folderNotFound": {
     "description": "文件夹未找到错误"
-  },
-  "errorLoadingFile": "加载文件失败",
-  "@errorLoadingFile": {
-    "description": "加载文件错误"
-  },
-  "errorSavingFile": "保存文件失败",
-  "@errorSavingFile": {
-    "description": "保存文件错误"
-  },
-  "permissionRequired": "需要权限",
-  "@permissionRequired": {
-    "description": "权限请求标题"
-  },
-  "storagePermissionRequired": "需要存储权限才能访问文件",
-  "@storagePermissionRequired": {
-    "description": "存储权限说明"
   },
   "protectedDirectory": "无法访问该目录",
   "@protectedDirectory": {
@@ -337,18 +245,6 @@
   "protectedDirectoryHint": "该目录受 Android 系统保护，请选择其他目录（如 Documents 或应用工作区）",
   "@protectedDirectoryHint": {
     "description": "受保护目录访问失败详细说明"
-  },
-  "grantPermission": "授予权限",
-  "@grantPermission": {
-    "description": "授予权限按钮"
-  },
-  "initializing": "初始化中...",
-  "@initializing": {
-    "description": "初始化提示"
-  },
-  "updateAvailable": "有新版本可用",
-  "@updateAvailable": {
-    "description": "更新可用提示"
   },
   "updateNow": "立即更新",
   "@updateNow": {
@@ -369,10 +265,6 @@
   "debugMode": "调试模式",
   "@debugMode": {
     "description": "调试模式设置"
-  },
-  "debugLog": "调试日志",
-  "@debugLog": {
-    "description": "调试日志"
   },
   "clearLog": "清除日志",
   "@clearLog": {
@@ -397,10 +289,6 @@
   "strikethrough": "删除线",
   "@strikethrough": {
     "description": "删除线"
-  },
-  "heading": "标题",
-  "@heading": {
-    "description": "标题"
   },
   "heading1": "一级标题",
   "@heading1": {
@@ -466,10 +354,6 @@
   "@redo": {
     "description": "重做"
   },
-  "more": "更多",
-  "@more": {
-    "description": "更多"
-  },
   "editorBackground": "编辑器背景",
   "@editorBackground": {
     "description": "编辑器背景设置"
@@ -530,26 +414,6 @@
   "@uiStyleLiquidGlassDesc": {
     "description": "UI风格-液态玻璃说明"
   },
-  "buttonStyle": "按钮风格",
-  "@buttonStyle": {
-    "description": "按钮风格设置"
-  },
-  "buttonStyleClassic": "经典描边",
-  "@buttonStyleClassic": {
-    "description": "经典描边按钮风格"
-  },
-  "buttonStyleClassicDesc": "保留当前的实线边框按钮样式",
-  "@buttonStyleClassicDesc": {
-    "description": "经典描边按钮风格描述"
-  },
-  "buttonStyleModern": "简洁立体",
-  "@buttonStyleModern": {
-    "description": "简洁立体按钮风格"
-  },
-  "buttonStyleModernDesc": "柔和阴影的立体按钮效果",
-  "@buttonStyleModernDesc": {
-    "description": "简洁立体按钮风格描述"
-  },
   "cardOpacity": "卡片透明度",
   "@cardOpacity": {
     "description": "卡片透明度设置"
@@ -582,10 +446,6 @@
   "@opacity": {
     "description": "透明度"
   },
-  "editorBackgroundImage": "编辑器背景图片",
-  "@editorBackgroundImage": {
-    "description": "编辑器背景图片设置"
-  },
   "homeTitle": "主页标题",
   "@homeTitle": {
     "description": "主页标题设置"
@@ -617,10 +477,6 @@
   "uiFont": "界面字体",
   "@uiFont": {
     "description": "界面字体设置"
-  },
-  "systemFont": "系统字体",
-  "@systemFont": {
-    "description": "系统字体选项"
   },
   "customFont": "代码块字体",
   "@customFont": {
@@ -986,10 +842,6 @@
   "@startSync": {
     "description": "开始同步按钮"
   },
-  "syncWillContinueInBackground": "同步将在后台继续",
-  "@syncWillContinueInBackground": {
-    "description": "后台继续同步提示"
-  },
   "storageSettings": "存储设置",
   "@storageSettings": {
     "description": "存储设置页面标题"
@@ -1171,10 +1023,6 @@
   "@noMatchContent": {
     "description": "搜索无匹配内容"
   },
-  "loadingFailed": "加载失败",
-  "@loadingFailed": {
-    "description": "加载失败消息"
-  },
   "wordCount": "{chars} 字符 · {glyphs} 文字 · {words} 单词",
   "@wordCount": {
     "description": "字数统计显示",
@@ -1212,12 +1060,6 @@
   "@customImage": { "description": "自定义图片选项" },
   "homeTitleHint": "自定义主页图标旁显示的文字",
   "@homeTitleHint": { "description": "主页标题输入提示" },
-  "homeTitleLabel": "主页标题",
-  "@homeTitleLabel": { "description": "主页标题标签" },
-  "homeTitleDefault": "汐",
-  "@homeTitleDefault": { "description": "主页标题默认值" },
-  "restoreDefault": "恢复默认",
-  "@restoreDefault": { "description": "恢复默认按钮" },
   "appIconSelectorHint": "选择在主屏幕显示的应用图标",
   "@appIconSelectorHint": { "description": "应用图标选择器提示" },
   "brightness": "亮度",
@@ -1245,10 +1087,6 @@
   "@logCopiedToClipboard": { "description": "日志已复制到剪贴板提示" },
   "noLogsYet": "暂无日志。开启调试后进入编辑器操作，再回来查看。",
   "@noLogsYet": { "description": "无日志占位文本" },
-  "collectRequestSent": "已请求采集，请返回日志区查看 on_debug_report",
-  "@collectRequestSent": { "description": "采集请求已发送消息" },
-  "noActiveEditor": "当前没有活跃编辑器，请先打开一个 Markdown 文件",
-  "@noActiveEditor": { "description": "无活跃编辑器错误消息" },
   "noHeadingsFound": "没有找到标题",
   "@noHeadingsFound": { "description": "目录中没有找到标题" },
   "clearHistory": "清空历史",
@@ -1325,6 +1163,8 @@
   "@customCardColor": { "description": "自定义卡片颜色开关" },
   "useThemeDefault": "使用主题默认",
   "@useThemeDefault": { "description": "使用主题默认颜色" },
+  "cardAppearance": "卡片外观",
+  "@cardAppearance": { "description": "卡片外观区块标题" },
   "codeBlockTheme": "代码块主题",
   "@codeBlockTheme": { "description": "代码块主题设置" },
   "codeBlockThemeAuto": "跟随应用主题",
@@ -1369,8 +1209,6 @@
   "@uiFontColor": { "description": "界面字体颜色设置" },
   "customUiFontColor": "自定义字体颜色",
   "@customUiFontColor": { "description": "自定义界面字体颜色开关" },
-  "uiFontColorLabel": "字体颜色",
-  "@uiFontColorLabel": { "description": "字体颜色标签" },
   "globalIconColor": "全局图标颜色",
   "@globalIconColor": { "description": "全局图标颜色设置" },
   "customGlobalIconColor": "自定义全局图标颜色",
@@ -1383,8 +1221,6 @@
   "@editorFontColor": { "description": "编辑器文字颜色设置" },
   "customEditorFontColor": "自定义文字颜色",
   "@customEditorFontColor": { "description": "自定义编辑器文字颜色开关" },
-  "editorFontColorLabel": "文字颜色",
-  "@editorFontColorLabel": { "description": "编辑器文字颜色标签" },
   "editorFontColorDesc": "作用于文档正文与编辑区，不影响界面文字",
   "@editorFontColorDesc": { "description": "编辑器文字颜色描述" },
   "previewText": "预览文字",
@@ -1490,6 +1326,5 @@
         "example": "思源黑体"
       }
     }
-  },
-  "liquidGlassEffect": "液态玻璃效果"
+  }
 }
