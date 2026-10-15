@@ -2215,38 +2215,59 @@ class _EditorScreenState extends State<EditorScreen>
     }
   }
 
+  /// 系统返回（侧滑手势 / 金刚键）的第一下只负责收起当前编辑态，不退出页面。
+  ///
+  /// 左上角箭头走 Navigator.pop，它不查 Route.popDisposition，因此不受
+  /// PopScope.canPop 影响，始终直接退到上一页——两者职责由此分开。
+  Future<void> _collapseEditingState() async {
+    if (_editingBlockIndex != null) {
+      _finishInlineEdit();
+      _inlineEditFocusNode.unfocus();
+      return;
+    }
+    if (_mode == EditorMode.edit) {
+      _editFocusNode.unfocus();
+      _enterPreviewMode();
+      return;
+    }
+    await _previewWebViewController.execCmd('blur_editor');
+    if (mounted) {
+      setState(() => _isMilkdownEditorFocused = false);
+    }
+    // 超时降级：如果 WebView 在 800ms 内没有响应 blur_editor
+    // （即没有回传 on_editor_focus: false），强制取消焦点并返回，
+    // 防止用户被卡在无法退出的状态
+    _blurFallbackTimer?.cancel();
+    _blurFallbackTimer = Timer(const Duration(milliseconds: 800), () {
+      if (mounted && _isMilkdownEditorFocused) {
+        setState(() => _isMilkdownEditorFocused = false);
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     appDebugLog(
       '[EDITOR] build() called - _isLoading: $_isLoading, _error: $_error, _mode: $_mode',
     );
 
-    final shouldInterceptForMilkdownBlur =
-        _mode == EditorMode.preview && _isMilkdownEditorFocused;
+    // 任何编辑面（编辑态 / 内联块编辑 / 预览里已落光标）在场时，返回先收起它。
+    final hasActiveEditingSurface =
+        _mode == EditorMode.edit ||
+        _editingBlockIndex != null ||
+        _isMilkdownEditorFocused;
     final useCustomTitleBar =
         Platform.isWindows || Platform.isLinux || Platform.isMacOS;
 
     return PopScope(
-      canPop: !_isModified && !shouldInterceptForMilkdownBlur,
+      canPop: !_isModified && !hasActiveEditingSurface,
       onPopInvokedWithResult: (didPop, result) async {
         if (didPop) {
           _schedulePlatformViewTeardown();
           return;
         }
-        if (shouldInterceptForMilkdownBlur) {
-          await _previewWebViewController.execCmd('blur_editor');
-          if (mounted) {
-            setState(() => _isMilkdownEditorFocused = false);
-          }
-          // 超时降级：如果 WebView 在 800ms 内没有响应 blur_editor
-          // （即没有回传 on_editor_focus: false），强制取消焦点并返回，
-          // 防止用户被卡在无法退出的状态
-          _blurFallbackTimer?.cancel();
-          _blurFallbackTimer = Timer(const Duration(milliseconds: 800), () {
-            if (mounted && _isMilkdownEditorFocused) {
-              setState(() => _isMilkdownEditorFocused = false);
-            }
-          });
+        if (hasActiveEditingSurface) {
+          await _collapseEditingState();
           return;
         }
         if (!didPop) {
