@@ -30,7 +30,6 @@ import 'package:window_manager/window_manager.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import 'l10n/app_localizations.dart';
-import 'models/monet_config.dart';
 import 'providers/file_provider.dart';
 import 'providers/settings_provider.dart';
 import 'screens/main_screen.dart';
@@ -125,11 +124,6 @@ class MyApp extends StatelessWidget {
           // 获取用户选择的主题色
           Color primaryColor = settings.primaryColor;
 
-          // 检查是否启用莫奈配色
-          MonetScheme? monetScheme;
-          if (settings.monetEnabled) {
-            monetScheme = settings.activeMonetConfig?.scheme;
-          }
 
           // 获取界面字体颜色
           Color uiFontColor = settings.uiFontColor;
@@ -189,7 +183,6 @@ class MyApp extends StatelessWidget {
               settings.useCustomCardColor,
               settings.customIconColor,
               settings.useCustomIconColor,
-              monetScheme?.lightScheme,
             ), // 浅色主题
             darkTheme: _buildDarkTheme(
               primaryColor,
@@ -202,7 +195,6 @@ class MyApp extends StatelessWidget {
               settings.useCustomCardColor,
               settings.customIconColor,
               settings.useCustomIconColor,
-              monetScheme?.darkScheme ?? monetScheme?.lightScheme,
             ), // 深色主题
             themeMode: settings.themeMode, // 主题模式（跟随系统/浅色/深色）
             builder: (context, child) {
@@ -236,7 +228,6 @@ class MyApp extends StatelessWidget {
   /// [primaryColor] 用户选择的主题色
   /// [uiFontColor] 用户选择的界面字体颜色
   /// [fontFamily] 用户选择的字体（null 表示系统默认）
-  /// [monetColorScheme] 莫奈配色方案（可选）
   ThemeData _buildLightTheme(
     Color primaryColor,
     Color uiFontColor,
@@ -248,14 +239,10 @@ class MyApp extends StatelessWidget {
     bool useCustomCardColor,
     Color? customIconColor,
     bool useCustomIconColor,
-    MonetColorScheme? monetColorScheme,
   ) {
     final scheme = AppConstants.lightThemeSchemes[lightThemeIndex];
 
-    // 如果启用莫奈配色，使用莫奈配色方案
-    final colorScheme =
-        monetColorScheme?.toFlutterColorScheme(brightness: Brightness.light) ??
-        ColorScheme.light(
+    final colorScheme = ColorScheme.light(
           primary: primaryColor,
           secondary: AppConstants.accentColor,
           surface: scheme.surface,
@@ -265,11 +252,10 @@ class MyApp extends StatelessWidget {
     return _buildTheme(
       brightness: Brightness.light,
       colorScheme: colorScheme,
-      backgroundColor: monetColorScheme?.background ?? scheme.background,
+      backgroundColor: scheme.background,
       textColor: uiFontColor,
       contentTextColor: scheme.text,
-      textSecondaryColor:
-          monetColorScheme?.onSurfaceVariant ?? scheme.textSecondary,
+      textSecondaryColor: scheme.textSecondary,
       fontFamily: fontFamily,
       buttonStyleMode: buttonStyleMode,
       cardOpacity: cardOpacity,
@@ -294,7 +280,6 @@ class MyApp extends StatelessWidget {
   /// [customUiFontColor] 用户显式取选的界面字体颜色（null 表示沿用主题方案文字色）
   /// [darkThemeIndex] 夜间主题配色方案索引
   /// [fontFamily] 用户选择的字体（null 表示系统默认）
-  /// [monetColorScheme] 莫奈配色方案（可选）
   ThemeData _buildDarkTheme(
     Color primaryColor,
     Color? customUiFontColor,
@@ -306,14 +291,10 @@ class MyApp extends StatelessWidget {
     bool useCustomCardColor,
     Color? customIconColor,
     bool useCustomIconColor,
-    MonetColorScheme? monetColorScheme,
   ) {
     final scheme = AppConstants.darkThemeSchemes[darkThemeIndex];
 
-    // 如果启用莫奈配色，使用莫奈配色方案
-    final colorScheme =
-        monetColorScheme?.toFlutterColorScheme(brightness: Brightness.dark) ??
-        ColorScheme.dark(
+    final colorScheme = ColorScheme.dark(
           primary: primaryColor,
           secondary: AppConstants.accentColor,
           surface: scheme.surface,
@@ -323,13 +304,12 @@ class MyApp extends StatelessWidget {
     return _buildTheme(
       brightness: Brightness.dark,
       colorScheme: colorScheme,
-      backgroundColor: monetColorScheme?.background ?? scheme.background,
+      backgroundColor: scheme.background,
       // 预设色是为浅色表面调校的强调色，直接铺到深色背景会掉对比度；
       // 因此深色下只尊重用户显式取的值，其余沿用主题方案文字色。
       textColor: customUiFontColor ?? scheme.text,
       contentTextColor: scheme.text,
-      textSecondaryColor:
-          monetColorScheme?.onSurfaceVariant ?? scheme.textSecondary,
+      textSecondaryColor: scheme.textSecondary,
       fontFamily: fontFamily,
       buttonStyleMode: buttonStyleMode,
       cardOpacity: cardOpacity,

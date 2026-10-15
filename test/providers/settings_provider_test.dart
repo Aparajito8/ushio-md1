@@ -2,6 +2,8 @@
 // SettingsProvider 单元测试
 // ============================================================================
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -176,6 +178,67 @@ void main() {
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.getString('background_effect'), 'blur');
       expect(prefs.containsKey('background_overlay_opacity'), isFalse);
+    });
+
+    test('莫奈启用时迁移应把方案 primary 落成自定义主题色并清空 monet 键', () async {
+      const monetPrimary = Color(0xFF7C4DFF);
+      const suppressedCustom = Color(0xFFFF0000);
+      SharedPreferences.setMockInitialValues({
+        'theme_mode': ThemeMode.light.index,
+        'monet_enabled': true,
+        'active_monet_config_id': 'cfg-1',
+        'saved_monet_configs': jsonEncode([
+          {
+            'id': 'cfg-1',
+            'name': '我的配色',
+            'sourceColor': const Color(0xFF112233).toARGB32(),
+            'scheme': {
+              'lightScheme': {'primary': monetPrimary.toARGB32()},
+              'darkScheme': {'primary': const Color(0xFFAAAAAA).toARGB32()},
+            },
+          },
+        ]),
+        'use_custom_theme_color': true,
+        'custom_theme_color': suppressedCustom.toARGB32(),
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final first = SettingsProvider();
+      await first.initialize();
+
+      // 渲染上莫奈一直压过自定义色，迁移结果必须取莫奈的 primary
+      expect(first.customThemeColor, monetPrimary);
+      expect(first.primaryColor, monetPrimary);
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('monet_enabled'), isFalse);
+      expect(prefs.containsKey('active_monet_config_id'), isFalse);
+      expect(prefs.containsKey('saved_monet_configs'), isFalse);
+      expect(prefs.getInt('custom_theme_color'), monetPrimary.toARGB32());
+
+      // 二次启动不得回跳到被莫奈压制的旧自定义色
+      final second = SettingsProvider();
+      await second.initialize();
+      expect(second.customThemeColor, monetPrimary);
+    });
+
+    test('莫奈未启用时迁移只清键、不改主题色', () async {
+      const custom = Color(0xFF123456);
+      SharedPreferences.setMockInitialValues({
+        'monet_enabled': false,
+        'active_monet_config_id': 'cfg-1',
+        'saved_monet_configs': '[]',
+        'use_custom_theme_color': true,
+        'custom_theme_color': custom.toARGB32(),
+      });
+      FlutterSecureStorage.setMockInitialValues({});
+
+      final provider = SettingsProvider();
+      await provider.initialize();
+
+      expect(provider.customThemeColor, custom);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.containsKey('monet_enabled'), isFalse);
     });
 
     test('setThemeMode 应更新内存和持久化存储', () async {

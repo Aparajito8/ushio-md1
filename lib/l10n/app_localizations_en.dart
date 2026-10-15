@@ -997,6 +997,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get customThemeColor => 'Custom Theme Color';
 
   @override
+  String get accentFromImage => 'Pick accent color from image';
+
+  @override
+  String get accentFromImageFailed =>
+      'Could not extract colors from that image';
+
+  @override
   String get letterSpacingDesc =>
       'Adjust horizontal spacing between characters';
 
@@ -1091,66 +1098,6 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get otherAppearanceSettingsDesc =>
       'App icon, home avatar, home title, bottom navigation bar';
-
-  @override
-  String get monetSettings => 'Monet Colors';
-
-  @override
-  String get monetEnabled => 'Enable Monet Colors';
-
-  @override
-  String get monetEnabledDesc => 'Use Material You dynamic color system';
-
-  @override
-  String get monetFromImage => 'Extract from Image';
-
-  @override
-  String get monetFromColor => 'Select from Colors';
-
-  @override
-  String get monetSelectImage => 'Tap to select image';
-
-  @override
-  String get monetSourceColor => 'Source Color';
-
-  @override
-  String get monetStyle => 'Color Style';
-
-  @override
-  String get monetAdvanced => 'Advanced Options';
-
-  @override
-  String get monetContrast => 'Contrast';
-
-  @override
-  String get monetSchemeName => 'Scheme Name';
-
-  @override
-  String get monetSchemeNameHint => 'Name your color scheme';
-
-  @override
-  String get monetPreview => 'Color Preview';
-
-  @override
-  String get monetLightScheme => 'Light Scheme';
-
-  @override
-  String get monetDarkScheme => 'Dark Scheme';
-
-  @override
-  String get monetSavedSchemes => 'Saved Schemes';
-
-  @override
-  String get monetActive => 'Active';
-
-  @override
-  String get monetApply => 'Apply';
-
-  @override
-  String get monetNameRequired => 'Please enter a scheme name';
-
-  @override
-  String get monetSaved => 'Color scheme saved';
 
   @override
   String get downloadFont => 'Download Font';

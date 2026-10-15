@@ -9,12 +9,9 @@ import 'package:provider/provider.dart';
 import '../../../providers/settings_provider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/app_background.dart';
-import '../../../widgets/app_surface.dart';
-import '../../../utils/app_style.dart';
 import '../../../utils/constants.dart';
 import 'appearance_settings_mixin.dart';
 import 'color_setting_selector.dart';
-import 'monet_settings_screen.dart';
 
 class ThemeSettingsScreen extends StatefulWidget {
   const ThemeSettingsScreen({super.key});
@@ -57,11 +54,6 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
             return ListView(
               padding: const EdgeInsets.all(20),
               children: [
-                // 莫奈取色入口
-                _buildMonetEntry(settings, l10n),
-
-                const SizedBox(height: 16),
-
                 // 主题模式
                 buildSection(l10n.themeMode, Icons.brightness_6, [
                   buildThemeModeSelector(settings, l10n),
@@ -90,6 +82,12 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
                         settings.setPrimaryColorIndex(index),
                     onCustomColorPicked: (color) =>
                         settings.setCustomThemeColor(color),
+                  ),
+                  const SizedBox(height: 12),
+                  OutlinedButton.icon(
+                    onPressed: () => pickAccentFromImage(settings),
+                    icon: const Icon(Icons.image_outlined, size: 18),
+                    label: Text(l10n.accentFromImage),
                   ),
                 ]),
 
@@ -189,109 +187,6 @@ class _ThemeSettingsScreenState extends State<ThemeSettingsScreen>
               ],
             );
           },
-        ),
-      ),
-    );
-  }
-
-  /// 构建莫奈取色入口
-  Widget _buildMonetEntry(SettingsProvider settings, AppLocalizations l10n) {
-    final monetEnabled = settings.monetEnabled;
-    final activeConfig = settings.activeMonetConfig;
-
-    return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(builder: (context) => const MonetSettingsScreen()),
-        );
-      },
-      child: AppSurface(
-        padding: const EdgeInsets.all(16),
-        child: Row(
-          children: [
-            Container(
-              width: 48,
-              height: 48,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: monetEnabled && activeConfig != null
-                      ? [
-                          activeConfig.scheme.lightScheme.primary,
-                          activeConfig.scheme.lightScheme.secondary,
-                          activeConfig.scheme.lightScheme.tertiary,
-                        ]
-                      : [
-                          Theme.of(
-                            context,
-                          ).colorScheme.primary.withValues(alpha: 0.3),
-                          Theme.of(
-                            context,
-                          ).colorScheme.secondary.withValues(alpha: 0.3),
-                          Theme.of(
-                            context,
-                          ).colorScheme.tertiary.withValues(alpha: 0.3),
-                        ],
-                ),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                monetEnabled ? Icons.palette : Icons.palette_outlined,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        l10n.monetSettings,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      if (monetEnabled) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 6,
-                            vertical: 2,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Theme.of(context).colorScheme.primary,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Text(
-                            l10n.monetActive,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    monetEnabled && activeConfig != null
-                        ? activeConfig.name
-                        : l10n.monetEnabledDesc,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: context.appMutedIconColor),
-          ],
         ),
       ),
     );

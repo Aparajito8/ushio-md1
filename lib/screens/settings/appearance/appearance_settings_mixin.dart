@@ -16,6 +16,7 @@ import '../../../utils/constants.dart';
 import '../../../widgets/app_surface.dart';
 import '../../../widgets/settings_section.dart';
 import '../../../services/font_service.dart';
+import '../../../utils/image_accent.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../widgets/liquid_glass_card.dart';
 import 'appearance_utils.dart';
@@ -1136,6 +1137,64 @@ mixin AppearanceSettingsMixin<T extends StatefulWidget> on State<T> {
     if (result != null && result.files.single.path != null) {
       settings.setBackgroundImage(result.files.single.path);
     }
+  }
+
+  /// 从用户选定的图片中提取主色，供「主题色」作为取色来源。
+  Future<void> pickAccentFromImage(SettingsProvider settings) async {
+    final l10n = AppLocalizations.of(context)!;
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    final path = result?.files.single.path;
+    if (path == null || !mounted) return;
+
+    List<Color> colors;
+    try {
+      colors = await ImageAccent.fromImageFile(path);
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(l10n.accentFromImageFailed)));
+      }
+      return;
+    }
+    if (!mounted || colors.isEmpty) return;
+
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.accentFromImage),
+        content: Wrap(
+          spacing: 12,
+          runSpacing: 12,
+          children: [
+            for (final color in colors)
+              GestureDetector(
+                onTap: () {
+                  Navigator.of(dialogContext).pop();
+                  settings.setCustomThemeColor(color);
+                },
+                child: Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Theme.of(dialogContext).colorScheme.outline,
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.cancel),
+          ),
+        ],
+      ),
+    );
   }
 
   /// 选择编辑器背景图片
