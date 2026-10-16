@@ -37,6 +37,7 @@ import 'services/font_service.dart';
 import 'services/my_files_service.dart';
 import 'utils/app_style.dart';
 import 'utils/constants.dart';
+import 'utils/theme_tones.dart';
 
 /// ============================================================================
 /// 应用入口
@@ -198,26 +199,20 @@ class MyApp extends StatelessWidget {
         ? AppConstants.darkThemeSchemes[inputs.darkThemeIndex]
         : AppConstants.lightThemeSchemes[inputs.lightThemeIndex];
 
-    final colorScheme = isDark
-        ? ColorScheme.dark(
-            primary: inputs.primaryColor,
-            secondary: AppConstants.accentColor,
-            surface: scheme.surface,
-            error: AppConstants.errorColor,
-          )
-        : ColorScheme.light(
-            primary: inputs.primaryColor,
-            secondary: AppConstants.accentColor,
-            surface: scheme.surface,
-            error: AppConstants.errorColor,
-          );
+    // 全部语义角色由 ThemeTones 显式产出；此前这里只给 4 个角色，
+    // 其余被 Flutter 的 getter 回退链塌缩成荧光青 secondary / 满饱和 primary。
+    final colorScheme = ThemeTones.scheme(
+      brightness: brightness,
+      primary: inputs.primaryColor,
+      themeScheme: scheme,
+      error: AppConstants.errorColor,
+    );
 
     return _buildTheme(
       brightness: brightness,
       colorScheme: colorScheme,
       backgroundColor: scheme.background,
       textColor: inputs.uiFontColorFor(brightness),
-      contentTextColor: scheme.text,
       textSecondaryColor: scheme.textSecondary,
       fontFamily: inputs.fontFamily,
       buttonStyleMode: inputs.buttonStyleMode,
@@ -240,7 +235,6 @@ class MyApp extends StatelessWidget {
     required ColorScheme colorScheme,
     required Color backgroundColor,
     required Color textColor,
-    required Color contentTextColor,
     required Color textSecondaryColor,
     required String? fontFamily,
     required AppButtonStyleMode buttonStyleMode,
@@ -248,34 +242,11 @@ class MyApp extends StatelessWidget {
     Color? customCardColor,
     Color? customIconColor,
   }) {
-    final isDark = brightness == Brightness.dark;
-    final resolvedOutline = colorScheme.outline != const Color(0xFF000000)
-        ? colorScheme.outline
-        : textSecondaryColor.withValues(alpha: isDark ? 0.35 : 0.22);
-    final resolvedOutlineVariant = colorScheme.outlineVariant !=
-            const Color(0xFF000000)
-        ? colorScheme.outlineVariant
-        : textSecondaryColor.withValues(alpha: isDark ? 0.20 : 0.12);
-    final resolvedOnSurface = colorScheme.onSurface != const Color(0xFF000000)
-        ? colorScheme.onSurface
-        : contentTextColor;
-    final resolvedOnSurfaceVariant =
-        colorScheme.onSurfaceVariant != const Color(0xFF000000)
-        ? colorScheme.onSurfaceVariant
-        : textSecondaryColor;
-    final resolvedSecondaryContainer = colorScheme.secondaryContainer !=
-            const Color(0xFF000000)
-        ? colorScheme.secondaryContainer
-        : colorScheme.primary.withValues(alpha: isDark ? 0.28 : 0.14);
+    // 角色已全部显式赋值，这里只负责卡片透明度。
+    // 原先的 `!= 0xFF000000` 兜底判断在深色模式下从不生效：
+    // 塌缩后 outline 是纯白、secondaryContainer 是荧光青，都不等于黑。
     final effectiveColorScheme = _applyGlobalCardOpacity(
-      colorScheme.copyWith(
-        onSurface: resolvedOnSurface,
-        onSurfaceVariant: resolvedOnSurfaceVariant,
-        outline: resolvedOutline,
-        outlineVariant: resolvedOutlineVariant,
-        surfaceTint: Colors.transparent,
-        secondaryContainer: resolvedSecondaryContainer,
-      ),
+      colorScheme,
       cardOpacity,
       customCardColor: customCardColor,
     );
@@ -291,7 +262,7 @@ class MyApp extends StatelessWidget {
 
     final buttonForeground = appStyle.useBorderlessButtons
         ? textColor
-        : Colors.white;
+        : effectiveColorScheme.onPrimary;
     final buttonBackground = appStyle.useBorderlessButtons
         ? appStyle.strongSurface
         : effectiveColorScheme.primary.withValues(alpha: appStyle.cardOpacity);

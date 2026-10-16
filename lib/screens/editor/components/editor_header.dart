@@ -115,7 +115,7 @@ class EditorHeader extends StatelessWidget {
     final iconColor = isSaving
         ? colorScheme.primary
         : isModified
-        ? colorScheme.secondary
+        ? colorScheme.error
         : context.appMutedIconColor;
 
     return Tooltip(

@@ -72,6 +72,7 @@ class ColorSettingSelector extends StatelessWidget {
           children: [
             for (var index = 0; index < presets.length; index++)
               _buildSwatch(
+                context: context,
                 color: presets[index],
                 selected: !hasCustom && selectedPresetIndex == index,
                 onTap: () => onPresetSelected(index),
@@ -105,6 +106,7 @@ class ColorSettingSelector extends StatelessWidget {
   }
 
   Widget _buildSwatch({
+    required BuildContext context,
     required Color color,
     required bool selected,
     required VoidCallback onTap,
@@ -118,7 +120,10 @@ class ColorSettingSelector extends StatelessWidget {
           color: color,
           shape: BoxShape.circle,
           border: Border.all(
-            color: selected ? Colors.white : Colors.transparent,
+            // 用卡片底色做间隔环，深色卡片上白色环会消失
+            color: selected
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
             width: 3,
           ),
           boxShadow: [
@@ -166,7 +171,7 @@ class ColorSettingSelector extends StatelessWidget {
           shape: BoxShape.circle,
           border: Border.all(
             color: hasCustom
-                ? Colors.white
+                ? theme.colorScheme.surface
                 : theme.colorScheme.outline.withValues(alpha: 0.6),
             width: hasCustom ? 3 : 1.5,
           ),

@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:liquid_glass_widgets/liquid_glass_widgets.dart';
 
 import '../../../utils/app_style.dart';
+import '../../../utils/theme_tones.dart';
 
 /// A floating action button with a scale-down press animation and a color
 /// glow shadow that intensifies when pressed.
@@ -69,7 +70,12 @@ class _AnimatedFabState extends State<AnimatedFab> {
                 ),
               ],
             ),
-            child: Icon(widget.icon, color: Colors.white, size: 24),
+            child: Icon(
+              widget.icon,
+              // 底色由主题派生，前景按对比度就近取白或墨色
+              color: ThemeTones.readableOn(widget.color),
+              size: 24,
+            ),
           );
 
     final child = GestureDetector(
