@@ -14,21 +14,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          cache: npm
-          cache-dependency-path: web/milkdown/package-lock.json
-
-      - name: Build Milkdown web bundle
-        working-directory: web/milkdown
+      - name: Verify Milkdown web assets
         run: |
-          npm ci
-          npm run build
+          test -f assets/milkdown_web/index.html
+          ls -la assets/milkdown_web/assets/
 
-      - name: Sync Milkdown runtime artifact
-        run: cp web/milkdown/dist/index.html assets/milkdown_web/index.html
 
       - name: Setup Java
         uses: actions/setup-java@v4
