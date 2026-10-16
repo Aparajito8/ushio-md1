@@ -48,6 +48,10 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   // PageController for swipe gesture with follow-through effect
   late PageController _pageController;
 
+  /// 点 Tab 触发的过场动画期间，PageView 会逐页上报中间页，需要忽略以免底栏高亮乱跳。
+  /// 用计数而非布尔：连点两个 Tab 时先结束的那个动画不能把标记提前清掉。
+  int _tabSlideDepth = 0;
+
   // Intent subscription
   StreamSubscription? _intentSub;
 
@@ -227,14 +231,23 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
 
   void _switchTab(int index) {
     if (index == _currentIndex) return;
+    final int distance = (index - _currentIndex).abs();
     setState(() => _currentIndex = index);
 
-    // 使用PageController平滑滑动到目标页面
-    _pageController.animateToPage(
-      index,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOutCubic,
-    );
+    // 移动端布局尚未挂载 PageView（例如刚从桌面布局切回来），
+    // 交给 _buildBody 的恢复逻辑处理，这里不能调动画否则会抛「无 position」。
+    if (!_pageController.hasClients) return;
+
+    // 用 PageController 平滑滑到目标页，而不是闪现。
+    _tabSlideDepth += 1;
+    _pageController
+        .animateToPage(
+          index,
+          // 跨多页时按页拉长时长，保证每页滑速和跟手滑动一致，不会一闪而过。
+          duration: Duration(milliseconds: 320 + 110 * (distance - 1).clamp(0, 3)),
+          curve: Curves.easeOutCubic,
+        )
+        .whenComplete(() => _tabSlideDepth -= 1);
   }
 
   @override
@@ -531,27 +544,26 @@ class _MainScreenState extends State<MainScreen> with TickerProviderStateMixin {
   }
 
   Widget _buildBody(FileProvider fileProvider) {
-    // Sync PageController when desktop navigation changes _currentIndex
-    if (_pageController.hasClients) {
-      final currentPage = _pageController.page?.round();
-      if (currentPage != _currentIndex) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _pageController.hasClients) {
-            _pageController.jumpToPage(_currentIndex);
-          }
-        });
-      }
+    // PageView 每次重新挂载都会回到 initialPage（跨桌面/移动布局切换时发生），
+    // 此时才需要把选中项补回去。hasClients 为 false 时不可能有动画在跑，
+    // 所以这个恢复不会打断点 Tab 的滑动过场。
+    if (!_pageController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || !_pageController.hasClients) return;
+        final settledPage = _pageController.page ?? 0;
+        if ((settledPage - _currentIndex).abs() > 0.5) {
+          _pageController.jumpToPage(_currentIndex);
+        }
+      });
     }
 
     // 使用PageView实现跟手滑动切换，支持边滑动边松手、滑到一半再滑回来等自然手势
     return PageView(
       controller: _pageController,
       onPageChanged: (index) {
-        // 当页面滑动完成时同步底栏状态
-        // 当页面滑动完成时同步底栏状态
-        if (index != _currentIndex) {
-          setState(() => _currentIndex = index);
-        }
+        // 跟手滑动落地后同步底栏状态；程序化切页期间 PageView 会逐页上报，跳过。
+        if (_tabSlideDepth > 0 || index == _currentIndex) return;
+        setState(() => _currentIndex = index);
       },
       children: [
         HomeTab(fileProvider: fileProvider),
