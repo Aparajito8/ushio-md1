@@ -17,7 +17,8 @@ jobs:
       - name: Verify Milkdown web assets
         run: |
           test -f assets/milkdown_web/index.html
-          ls -la assets/milkdown_web/assets/
+          ls -la assets/milkdown_web/
+
 
 
       - name: Setup Java
