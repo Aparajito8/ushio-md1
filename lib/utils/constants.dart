@@ -87,15 +87,6 @@ class AppConstants {
 
   // ==================== 主题色 ====================
 
-  /// 主色调（靛蓝）
-  static const Color primaryColor = Color(0xFF6366F1);
-
-  /// 主色调深色变体
-  static const Color primaryDark = Color(0xFF4F46E5);
-
-  /// 强调色（青色）
-  static const Color accentColor = Color(0xFF22D3EE);
-
   /// 错误色（红色）
   static const Color errorColor = Color(0xFFEF4444);
 
