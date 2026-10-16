@@ -96,6 +96,48 @@ void main() {
       expect(provider.isFilePinned(path), false);
     });
 
+    test('togglePinFile 一次不应写入重复条目', () async {
+      final path = await createTempFile('once.md');
+
+      // 真实顺序：应用启动先 initialize()（内部会跑路径校验），之后用户才点置顶
+      await provider.initialize();
+      await provider.togglePinFile(path);
+
+      expect(provider.pinnedFiles, [path]);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('pinned_files'), [path]);
+
+      // 再点一次取消，应该彻底消失而不是残留一份
+      await provider.togglePinFile(path);
+      expect(provider.pinnedFiles, isEmpty);
+    });
+
+    test('togglePinFolder 一次不应写入重复条目', () async {
+      final dir = Directory('${tempDir.path}/pinned-dir')..createSync();
+
+      await provider.initialize();
+      await provider.togglePinFolder(dir.path);
+
+      expect(provider.pinnedFolders, [dir.path]);
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getStringList('pinned_folders'), [dir.path]);
+
+      await provider.togglePinFolder(dir.path);
+      expect(provider.pinnedFolders, isEmpty);
+    });
+
+    test('历史遗留的重复置顶条目应在加载时去重', () async {
+      final path = await createTempFile('legacy.md');
+      SharedPreferences.setMockInitialValues({
+        'pinned_files': [path, path],
+      });
+
+      final reloaded = FileProvider(fileService: mockFileService);
+      await reloaded.initialize();
+
+      expect(reloaded.pinnedFiles, [path]);
+    });
+
     test('setDirectory 应调用 fileService 并更新 files', () async {
       final path = tempDir.path;
       final file = MarkdownFile(

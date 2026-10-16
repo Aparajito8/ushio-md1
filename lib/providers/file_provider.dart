@@ -165,11 +165,12 @@ class FileProvider extends ChangeNotifier {
     _validatedPinnedFiles = validatedPinned;
     _validatedPinnedFolders = validatedPinnedFolders;
 
-    // 移除不存在的路径
-    _recentFiles = validatedRecent;
-    _recentFolders = validatedRecentFolders;
-    _pinnedFiles = validatedPinned;
-    _pinnedFolders = validatedPinnedFolders;
+    // 移除不存在的路径。raw 与 validated 必须是两个独立列表：
+    // togglePin*/addToRecent* 会分别更新这两份，共享同一实例会把一次插入变成两次。
+    _recentFiles = List.of(validatedRecent);
+    _recentFolders = List.of(validatedRecentFolders);
+    _pinnedFiles = List.of(validatedPinned);
+    _pinnedFolders = List.of(validatedPinnedFolders);
 
     notifyListeners();
   }
@@ -400,8 +401,11 @@ class FileProvider extends ChangeNotifier {
   /// 从本地存储加载置顶项目
   Future<void> _loadPinnedItems() async {
     final prefs = await SharedPreferences.getInstance();
-    _pinnedFiles = prefs.getStringList('pinned_files') ?? [];
-    _pinnedFolders = prefs.getStringList('pinned_folders') ?? [];
+    // 旧版本的重复插入缺陷会把同一路径写两遍，首页会因此多出一个空位，加载时去重自愈
+    _pinnedFiles = (prefs.getStringList('pinned_files') ?? []).toSet().toList();
+    _pinnedFolders = (prefs.getStringList('pinned_folders') ?? [])
+        .toSet()
+        .toList();
     _validatedPinnedFiles = List.from(_pinnedFiles);
     _validatedPinnedFolders = List.from(_pinnedFolders);
   }
