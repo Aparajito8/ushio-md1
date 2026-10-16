@@ -686,6 +686,33 @@ class AppLocalizationsZh extends AppLocalizations {
   String get storageSettings => '存储设置';
 
   @override
+  String get storagePermissionTitle => '「所有文件访问」权限';
+
+  @override
+  String get storagePermissionDesc => '用于浏览、编辑和保存设备上的 Markdown 文件。';
+
+  @override
+  String get storagePermissionCan => '授权后可直接读写手机任意文件夹中的笔记。';
+
+  @override
+  String get storagePermissionWithout => '未授权时只能访问应用私有目录，已有笔记无法打开。';
+
+  @override
+  String get grantStoragePermission => '去授予权限';
+
+  @override
+  String get openSystemSettings => '打开系统设置';
+
+  @override
+  String get storagePermissionManualHint => 'Android 11 及以上需在系统设置中手动开启。';
+
+  @override
+  String get storagePermissionDenied => '请在设置中授予存储权限';
+
+  @override
+  String get openSettings => '打开设置';
+
+  @override
   String get workspace => '工作区';
 
   @override

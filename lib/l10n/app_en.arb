@@ -246,6 +246,15 @@
   "@storageSettings": {
     "description": "Storage settings page title"
   },
+  "storagePermissionTitle": "All files access",
+  "storagePermissionDesc": "Needed to browse, edit and save Markdown files on this device.",
+  "storagePermissionCan": "Once granted, notes in any folder can be read and saved.",
+  "storagePermissionWithout": "Without it, only the app's private folder is reachable.",
+  "grantStoragePermission": "Grant access",
+  "openSystemSettings": "Open system settings",
+  "storagePermissionManualHint": "On Android 11 or later, turn it on manually in system settings.",
+  "storagePermissionDenied": "Grant storage permission in Settings",
+  "openSettings": "Open settings",
   "myFiles": "My Files",
   "@myFiles": {
     "description": "My files section"

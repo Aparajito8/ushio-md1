@@ -704,6 +704,37 @@ class AppLocalizationsEn extends AppLocalizations {
   String get storageSettings => 'Storage Settings';
 
   @override
+  String get storagePermissionTitle => 'All files access';
+
+  @override
+  String get storagePermissionDesc =>
+      'Needed to browse, edit and save Markdown files on this device.';
+
+  @override
+  String get storagePermissionCan =>
+      'Once granted, notes in any folder can be read and saved.';
+
+  @override
+  String get storagePermissionWithout =>
+      'Without it, only the app\'s private folder is reachable.';
+
+  @override
+  String get grantStoragePermission => 'Grant access';
+
+  @override
+  String get openSystemSettings => 'Open system settings';
+
+  @override
+  String get storagePermissionManualHint =>
+      'On Android 11 or later, turn it on manually in system settings.';
+
+  @override
+  String get storagePermissionDenied => 'Grant storage permission in Settings';
+
+  @override
+  String get openSettings => 'Open settings';
+
+  @override
   String get workspace => 'Workspace';
 
   @override

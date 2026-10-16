@@ -848,6 +848,15 @@
   "@storageSettings": {
     "description": "存储设置页面标题"
   },
+  "storagePermissionTitle": "「所有文件访问」权限",
+  "storagePermissionDesc": "用于浏览、编辑和保存设备上的 Markdown 文件。",
+  "storagePermissionCan": "授权后可直接读写手机任意文件夹中的笔记。",
+  "storagePermissionWithout": "未授权时只能访问应用私有目录，已有笔记无法打开。",
+  "grantStoragePermission": "去授予权限",
+  "openSystemSettings": "打开系统设置",
+  "storagePermissionManualHint": "Android 11 及以上需在系统设置中手动开启。",
+  "storagePermissionDenied": "请在设置中授予存储权限",
+  "openSettings": "打开设置",
   "myFiles": "我的文件",
   "@myFiles": {
     "description": "我的文件部分"

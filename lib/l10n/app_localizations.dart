@@ -1400,6 +1400,60 @@ abstract class AppLocalizations {
   /// **'存储设置'**
   String get storageSettings;
 
+  /// No description provided for @storagePermissionTitle.
+  ///
+  /// In zh, this message translates to:
+  /// **'「所有文件访问」权限'**
+  String get storagePermissionTitle;
+
+  /// No description provided for @storagePermissionDesc.
+  ///
+  /// In zh, this message translates to:
+  /// **'用于浏览、编辑和保存设备上的 Markdown 文件。'**
+  String get storagePermissionDesc;
+
+  /// No description provided for @storagePermissionCan.
+  ///
+  /// In zh, this message translates to:
+  /// **'授权后可直接读写手机任意文件夹中的笔记。'**
+  String get storagePermissionCan;
+
+  /// No description provided for @storagePermissionWithout.
+  ///
+  /// In zh, this message translates to:
+  /// **'未授权时只能访问应用私有目录，已有笔记无法打开。'**
+  String get storagePermissionWithout;
+
+  /// No description provided for @grantStoragePermission.
+  ///
+  /// In zh, this message translates to:
+  /// **'去授予权限'**
+  String get grantStoragePermission;
+
+  /// No description provided for @openSystemSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开系统设置'**
+  String get openSystemSettings;
+
+  /// No description provided for @storagePermissionManualHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'Android 11 及以上需在系统设置中手动开启。'**
+  String get storagePermissionManualHint;
+
+  /// No description provided for @storagePermissionDenied.
+  ///
+  /// In zh, this message translates to:
+  /// **'请在设置中授予存储权限'**
+  String get storagePermissionDenied;
+
+  /// No description provided for @openSettings.
+  ///
+  /// In zh, this message translates to:
+  /// **'打开设置'**
+  String get openSettings;
+
   /// 工作区
   ///
   /// In zh, this message translates to:
