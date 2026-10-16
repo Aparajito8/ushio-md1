@@ -75,8 +75,7 @@ dependencies:
   share_plus: ^10.0.0
   receive_sharing_intent: ^1.8.1
   # google_fonts 已移除 - 未使用且字体改为远程下载模式
-  # google_fonts: ^6.3.3
-  archive: ^4.0.7
+  archive: ^4.5.2
   pdf: ^3.11.3
   printing: ^5.14.2
   screenshot: ^3.0.0
@@ -101,9 +100,12 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^5.0.0
   
-  # App icon generator
   flutter_launcher_icons: ^0.14.2
   mocktail: ^1.0.4
+
+dependency_overrides:
+  archive: ^4.5.2
+
 
 flutter_launcher_icons:
   android: true
