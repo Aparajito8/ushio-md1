@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -57,7 +58,13 @@ jobs:
 
       - name: Get version from tag
         id: get_version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+        run: |
+          if [[ "${{ github.ref }}" == refs/tags/v* ]]; then
+            echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+          else
+            echo "VERSION=1.6.5" >> $GITHUB_OUTPUT
+          fi
+        shell: bash
 
       - name: Rename APKs with custom naming
         run: |
@@ -77,6 +84,13 @@ jobs:
           
           echo "Renamed APKs:"
           ls -la *.apk
+
+      - name: Upload APKs as Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ushio-md-apks
+          path: build/app/outputs/flutter-apk/*.apk
+          retention-days: 14
 
       - name: Generate changelog
         id: changelog
