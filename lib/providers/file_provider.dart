@@ -550,6 +550,94 @@ class FileProvider extends ChangeNotifier {
     }
   }
 
+  /// 移动文件到目标目录
+  ///
+  /// 同时更新最近文件和置顶文件中的路径
+  Future<String?> moveFile(
+    String oldPath,
+    String newDirectory, {
+    String? newFileName,
+    bool overwrite = false,
+  }) async {
+    try {
+      final newPath = await _fileService.moveFile(
+        oldPath,
+        newDirectory,
+        targetFileName: newFileName,
+        overwrite: overwrite,
+      );
+
+      // 更新最近文件中的对应记录
+      if (_recentFiles.contains(oldPath)) {
+        final index = _recentFiles.indexOf(oldPath);
+        _recentFiles[index] = newPath;
+        final vIndex = _validatedRecentFiles.indexOf(oldPath);
+        if (vIndex != -1) _validatedRecentFiles[vIndex] = newPath;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList('recent_files', _recentFiles);
+      }
+
+      // 更新置顶文件中的对应记录
+      if (_pinnedFiles.contains(oldPath)) {
+        final index = _pinnedFiles.indexOf(oldPath);
+        _pinnedFiles[index] = newPath;
+        final vIndex = _validatedPinnedFiles.indexOf(oldPath);
+        if (vIndex != -1) _validatedPinnedFiles[vIndex] = newPath;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList('pinned_files', _pinnedFiles);
+      }
+
+      await refresh();
+      return newPath;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
+  /// 移动文件夹到目标父目录
+  ///
+  /// 同时更新最近文件夹和置顶文件夹中的路径
+  Future<String?> moveFolder(
+    String oldPath,
+    String newParentDirectory,
+  ) async {
+    try {
+      final newPath = await _fileService.moveFolder(
+        oldPath,
+        newParentDirectory,
+      );
+
+      // 更新最近文件夹
+      if (_recentFolders.contains(oldPath)) {
+        final index = _recentFolders.indexOf(oldPath);
+        _recentFolders[index] = newPath;
+        final vIndex = _validatedRecentFolders.indexOf(oldPath);
+        if (vIndex != -1) _validatedRecentFolders[vIndex] = newPath;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList('recent_folders', _recentFolders);
+      }
+
+      // 更新置顶文件夹
+      if (_pinnedFolders.contains(oldPath)) {
+        final index = _pinnedFolders.indexOf(oldPath);
+        _pinnedFolders[index] = newPath;
+        final vIndex = _validatedPinnedFolders.indexOf(oldPath);
+        if (vIndex != -1) _validatedPinnedFolders[vIndex] = newPath;
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setStringList('pinned_folders', _pinnedFolders);
+      }
+
+      await refresh();
+      return newPath;
+    } catch (e) {
+      _error = e.toString();
+      notifyListeners();
+      return null;
+    }
+  }
+
   /// 获取常用路径列表
   ///
   /// 返回设备上的常用目录（如 Download、Documents 等）

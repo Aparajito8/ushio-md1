@@ -13,6 +13,7 @@ import '../screens/folder_browser_screen.dart';
 import '../utils/constants.dart';
 import '../utils/app_style.dart';
 import '../widgets/milkdown_webview_editor.dart';
+import '../widgets/folder_picker_sheet.dart';
 import '../l10n/app_localizations.dart';
 import 'editor_navigation_helper.dart';
 import 'responsive_layout.dart';
@@ -108,7 +109,24 @@ class FileActions {
               _buildShareSubmenu(context, path, shareService),
               const SizedBox(height: 8),
 
-              // 2. Rename (All sources)
+              // 2. 移动文件
+              _buildContextMenuItem(
+                context,
+                icon: Icons.drive_file_move_outlined,
+                label: '移动文件',
+                onTap: () {
+                  Navigator.pop(context);
+                  showMoveFileDialog(
+                    context,
+                    path,
+                    fileProvider,
+                    onRefresh: onRefresh,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 3. Rename (All sources)
               _buildContextMenuItem(
                 context,
                 icon: Icons.edit,
@@ -268,7 +286,24 @@ class FileActions {
               ),
               const SizedBox(height: 8),
 
-              // 2. Rename (All sources)
+              // 2. 移动文件夹
+              _buildContextMenuItem(
+                context,
+                icon: Icons.drive_file_move_outlined,
+                label: '移动文件夹',
+                onTap: () {
+                  Navigator.pop(context);
+                  showMoveFolderDialog(
+                    context,
+                    path,
+                    fileProvider,
+                    onRefresh: onRefresh,
+                  );
+                },
+              ),
+              const SizedBox(height: 8),
+
+              // 3. Rename (All sources)
               _buildContextMenuItem(
                 context,
                 icon: Icons.edit,
@@ -1627,5 +1662,41 @@ class FileActions {
       await fileProvider.deleteFolder(path);
       onRefresh?.call();
     }
+  }
+
+  /// 显示移动文件选择器
+  static Future<String?> showMoveFileDialog(
+    BuildContext context,
+    String path,
+    FileProvider fileProvider, {
+    VoidCallback? onRefresh,
+  }) async {
+    final result = await FolderPickerSheet.show(
+      context,
+      entityPath: path,
+      isFolder: false,
+    );
+    if (result != null) {
+      onRefresh?.call();
+    }
+    return result;
+  }
+
+  /// 显示移动文件夹选择器
+  static Future<String?> showMoveFolderDialog(
+    BuildContext context,
+    String path,
+    FileProvider fileProvider, {
+    VoidCallback? onRefresh,
+  }) async {
+    final result = await FolderPickerSheet.show(
+      context,
+      entityPath: path,
+      isFolder: true,
+    );
+    if (result != null) {
+      onRefresh?.call();
+    }
+    return result;
   }
 }

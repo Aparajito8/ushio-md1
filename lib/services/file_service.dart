@@ -673,6 +673,145 @@ class FileService {
     return newPath;
   }
 
+  /// 生成目录下不冲突的唯一文件名（如冲突自动追加 (1), (2)）
+  static String generateUniqueFileName(String directory, String fileName) {
+    final checkPath = '$directory${Platform.pathSeparator}$fileName';
+    if (!File(checkPath).existsSync()) {
+      return fileName;
+    }
+
+    final lastDot = fileName.lastIndexOf('.');
+    final name = lastDot > 0 ? fileName.substring(0, lastDot) : fileName;
+    final ext = lastDot > 0 ? fileName.substring(lastDot) : '';
+
+    int counter = 1;
+    while (File('$directory${Platform.pathSeparator}$name ($counter)$ext').existsSync()) {
+      counter++;
+    }
+    return '$name ($counter)$ext';
+  }
+
+  /// 移动文件到目标目录
+  ///
+  /// [oldPath] 原文件路径
+  /// [newDirectory] 目标目录路径
+  /// [targetFileName] 目标文件名（可选，默认使用原文件名）
+  /// [overwrite] 是否覆盖目标已存在的文件
+  Future<String> moveFile(
+    String oldPath,
+    String newDirectory, {
+    String? targetFileName,
+    bool overwrite = false,
+  }) async {
+    final file = File(oldPath);
+    if (!await file.exists()) {
+      throw Exception('源文件不存在: $oldPath');
+    }
+
+    final targetDir = Directory(newDirectory);
+    if (!await targetDir.exists()) {
+      await targetDir.create(recursive: true);
+    }
+
+    final originalName = oldPath.split(Platform.pathSeparator).last;
+    final fileName = targetFileName ?? originalName;
+    final newPath = '$newDirectory${Platform.pathSeparator}$fileName';
+
+    if (oldPath == newPath) {
+      return newPath;
+    }
+
+    final targetFile = File(newPath);
+    if (await targetFile.exists()) {
+      if (!overwrite) {
+        throw Exception('目标位置已存在同名文件: $fileName');
+      }
+      await targetFile.delete();
+    }
+
+    try {
+      await file.rename(newPath);
+    } catch (_) {
+      // 跨文件系统或分区时的回退机制（先复制再删除）
+      await file.copy(newPath);
+      await file.delete();
+    }
+
+    final cached = _contentCache.remove(oldPath);
+    if (cached != null) {
+      _storeInCache(
+        newPath,
+        cached.content,
+        lastModified: cached.lastModified,
+        size: cached.size,
+      );
+    }
+
+    return newPath;
+  }
+
+  /// 移动文件夹到目标父目录
+  ///
+  /// [oldPath] 原文件夹路径
+  /// [newParentDirectory] 目标父目录路径
+  Future<String> moveFolder(
+    String oldPath,
+    String newParentDirectory,
+  ) async {
+    final dir = Directory(oldPath);
+    if (!await dir.exists()) {
+      throw Exception('源文件夹不存在: $oldPath');
+    }
+
+    final targetParent = Directory(newParentDirectory);
+    if (!await targetParent.exists()) {
+      await targetParent.create(recursive: true);
+    }
+
+    final folderName = oldPath.split(Platform.pathSeparator).last;
+    final newPath = '$newParentDirectory${Platform.pathSeparator}$folderName';
+
+    if (oldPath == newPath) {
+      return newPath;
+    }
+
+    final normalizedOld = dir.absolute.path.toLowerCase();
+    final normalizedNew = Directory(newPath).absolute.path.toLowerCase();
+    if (normalizedNew == normalizedOld ||
+        normalizedNew.startsWith('$normalizedOld${Platform.pathSeparator}')) {
+      throw Exception('不能将文件夹移动到自身的子目录中');
+    }
+
+    final targetDir = Directory(newPath);
+    if (await targetDir.exists()) {
+      throw Exception('目标位置已存在同名文件夹: $folderName');
+    }
+
+    try {
+      await dir.rename(newPath);
+    } catch (_) {
+      // 跨设备回退：递归复制后删除源文件夹
+      await _copyDirectory(dir, targetDir);
+      await dir.delete(recursive: true);
+    }
+
+    return newPath;
+  }
+
+  /// 递归复制目录
+  Future<void> _copyDirectory(Directory source, Directory destination) async {
+    await destination.create(recursive: true);
+    await for (final entity in source.list(followLinks: false)) {
+      final name = entity.path.split(Platform.pathSeparator).last;
+      final newPath = '${destination.path}${Platform.pathSeparator}$name';
+      if (entity is File) {
+        await entity.copy(newPath);
+      } else if (entity is Directory) {
+        await _copyDirectory(entity, Directory(newPath));
+      }
+    }
+  }
+
   static void _touchCacheEntry(String path, _CachedFileContent cached) {
     _contentCache.remove(path);
     _contentCache[path] = cached;
