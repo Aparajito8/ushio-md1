@@ -64,9 +64,10 @@ class _AnimatedFabState extends State<AnimatedFab> {
               borderRadius: BorderRadius.circular(16),
               boxShadow: [
                 BoxShadow(
-                  color: widget.color.withValues(alpha: _pressed ? 0.6 : 0.4),
-                  blurRadius: _pressed ? 18 : 12,
-                  offset: _pressed ? const Offset(0, 2) : const Offset(0, 4),
+                  color: Colors.black.withValues(alpha: _pressed ? 0.28 : 0.20),
+                  blurRadius: _pressed ? 20 : 14,
+                  offset: _pressed ? const Offset(0, 3) : const Offset(0, 6),
+                  spreadRadius: _pressed ? -6 : -10,
                 ),
               ],
             ),

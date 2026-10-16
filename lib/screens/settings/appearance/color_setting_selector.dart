@@ -128,9 +128,10 @@ class ColorSettingSelector extends StatelessWidget {
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withValues(alpha: 0.4),
+              color: Colors.black.withValues(alpha: 0.18),
               blurRadius: 8,
               offset: const Offset(0, 2),
+              spreadRadius: -3,
             ),
           ],
         ),
@@ -178,9 +179,10 @@ class ColorSettingSelector extends StatelessWidget {
           boxShadow: hasCustom
               ? [
                   BoxShadow(
-                    color: color.withValues(alpha: 0.4),
+                    color: Colors.black.withValues(alpha: 0.18),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
+                    spreadRadius: -3,
                   ),
                 ]
               : null,

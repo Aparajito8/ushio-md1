@@ -178,9 +178,14 @@ class _SlidingSegmentToggleState extends State<SlidingSegmentToggle> {
         borderRadius: BorderRadius.circular(widget.borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
+            color: Colors.black.withValues(
+              alpha: Theme.of(context).brightness == Brightness.dark
+                  ? 0.18
+                  : 0.10,
+            ),
             blurRadius: 8,
             offset: const Offset(0, 2),
+            spreadRadius: -3,
           ),
         ],
       ),

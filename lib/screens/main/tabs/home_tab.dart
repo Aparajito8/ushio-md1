@@ -96,11 +96,14 @@ class _HomeTabState extends State<HomeTab> {
               borderRadius: BorderRadius.circular(12),
               boxShadow: [
                 BoxShadow(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.primary.withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
+                  color: Colors.black.withValues(
+                    alpha: Theme.of(context).brightness == Brightness.dark
+                        ? 0.20
+                        : 0.12,
+                  ),
+                  blurRadius: 14,
+                  offset: const Offset(0, 5),
+                  spreadRadius: -6,
                 ),
               ],
             ),

@@ -73,8 +73,10 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     final shadowColor = Colors.black.withValues(
       alpha: isLiquidGlass ? (isDark ? 0.18 : 0.08) : (isDark ? 0.24 : 0.10),
     );
-    final prominentColor = colorScheme.primary.withValues(
-      alpha: isLiquidGlass ? (isDark ? 0.18 : 0.14) : (isDark ? 0.24 : 0.18),
+    // 突出层阴影也用黑色：主色发光的阴影会让卡片看起来自己在亮。
+    // 黑色比彩色更含蓄，因此 blur/spread 相应放大，保持原有层级差。
+    final prominentShadowColor = Colors.black.withValues(
+      alpha: isLiquidGlass ? (isDark ? 0.20 : 0.10) : (isDark ? 0.26 : 0.14),
     );
 
     // 自定义色非空即覆盖主题默认，无需额外开关
@@ -131,12 +133,14 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       backgroundGradient: backgroundGradient,
       prominentShadow: [
         BoxShadow(
-          color: prominentColor,
-          blurRadius: buttonStyleMode == AppButtonStyleMode.classic ? 12 : 20,
-          offset: const Offset(0, 8),
+          color: prominentShadowColor,
+          blurRadius: buttonStyleMode == AppButtonStyleMode.classic
+              ? (isDark ? 18 : 22)
+              : (isDark ? 24 : 28),
+          offset: const Offset(0, 10),
           spreadRadius: buttonStyleMode == AppButtonStyleMode.classic
               ? -8
-              : -10,
+              : -12,
         ),
       ],
       customCardColor: customCardColor,
