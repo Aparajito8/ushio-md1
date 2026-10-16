@@ -2367,7 +2367,6 @@ class _EditorScreenState extends State<EditorScreen>
   }
 
   Widget _buildBody() {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsProvider>();
     final isFocusMode = settings.focusMode;
     final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
@@ -2382,7 +2381,7 @@ class _EditorScreenState extends State<EditorScreen>
 
     if (_error != null && !_isLoading) {
       return Container(
-        color: isDark ? const Color(0xFF1a1a2e) : const Color(0xFFf8f9ff),
+        color: Theme.of(context).scaffoldBackgroundColor,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -2417,13 +2416,7 @@ class _EditorScreenState extends State<EditorScreen>
         gradient:
             (settings.editorBackgroundImagePath == null ||
                 !settings.editorBackgroundImageExists)
-            ? LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: isDark
-                    ? [const Color(0xFF1a1a2e), const Color(0xFF16213e)]
-                    : [const Color(0xFFf8f9ff), const Color(0xFFf0f4ff)],
-              )
+            ? Theme.of(context).extension<AppStyleTheme>()!.backgroundGradient
             : null,
       ),
       child: SafeArea(

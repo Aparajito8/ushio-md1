@@ -53,6 +53,7 @@ Future<void> pumpAppearancePage(
   final appStyle = AppStyleTheme.resolve(
     brightness: brightness,
     colorScheme: scheme,
+    backgroundColor: scheme.surface,
     textSecondary: scheme.onSurfaceVariant,
     buttonStyleMode: AppButtonStyleMode.liquidGlass,
     cardOpacity: 0.8,

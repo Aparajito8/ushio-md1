@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/settings_provider.dart';
+import '../utils/app_style.dart';
 
 class AppBackground extends StatefulWidget {
   final Widget child;
@@ -64,26 +65,13 @@ class _AppBackgroundState extends State<AppBackground> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final settings = context.watch<SettingsProvider>();
 
     Widget content = Container(
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isDark
-              ? [
-                  const Color(0xFF1a1a2e),
-                  const Color(0xFF16213e),
-                  const Color(0xFF0f0f23),
-                ]
-              : [
-                  const Color(0xFFf8f9ff),
-                  const Color(0xFFf0f4ff),
-                  const Color(0xFFe8eeff),
-                ],
-        ),
+        gradient: Theme.of(
+          context,
+        ).extension<AppStyleTheme>()!.backgroundGradient,
       ),
       child: Stack(
         fit: StackFit.expand,

@@ -29,6 +29,7 @@ class ThemedProgressDialog extends StatelessWidget {
         AppStyleTheme.resolve(
           brightness: theme.brightness,
           colorScheme: colorScheme,
+          backgroundColor: theme.scaffoldBackgroundColor,
           textSecondary: colorScheme.onSurfaceVariant,
           buttonStyleMode: AppButtonStyleMode.classic,
           cardOpacity: _kFallbackCardOpacity,
@@ -144,6 +145,7 @@ void showThemedSnackBar(
       AppStyleTheme.resolve(
         brightness: theme.brightness,
         colorScheme: colorScheme,
+        backgroundColor: theme.scaffoldBackgroundColor,
         textSecondary: colorScheme.onSurfaceVariant,
         buttonStyleMode: AppButtonStyleMode.classic,
         cardOpacity: _kFallbackCardOpacity,

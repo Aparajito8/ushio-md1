@@ -14,6 +14,9 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
   final Color cardSurface;
   final List<BoxShadow> surfaceShadow;
   final List<BoxShadow> prominentShadow;
+
+  /// 页面背景渐变：由所选纸色方案派生，全站唯一来源。
+  final LinearGradient backgroundGradient;
   final double cardOpacity;
   final Color? customCardColor;
   final Color iconColor;
@@ -27,6 +30,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     required this.cardSurface,
     required this.surfaceShadow,
     required this.prominentShadow,
+    required this.backgroundGradient,
     required this.cardOpacity,
     required this.iconColor,
     required this.mutedIconColor,
@@ -41,6 +45,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
   static AppStyleTheme resolve({
     required Brightness brightness,
     required ColorScheme colorScheme,
+    required Color backgroundColor,
     required Color textSecondary,
     required AppButtonStyleMode buttonStyleMode,
     required double cardOpacity,
@@ -81,6 +86,21 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
         ? customIconColor.withValues(alpha: 0.72)
         : colorScheme.onSurfaceVariant;
 
+    // 页面底色跟随所选纸色方案，只做一档极浅的明度过渡：
+    // 浅色端下沉约 6%，深色端下沉约 22%（绝对值仅 ~5/255），避免可辨色带。
+    final backgroundGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [
+        backgroundColor,
+        Color.lerp(
+          backgroundColor,
+          isDark ? Colors.black : colorScheme.onSurface,
+          isDark ? 0.22 : 0.06,
+        )!,
+      ],
+    );
+
     return AppStyleTheme(
       buttonStyleMode: buttonStyleMode,
       outlineColor: outlineColor,
@@ -108,6 +128,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
               ),
             ],
       cardOpacity: cardOpacity,
+      backgroundGradient: backgroundGradient,
       prominentShadow: [
         BoxShadow(
           color: prominentColor,
@@ -175,6 +196,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
     Color? cardSurface,
     List<BoxShadow>? surfaceShadow,
     List<BoxShadow>? prominentShadow,
+    LinearGradient? backgroundGradient,
     double? cardOpacity,
     Color? customCardColor,
     Color? iconColor,
@@ -188,6 +210,7 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       cardSurface: cardSurface ?? this.cardSurface,
       surfaceShadow: surfaceShadow ?? this.surfaceShadow,
       prominentShadow: prominentShadow ?? this.prominentShadow,
+      backgroundGradient: backgroundGradient ?? this.backgroundGradient,
       cardOpacity: cardOpacity ?? this.cardOpacity,
       customCardColor: customCardColor ?? this.customCardColor,
       iconColor: iconColor ?? this.iconColor,
@@ -209,6 +232,9 @@ class AppStyleTheme extends ThemeExtension<AppStyleTheme> {
       cardSurface: Color.lerp(cardSurface, other.cardSurface, t) ?? cardSurface,
       surfaceShadow: t < 0.5 ? surfaceShadow : other.surfaceShadow,
       prominentShadow: t < 0.5 ? prominentShadow : other.prominentShadow,
+      backgroundGradient: t < 0.5
+          ? backgroundGradient
+          : other.backgroundGradient,
       cardOpacity: lerpDouble(cardOpacity, other.cardOpacity, t) ?? cardOpacity,
       customCardColor: Color.lerp(customCardColor, other.customCardColor, t),
       iconColor: Color.lerp(iconColor, other.iconColor, t) ?? iconColor,
