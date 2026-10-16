@@ -19,11 +19,19 @@ void main() {
 
     test('所有主题颜色均不透明且背景与表面色不同', () {
       for (final scheme in AppConstants.darkThemeSchemes) {
-        _expectOpaqueSchemeColors(scheme.name, scheme.background, scheme.surface);
+        _expectOpaqueSchemeColors(
+          scheme.name,
+          scheme.background,
+          scheme.surface,
+        );
         expect(scheme.background, isNot(equals(scheme.surface)));
       }
       for (final scheme in AppConstants.lightThemeSchemes) {
-        _expectOpaqueSchemeColors(scheme.name, scheme.background, scheme.surface);
+        _expectOpaqueSchemeColors(
+          scheme.name,
+          scheme.background,
+          scheme.surface,
+        );
         expect(scheme.background, isNot(equals(scheme.surface)));
       }
     });
@@ -119,13 +127,55 @@ void main() {
       expect(SettingsProvider.legibleOnDark(alreadyLight), alreadyLight);
     });
   });
+
+  group('预设色板的浅色纸面与填充可读性', () {
+    // 预设同时充当 UI 文字色，而浅色模式下取的是原文，
+    // 这一档此前没有任何测试覆盖。
+    test('预设原文在全部浅色方案背景与表面上满足 WCAG AA', () {
+      for (final scheme in AppConstants.lightThemeSchemes) {
+        for (var i = 0; i < SettingsProvider.uiFontColors.length; i++) {
+          _expectReadableText(
+            'uiFontColors[$i]',
+            SettingsProvider.uiFontColors[i],
+            scheme.background,
+            scheme.surface,
+            minimumContrast: 4.5,
+          );
+        }
+      }
+    });
+
+    test('预设作填充色时白字仍达 AA（按钮与图标底板用白前景）', () {
+      for (final preset in SettingsProvider.themeColors) {
+        final ratio = _contrastRatio(const Color(0xFFFFFFFF), preset);
+        expect(
+          ratio,
+          greaterThanOrEqualTo(4.5),
+          reason:
+              '#${preset.toARGB32().toRadixString(16)} 上白字只有 ${ratio.toStringAsFixed(2)}',
+        );
+      }
+    });
+
+    test('预设饱和度与亮度受控，不含 Tailwind-500 级荧光', () {
+      for (final preset in SettingsProvider.themeColors) {
+        final hsl = HSLColor.fromColor(preset);
+        expect(
+          hsl.saturation,
+          lessThanOrEqualTo(0.45),
+          reason: '#${preset.toARGB32().toRadixString(16)} 饱和度过高',
+        );
+        expect(
+          hsl.lightness,
+          lessThanOrEqualTo(0.45),
+          reason: '#${preset.toARGB32().toRadixString(16)} 过亮，作文字色会发虚',
+        );
+      }
+    });
+  });
 }
 
-void _expectOpaqueSchemeColors(
-  String name,
-  Color background,
-  Color surface,
-) {
+void _expectOpaqueSchemeColors(String name, Color background, Color surface) {
   expect(background.toARGB32() >>> 24, 255, reason: '$name 背景色不透明');
   expect(surface.toARGB32() >>> 24, 255, reason: '$name 表面色不透明');
 }

@@ -21,6 +21,7 @@ import 'package:path_provider/path_provider.dart';
 import '../utils/app_style.dart';
 import '../utils/platform_adapter.dart';
 import '../utils/debug_log.dart';
+import '../utils/theme_tones.dart';
 import 'dart:convert';
 
 /// 设置状态提供者
@@ -272,20 +273,36 @@ class SettingsProvider extends ChangeNotifier {
 
   // ==================== 预设主题色 ====================
 
-  /// 12种精选主题色
+  /// 10 种沉稳预设色。同一张表兼作主题色、UI 文字色与图标色，
+  /// 因此每个色都必须能在浅色纸面上直接读、且作填充色时白字仍达 AA。
   static const List<Color> themeColors = [
-    Color(0xFF6366F1), // 靛蓝（默认）
-    Color(0xFF3B82F6), // 蓝色
-    Color(0xFF10B981), // 翠绿
-    Color(0xFFF59E0B), // 琥珀
-    Color(0xFFEF4444), // 红色
-    Color(0xFF8B5CF6), // 紫罗兰
-    Color(0xFFEC4899), // 粉色
-    Color(0xFF14B8A6), // 青色
-    Color(0xFFF97316), // 橙色
-    Color(0xFF84CC16), // 青柠
-    Color(0xFF06B6D4), // 天蓝
-    Color(0xFFD946EF), // 洋红
+    Color(0xFF4B4F86), // 墨蓝（默认）
+    Color(0xFF725C3B), // 赭石
+    Color(0xFF6C5280), // 暮紫
+    Color(0xFF54623C), // 橄榄
+    Color(0xFF44617E), // 雾蓝
+    Color(0xFF804842), // 陶红
+    Color(0xFF3E636A), // 石青
+    Color(0xFF824F60), // 灰玫
+    Color(0xFF3A6455), // 苔绿
+    Color(0xFF71503D), // 棕褐
+  ];
+
+  /// 旧 12 色（Tailwind-500）到新色板的色相最近邻映射，下标为旧索引。
+  /// 用色相而非 Lab 距离：Lab 最近邻会把「琥珀」判给「陶红」（ΔE 107.8）。
+  static const List<int> _legacyPaletteHueRemap = [
+    0,
+    4,
+    8,
+    1,
+    5,
+    2,
+    7,
+    8,
+    9,
+    3,
+    6,
+    2,
   ];
 
   // ==================== 预设界面字体颜色 ====================
@@ -341,15 +358,34 @@ class SettingsProvider extends ChangeNotifier {
   Color? get customEditorFontColor => _customEditorFontColor;
 
   /// 强调色与墨色预设都是为浅色纸面调校的，深色表面上需压饱和并提亮才可读。
-  static Color legibleOnDark(Color color) {
-    final hsl = HSLColor.fromColor(color);
-    return hsl
-        .withSaturation(hsl.saturation > 0.5 ? 0.5 : hsl.saturation)
-        .withLightness(
-          // 0.82 为实测下限：再低，靛蓝预设在最暗的深色方案上会跌破 WCAG AA 4.5:1
-          hsl.lightness < 0.82 ? 0.82 : hsl.lightness,
-        )
-        .toColor();
+  static Color legibleOnDark(Color color) => ThemeTones.legibleOnDark(color);
+
+  /// 预设索引越界（旧版残留或色板缩短）时夹回有效范围，避免取值抛错。
+  static int _clampPaletteIndex(int index) {
+    if (index < 0) return 0;
+    return index >= themeColors.length ? themeColors.length - 1 : index;
+  }
+
+  /// 色板整体更换后，把已存的旧索引按色相最近邻换算一次，
+  /// 否则用户选过的颜色会在升级后被静默换成不相干色相。
+  /// 超出旧表长度的值不可能是旧索引，交给 [_clampPaletteIndex] 处理。
+  Future<void> _remapLegacyPaletteIndices(SharedPreferences prefs) async {
+    if (prefs.getBool('palette_v2_remap_done') ?? false) return;
+
+    final legacyPrimary = prefs.getInt('primary_color_index');
+    if (legacyPrimary != null &&
+        legacyPrimary < _legacyPaletteHueRemap.length) {
+      _primaryColorIndex = _legacyPaletteHueRemap[legacyPrimary];
+      await prefs.setInt('primary_color_index', _primaryColorIndex);
+    }
+
+    final legacyUiFont = prefs.getInt('ui_font_color_index');
+    if (legacyUiFont != null && legacyUiFont < _legacyPaletteHueRemap.length) {
+      _uiFontColorIndex = _legacyPaletteHueRemap[legacyUiFont];
+      await prefs.setInt('ui_font_color_index', _uiFontColorIndex);
+    }
+
+    await prefs.setBool('palette_v2_remap_done', true);
   }
 
   /// 自定义色是用户显式取的，两种模式下都原样生效；预设则按表面明暗取变体。
@@ -536,7 +572,9 @@ class SettingsProvider extends ChangeNotifier {
     // 主题设置
     final themeModeIndex = prefs.getInt('theme_mode') ?? 0;
     _themeMode = ThemeMode.values[themeModeIndex];
-    _primaryColorIndex = prefs.getInt('primary_color_index') ?? 0;
+    _primaryColorIndex = _clampPaletteIndex(
+      prefs.getInt('primary_color_index') ?? 0,
+    );
     _customThemeColor = await _migrateCustomColor(
       prefs,
       colorKey: 'custom_theme_color',
@@ -544,12 +582,15 @@ class SettingsProvider extends ChangeNotifier {
     );
 
     // 界面字体颜色设置
-    _uiFontColorIndex = prefs.getInt('ui_font_color_index') ?? 0;
+    _uiFontColorIndex = _clampPaletteIndex(
+      prefs.getInt('ui_font_color_index') ?? 0,
+    );
     _customUiFontColor = await _migrateCustomColor(
       prefs,
       colorKey: 'custom_ui_font_color',
       legacyFlagKey: 'use_custom_ui_font_color',
     );
+    await _remapLegacyPaletteIndices(prefs);
 
     // 编辑器文字颜色设置
     _editorFontColorIndex = prefs.getInt('editor_font_color_index') ?? 0;

@@ -97,10 +97,14 @@ void main() {
     test('颜色未自定义时应取预设', () {
       expect(provider.customThemeColor, isNull);
       expect(provider.primaryColor, SettingsProvider.themeColors[0]);
-      expect(provider.uiFontColorFor(Brightness.light),
-        SettingsProvider.uiFontColors[0]);
-      expect(provider.editorFontColorFor(Brightness.light),
-        SettingsProvider.editorFontColors[0]);
+      expect(
+        provider.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[0],
+      );
+      expect(
+        provider.editorFontColorFor(Brightness.light),
+        SettingsProvider.editorFontColors[0],
+      );
     });
 
     test('setCustomEditorFontColor 应立即生效并持久化', () async {
@@ -117,8 +121,10 @@ void main() {
       await provider.setUiFontColorIndex(2);
 
       expect(provider.customUiFontColor, isNull);
-      expect(provider.uiFontColorFor(Brightness.light),
-        SettingsProvider.uiFontColors[2]);
+      expect(
+        provider.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[2],
+      );
 
       final prefs = await SharedPreferences.getInstance();
       expect(prefs.containsKey('custom_ui_font_color'), isFalse);
@@ -157,8 +163,10 @@ void main() {
       final second = SettingsProvider();
       await second.initialize();
       expect(second.customUiFontColor, isNull);
-      expect(second.uiFontColorFor(Brightness.light),
-        SettingsProvider.uiFontColors[0]);
+      expect(
+        second.uiFontColorFor(Brightness.light),
+        SettingsProvider.uiFontColors[0],
+      );
     });
 
     test('initialize 应加载自定义图标颜色', () async {
@@ -383,12 +391,10 @@ void main() {
       await flushPersist();
 
       final prefs = await SharedPreferences.getInstance();
-      expect(
-        jsonDecode(prefs.getString('update_proxies')!), <String>[
-          'https://a.example.com/',
-          'https://b.example.com',
-        ],
-      );
+      expect(jsonDecode(prefs.getString('update_proxies')!), <String>[
+        'https://a.example.com/',
+        'https://b.example.com',
+      ]);
     });
 
     test('重启后应恢复代理列表，损坏数据按空处理', () async {
@@ -405,6 +411,40 @@ void main() {
       final corrupted = SettingsProvider();
       await corrupted.initialize();
       expect(corrupted.updateProxies, isEmpty);
+    });
+
+    test('旧色板索引应一次性按色相映射到新色板且可幂等', () async {
+      SharedPreferences.setMockInitialValues({
+        'primary_color_index': 3, // 旧「琥珀」
+        'ui_font_color_index': 11, // 旧「洋红」
+      });
+
+      final migrated = SettingsProvider();
+      await migrated.initialize();
+
+      expect(migrated.primaryColorIndex, 1); // 新「赭石」
+      expect(migrated.uiFontColorIndex, 2); // 新「暮紫」
+      final prefs = await SharedPreferences.getInstance();
+      expect(prefs.getBool('palette_v2_remap_done'), isTrue);
+      expect(prefs.getInt('primary_color_index'), 1);
+
+      final second = SettingsProvider();
+      await second.initialize();
+      expect(second.primaryColorIndex, 1);
+      expect(second.uiFontColorIndex, 2);
+    });
+
+    test('越界索引应夹回有效范围而不是抛错', () async {
+      SharedPreferences.setMockInitialValues({'primary_color_index': 47});
+
+      final provider = SettingsProvider();
+      await provider.initialize();
+
+      expect(
+        provider.primaryColorIndex,
+        SettingsProvider.themeColors.length - 1,
+      );
+      expect(provider.primaryColor, isNotNull);
     });
   });
 }
