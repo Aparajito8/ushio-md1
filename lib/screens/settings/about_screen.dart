@@ -16,6 +16,7 @@ import '../../utils/app_style.dart';
 import '../../l10n/app_localizations.dart';
 import '../../widgets/app_surface.dart';
 import 'open_source_licenses_screen.dart';
+import 'update_proxies_sheet.dart';
 
 class AboutScreen extends StatefulWidget {
   const AboutScreen({super.key});
@@ -67,6 +68,7 @@ class _AboutScreenState extends State<AboutScreen> {
             _buildSection(l10n.updates, Icons.system_update, [
               _buildUpdateChannelTile(),
               _buildAutoCheckToggle(),
+              _buildProxyTile(),
               _buildCheckUpdateButton(),
             ]),
           ],
@@ -222,6 +224,31 @@ class _AboutScreenState extends State<AboutScreen> {
       subtitle: Text(l10n.autoCheckUpdateDesc),
       value: settings.autoCheckUpdate,
       onChanged: (v) => settings.setAutoCheckUpdate(v),
+    );
+  }
+
+  Widget _buildProxyTile() {
+    final l10n = AppLocalizations.of(context)!;
+    final proxies = context.watch<SettingsProvider>().updateProxies;
+
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Icon(Icons.dns_outlined, color: context.appMutedIconColor),
+      title: Text(l10n.updateProxies),
+      subtitle: Text(
+        proxies.isEmpty
+            ? l10n.updateProxiesNotConfigured
+            : l10n.updateProxiesConfigured(proxies.length),
+      ),
+      trailing: TextButton(
+        onPressed: () => UpdateProxiesSheet.show(
+          context,
+          proxies: proxies,
+          onChanged: (next) =>
+              context.read<SettingsProvider>().setUpdateProxies(next),
+        ),
+        child: Text(l10n.updateProxiesManage),
+      ),
     );
   }
 
@@ -387,6 +414,7 @@ class _AboutScreenState extends State<AboutScreen> {
     // 显示进度对话框
     final progressNotifier = ValueNotifier<double>(0.0);
     final l10n = AppLocalizations.of(context)!;
+    final proxies = context.read<SettingsProvider>().updateProxies;
 
     showDialog(
       context: context,
@@ -410,11 +438,13 @@ class _AboutScreenState extends State<AboutScreen> {
                   );
                 },
               ),
-              const SizedBox(height: 12),
-              Text(
-                l10n.downloadingWithMirror,
-                style: const TextStyle(fontSize: 12, color: Colors.grey),
-              ),
+              if (proxies.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                Text(
+                  l10n.downloadingWithProxy,
+                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                ),
+              ],
             ],
           ),
         ),
@@ -425,6 +455,7 @@ class _AboutScreenState extends State<AboutScreen> {
       final success = await UpdateService.downloadAndInstallUpdate(
         info.downloadUrl,
         'update_${info.latestVersion}.apk',
+        proxies: proxies,
         onProgress: (progress) {
           progressNotifier.value = progress;
         },

@@ -78,6 +78,10 @@ class AppConstants {
   /// GitHub 仓库地址
   static const String githubUrl = 'https://github.com/jiuxina/ushio-md';
 
+  /// 下载代理输入框的示例格式。
+  /// example.com 是 RFC 2606 保留域，永远不可解析，确保示例是假的。
+  static const String proxyUrlExample = 'https://gh-proxy.example.com/';
+
   /// 包名 (Application ID)
   static const String packageName = 'com.ushiomd';
 

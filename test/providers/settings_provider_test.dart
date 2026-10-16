@@ -367,5 +367,44 @@ void main() {
       expect(prefs.getDouble('background_brightness'), 1.25);
       expect(prefs.getDouble('editor_background_brightness'), 0.8);
     });
+
+    test('下载代理列表应去空行去重，并按顺序持久化', () async {
+      await provider.setUpdateProxies([
+        'https://a.example.com/',
+        '  ',
+        'https://b.example.com',
+        'https://a.example.com/',
+      ]);
+
+      expect(provider.updateProxies, [
+        'https://a.example.com/',
+        'https://b.example.com',
+      ]);
+      await flushPersist();
+
+      final prefs = await SharedPreferences.getInstance();
+      expect(
+        jsonDecode(prefs.getString('update_proxies')!), <String>[
+          'https://a.example.com/',
+          'https://b.example.com',
+        ],
+      );
+    });
+
+    test('重启后应恢复代理列表，损坏数据按空处理', () async {
+      await provider.setUpdateProxies(['https://a.example.com/']);
+      await flushPersist();
+
+      final reloaded = SettingsProvider();
+      await reloaded.initialize();
+      expect(reloaded.updateProxies, ['https://a.example.com/']);
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('update_proxies', '{损坏的 JSON');
+
+      final corrupted = SettingsProvider();
+      await corrupted.initialize();
+      expect(corrupted.updateProxies, isEmpty);
+    });
   });
 }

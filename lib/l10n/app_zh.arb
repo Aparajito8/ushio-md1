@@ -548,6 +548,24 @@
   "autoCheckUpdateDesc": "有新版本时显示提示",
   "checkForUpdates": "检查更新",
   "checkForUpdatesDesc": "检查是否有新版本",
+  "updateProxies": "下载代理",
+  "updateProxiesNotConfigured": "未添加，将直连下载",
+  "updateProxiesConfigured": "已添加 {count} 个，按顺序尝试",
+  "@updateProxiesConfigured": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "updateProxiesManage": "管理",
+  "updateProxiesEmpty": "暂无代理，更新时将直连下载",
+  "updateProxiesHint": "最终下载地址 = 代理前缀 + 原始下载链接",
+  "updateProxyExampleNote": "示例（无效占位地址，仅供格式参考）",
+  "addUpdateProxy": "添加代理",
+  "editUpdateProxy": "编辑代理",
+  "updateProxyInvalid": "请输入以 http:// 或 https:// 开头的完整地址",
+  "updateProxyDuplicate": "该代理已在列表中",
   "upToDate": "已是最新版本",
   "checkUpdateFailed": "检查更新失败: {error}",
   "@checkUpdateFailed": {
@@ -567,7 +585,7 @@
     }
   },
   "downloadingUpdate": "正在下载更新",
-  "downloadingWithMirror": "优先使用镜像加速下载中...",
+  "downloadingWithProxy": "使用自定义代理下载中...",
   "downloadFailed": "下载或安装失败，建议手动下载",
   "updateError": "更新出错: {error}",
   "@updateError": {

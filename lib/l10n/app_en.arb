@@ -194,6 +194,24 @@
   "autoCheckUpdateDesc": "Show notification when new version available",
   "checkForUpdates": "Check for Updates",
   "checkForUpdatesDesc": "Check if new version is available",
+  "updateProxies": "Download proxies",
+  "updateProxiesNotConfigured": "None added, downloads go direct",
+  "updateProxiesConfigured": "{count} added, tried in order",
+  "@updateProxiesConfigured": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "updateProxiesManage": "Manage",
+  "updateProxiesEmpty": "No proxies yet. Updates will download directly.",
+  "updateProxiesHint": "Final URL = proxy prefix + original download link",
+  "updateProxyExampleNote": "Example (an invalid placeholder, for format only)",
+  "addUpdateProxy": "Add proxy",
+  "editUpdateProxy": "Edit proxy",
+  "updateProxyInvalid": "Enter a full URL starting with http:// or https://",
+  "updateProxyDuplicate": "This proxy is already in the list",
   "upToDate": "Already up to date",
   "checkUpdateFailed": "Update check failed: {error}",
   "@checkUpdateFailed": {
@@ -213,7 +231,7 @@
     }
   },
   "downloadingUpdate": "Downloading update...",
-  "downloadingWithMirror": "Downloading with mirror acceleration...",
+  "downloadingWithProxy": "Downloading through your proxy...",
   "downloadFailed": "Download or installation failed. Try manual download.",
   "updateError": "Update error: {error}",
   "@updateError": {

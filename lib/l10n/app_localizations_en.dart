@@ -455,6 +455,45 @@ class AppLocalizationsEn extends AppLocalizations {
   String get checkForUpdatesDesc => 'Check if new version is available';
 
   @override
+  String get updateProxies => 'Download proxies';
+
+  @override
+  String get updateProxiesNotConfigured => 'None added, downloads go direct';
+
+  @override
+  String updateProxiesConfigured(int count) {
+    return '$count added, tried in order';
+  }
+
+  @override
+  String get updateProxiesManage => 'Manage';
+
+  @override
+  String get updateProxiesEmpty =>
+      'No proxies yet. Updates will download directly.';
+
+  @override
+  String get updateProxiesHint =>
+      'Final URL = proxy prefix + original download link';
+
+  @override
+  String get updateProxyExampleNote =>
+      'Example (an invalid placeholder, for format only)';
+
+  @override
+  String get addUpdateProxy => 'Add proxy';
+
+  @override
+  String get editUpdateProxy => 'Edit proxy';
+
+  @override
+  String get updateProxyInvalid =>
+      'Enter a full URL starting with http:// or https://';
+
+  @override
+  String get updateProxyDuplicate => 'This proxy is already in the list';
+
+  @override
   String get upToDate => 'Already up to date';
 
   @override
@@ -471,7 +510,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get downloadingUpdate => 'Downloading update...';
 
   @override
-  String get downloadingWithMirror => 'Downloading with mirror acceleration...';
+  String get downloadingWithProxy => 'Downloading through your proxy...';
 
   @override
   String get downloadFailed =>

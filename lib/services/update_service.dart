@@ -190,10 +190,45 @@ class UpdateService {
     return 0;
   }
 
+  /// 用代理前缀拼出最终下载地址；任一输入非法时返回 null
+  ///
+  /// 约定：代理条目就是 `https://<代理域名>/` 这一段前缀，下载时直接拼接原始链接。
+  /// 缺少结尾斜杠会自动补全，否则 `https://p.com` + `https://x/a.apk` 会拼成坏地址。
+  static String? buildProxyUrl(String prefix, String target) {
+    final normalizedPrefix = normalizeProxyPrefix(prefix);
+    if (normalizedPrefix == null) return null;
+
+    final trimmedTarget = target.trim();
+    final targetUri = Uri.tryParse(trimmedTarget);
+    if (targetUri == null ||
+        !(targetUri.isScheme('http') || targetUri.isScheme('https')) ||
+        !targetUri.hasAuthority) {
+      return null;
+    }
+
+    return '$normalizedPrefix$trimmedTarget';
+  }
+
+  /// 校验并归一化代理前缀；非法返回 null
+  static String? normalizeProxyPrefix(String rawPrefix) {
+    final trimmed = rawPrefix.trim();
+    if (trimmed.isEmpty) return null;
+
+    final uri = Uri.tryParse(trimmed);
+    if (uri == null ||
+        !(uri.isScheme('http') || uri.isScheme('https')) ||
+        uri.host.isEmpty) {
+      return null;
+    }
+
+    return trimmed.endsWith('/') ? trimmed : '$trimmed/';
+  }
+
   /// 下载并安装更新
   ///
   /// [url] APK 下载链接
   /// [fileName] 保存的文件名
+  /// [proxies] 用户自定义代理前缀列表，按顺序尝试；为空或全部失败时直连 [url]
   /// [onProgress] 进度回调 (0.0 - 1.0)
   static Future<bool> downloadAndInstallUpdate(
     String url,
@@ -201,22 +236,30 @@ class UpdateService {
     Function(double)? onProgress,
     http.Client? client,
     AppInstaller? installer,
+    List<String> proxies = const [],
   }) async {
-    // 优先使用镜像加速
-    final proxyUrl = 'https://gh-proxy.org/$url';
-
-    // 尝试下载 (优先镜像，失败回退)
     File? apkFile;
-    if (await _downloadFile(
-      proxyUrl,
-      fileName,
-      onProgress: onProgress,
-      client: client,
-    )) {
-      apkFile = await _getLocalFile(fileName);
-    } else {
-      // 镜像失败，尝试原链接
-      appDebugLog('镜像下载失败，尝试原始链接...');
+
+    for (final prefix in proxies) {
+      final proxyUrl = buildProxyUrl(prefix, url);
+      if (proxyUrl == null) {
+        appDebugLog('代理条目非法，已跳过: $prefix');
+        continue;
+      }
+
+      if (await _downloadFile(
+        proxyUrl,
+        fileName,
+        onProgress: onProgress,
+        client: client,
+      )) {
+        apkFile = await _getLocalFile(fileName);
+        break;
+      }
+      appDebugLog('代理下载失败，尝试下一个: $proxyUrl');
+    }
+
+    if (apkFile == null) {
       if (await _downloadFile(
         url,
         fileName,
@@ -224,6 +267,8 @@ class UpdateService {
         client: client,
       )) {
         apkFile = await _getLocalFile(fileName);
+      } else {
+        appDebugLog('直连原始链接下载失败: $url');
       }
     }
 
@@ -254,6 +299,7 @@ class UpdateService {
     final bool shouldCloseClient = client == null;
     final http.Client finalClient = client ?? http.Client();
     IOSink? sink;
+    Object? streamError;
 
     try {
       final request = http.Request('GET', Uri.parse(url));
@@ -281,14 +327,15 @@ class UpdateService {
                 await sink?.close();
               },
               onError: (e) {
+                // 断流必须算失败，否则坏代理会中断回退链并被当成下载成功
+                streamError = e;
                 appDebugLog('下载流错误: $e');
-                sink?.close();
               },
               cancelOnError: true,
             )
             .asFuture();
 
-        return true;
+        return streamError == null;
       } else {
         appDebugLog('下载失败: HTTP ${response.statusCode}');
         return false;

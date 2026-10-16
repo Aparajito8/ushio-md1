@@ -962,6 +962,72 @@ abstract class AppLocalizations {
   /// **'检查是否有新版本'**
   String get checkForUpdatesDesc;
 
+  /// No description provided for @updateProxies.
+  ///
+  /// In zh, this message translates to:
+  /// **'下载代理'**
+  String get updateProxies;
+
+  /// No description provided for @updateProxiesNotConfigured.
+  ///
+  /// In zh, this message translates to:
+  /// **'未添加，将直连下载'**
+  String get updateProxiesNotConfigured;
+
+  /// No description provided for @updateProxiesConfigured.
+  ///
+  /// In zh, this message translates to:
+  /// **'已添加 {count} 个，按顺序尝试'**
+  String updateProxiesConfigured(int count);
+
+  /// No description provided for @updateProxiesManage.
+  ///
+  /// In zh, this message translates to:
+  /// **'管理'**
+  String get updateProxiesManage;
+
+  /// No description provided for @updateProxiesEmpty.
+  ///
+  /// In zh, this message translates to:
+  /// **'暂无代理，更新时将直连下载'**
+  String get updateProxiesEmpty;
+
+  /// No description provided for @updateProxiesHint.
+  ///
+  /// In zh, this message translates to:
+  /// **'最终下载地址 = 代理前缀 + 原始下载链接'**
+  String get updateProxiesHint;
+
+  /// No description provided for @updateProxyExampleNote.
+  ///
+  /// In zh, this message translates to:
+  /// **'示例（无效占位地址，仅供格式参考）'**
+  String get updateProxyExampleNote;
+
+  /// No description provided for @addUpdateProxy.
+  ///
+  /// In zh, this message translates to:
+  /// **'添加代理'**
+  String get addUpdateProxy;
+
+  /// No description provided for @editUpdateProxy.
+  ///
+  /// In zh, this message translates to:
+  /// **'编辑代理'**
+  String get editUpdateProxy;
+
+  /// No description provided for @updateProxyInvalid.
+  ///
+  /// In zh, this message translates to:
+  /// **'请输入以 http:// 或 https:// 开头的完整地址'**
+  String get updateProxyInvalid;
+
+  /// No description provided for @updateProxyDuplicate.
+  ///
+  /// In zh, this message translates to:
+  /// **'该代理已在列表中'**
+  String get updateProxyDuplicate;
+
   /// No description provided for @upToDate.
   ///
   /// In zh, this message translates to:
@@ -986,11 +1052,11 @@ abstract class AppLocalizations {
   /// **'正在下载更新'**
   String get downloadingUpdate;
 
-  /// No description provided for @downloadingWithMirror.
+  /// No description provided for @downloadingWithProxy.
   ///
   /// In zh, this message translates to:
-  /// **'优先使用镜像加速下载中...'**
-  String get downloadingWithMirror;
+  /// **'使用自定义代理下载中...'**
+  String get downloadingWithProxy;
 
   /// No description provided for @downloadFailed.
   ///

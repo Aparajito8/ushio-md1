@@ -191,6 +191,9 @@ class SettingsProvider extends ChangeNotifier {
   /// 更新规则：stable=稳定版，prerelease=测试版
   String _updateChannel = 'stable';
 
+  /// 用户自定义下载代理前缀列表，按顺序尝试；为空则直连
+  List<String> _updateProxies = [];
+
   // ==================== 底栏设置 ====================
 
   /// 卡片透明度（0.4–1.0）
@@ -385,6 +388,9 @@ class SettingsProvider extends ChangeNotifier {
 
   /// 当前更新规则
   String get updateChannel => _updateChannel;
+
+  /// 自定义下载代理前缀列表（按顺序尝试）
+  List<String> get updateProxies => List.unmodifiable(_updateProxies);
   double get cardOpacity => _cardOpacity;
   double get tabBarOpacity => _tabBarOpacity;
   Color? get customCardColor => _customCardColor;
@@ -637,6 +643,7 @@ class SettingsProvider extends ChangeNotifier {
     _updateChannel = prefs.getString('update_channel') == 'prerelease'
         ? 'prerelease'
         : 'stable';
+    _updateProxies = _decodeProxies(prefs.getString('update_proxies'));
 
     // 底栏设置
     _cardOpacity = prefs.getDouble('card_opacity') ?? 1.0;
@@ -1127,6 +1134,35 @@ class SettingsProvider extends ChangeNotifier {
     _updateChannel = value == 'prerelease' ? 'prerelease' : 'stable';
     notifyListeners();
     _schedulePersist('update_channel', _updateChannel);
+  }
+
+  /// 设置自定义下载代理列表；去空行、去重，顺序即尝试顺序
+  Future<void> setUpdateProxies(List<String> proxies) async {
+    _updateProxies = _normalizeProxies(proxies);
+    notifyListeners();
+    _schedulePersist('update_proxies', jsonEncode(_updateProxies));
+  }
+
+  /// 解析持久化的代理列表，损坏数据按空处理
+  static List<String> _decodeProxies(String? raw) {
+    if (raw == null || raw.isEmpty) return [];
+    try {
+      final decoded = jsonDecode(raw);
+      if (decoded is! List) return [];
+      return _normalizeProxies(decoded.whereType<String>().toList());
+    } catch (_) {
+      return [];
+    }
+  }
+
+  static List<String> _normalizeProxies(List<String> items) {
+    final result = <String>[];
+    for (final item in items) {
+      final trimmed = item.trim();
+      if (trimmed.isEmpty || result.contains(trimmed)) continue;
+      result.add(trimmed);
+    }
+    return result;
   }
 
   /// 设置卡片透明度

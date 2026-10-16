@@ -447,6 +447,41 @@ class AppLocalizationsZh extends AppLocalizations {
   String get checkForUpdatesDesc => '检查是否有新版本';
 
   @override
+  String get updateProxies => '下载代理';
+
+  @override
+  String get updateProxiesNotConfigured => '未添加，将直连下载';
+
+  @override
+  String updateProxiesConfigured(int count) {
+    return '已添加 $count 个，按顺序尝试';
+  }
+
+  @override
+  String get updateProxiesManage => '管理';
+
+  @override
+  String get updateProxiesEmpty => '暂无代理，更新时将直连下载';
+
+  @override
+  String get updateProxiesHint => '最终下载地址 = 代理前缀 + 原始下载链接';
+
+  @override
+  String get updateProxyExampleNote => '示例（无效占位地址，仅供格式参考）';
+
+  @override
+  String get addUpdateProxy => '添加代理';
+
+  @override
+  String get editUpdateProxy => '编辑代理';
+
+  @override
+  String get updateProxyInvalid => '请输入以 http:// 或 https:// 开头的完整地址';
+
+  @override
+  String get updateProxyDuplicate => '该代理已在列表中';
+
+  @override
   String get upToDate => '已是最新版本';
 
   @override
@@ -463,7 +498,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get downloadingUpdate => '正在下载更新';
 
   @override
-  String get downloadingWithMirror => '优先使用镜像加速下载中...';
+  String get downloadingWithProxy => '使用自定义代理下载中...';
 
   @override
   String get downloadFailed => '下载或安装失败，建议手动下载';
