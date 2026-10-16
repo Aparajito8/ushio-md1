@@ -212,15 +212,6 @@ class _TocOverlayState extends State<TocOverlay>
       ),
       child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.all(6),
-            decoration: BoxDecoration(
-              color: cs.primary.withValues(alpha: 0.14),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(Icons.toc_rounded, size: 18, color: cs.primary),
-          ),
-          const SizedBox(width: 10),
           Expanded(
             child: Text(
               l10n.tableOfContents,
